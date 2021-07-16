@@ -27,8 +27,8 @@ jobs:
 
       - name: Sync views
         run: |
-          gsutil rsync -ru views/ gs://$GCS_BUCKET/queries/views/
+          gsutil rsync -rcu views/ gs://$GCS_BUCKET/queries/views/
 
       - name: Sync materialized views
         run: |
-          gsutil rsync -ru materialized_views/ gs://$GCS_BUCKET/queries/materialized_views/
+          gsutil rsync -rcu materialized_views/ gs://$GCS_BUCKET/queries/materialized_views/
