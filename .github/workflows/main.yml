@@ -1,0 +1,27 @@
+# TODO: Write CI pipeline
+# -> Get all changed files https://github.com/marketplace/actions/get-all-changed-files
+# -> For each changed file, upload it to GCS (use secrets)
+
+name: Update queries
+
+on:
+  push:
+    branches:
+      - "master"
+
+jobs:
+  update:
+    name: Update queries for modified files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - id: files
+        name: Get modified files
+        uses: jitterbit/get-changed-files@v1
+
+      - name: Echo modified files
+        run: |
+          for changed_file in ${{ steps.files.outputs.all }}; do
+            echo "File ${changed_file} has been modified."
+          done
