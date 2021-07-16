@@ -19,22 +19,16 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
-      - id: files
-        name: Get modified files
-        uses: jitterbit/get-changed-files@v1
-
       - name: Setup gcloud / gsutil
         uses: google-github-actions/setup-gcloud@v0.2.1
         with:
           service_account_key: ${{ secrets.GCS_SA_KEY }}
           project_id: ${{ secrets.GCS_PROJECT }}
 
-      - name: Upload modified files
+      - name: Sync views
         run: |
-          for changed_file in ${{ steps.files.outputs.all }}; do
-            if [[ ${changed_file} == *.sql ]]
-            then
-              echo "File ${changed_file} has been modified, uploading..."
-              gsutil cp ${changed_file} gs://$GCS_BUCKET/queries/${changed_file}
-            fi
-          done
+          gsutil rsync -ruv views/ gs://$GCS_BUCKET/queries/views/
+
+      - name: Sync materialized views
+        run: |
+          gsutil rsync -ruv materialized_views/ gs://$GCS_BUCKET/queries/materialized_views/
