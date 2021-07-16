@@ -32,7 +32,7 @@ jobs:
       - name: Upload modified files
         run: |
           for changed_file in ${{ steps.files.outputs.all }}; do
-            if [[ ${{ changed_file }} == *.sql ]]
+            if [[ ${changed_file} == *.sql ]]
             then
               echo "File ${changed_file} has been modified, uploading..."
               gsutil cp ${changed_file} gs://$GCS_BUCKET/queries/
