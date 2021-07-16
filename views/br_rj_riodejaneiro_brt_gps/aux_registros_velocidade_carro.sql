@@ -40,4 +40,4 @@ JOIN (SELECT ts, placa, avg(SAFE_DIVIDE(distancia, minutos) * 6/100) velocidade
       GROUP BY ts, placa) t1
 ON t1.ts = speed.ts 
 AND t1.placa = speed.placa
-GROUP BY ts2, placa, latitude, longitudeAAAAAAAAAA
+GROUP BY ts2, placa, latitude, longitude
