@@ -9,6 +9,9 @@ on:
     branches:
       - "master"
 
+env:
+  GCS_BUCKET: ${{ secrets.GCS_BUCKET }}
+
 jobs:
   update:
     name: Update queries for modified files
@@ -20,8 +23,18 @@ jobs:
         name: Get modified files
         uses: jitterbit/get-changed-files@v1
 
-      - name: Echo modified files
+      - name: Setup gcloud / gsutil
+        uses: google-github-actions/setup-gcloud@v0.2.1
+        with:
+          service_account_key: ${{ secrets.GCS_SA_KEY }}
+          project_id: ${{ secrets.GCS_PROJECT }}
+
+      - name: Upload modified files
         run: |
           for changed_file in ${{ steps.files.outputs.all }}; do
-            echo "File ${changed_file} has been modified."
+            if [[ ${{ changed_file }} == *.sql ]]
+            then
+              echo "File ${changed_file} has been modified, uploading..."
+              gsutil cp ${changed_file} gs://$GCS_BUCKET/queries/
+            fi
           done
