@@ -35,6 +35,6 @@ jobs:
             if [[ ${changed_file} == *.sql ]]
             then
               echo "File ${changed_file} has been modified, uploading..."
-              gsutil cp ${changed_file} gs://$GCS_BUCKET/queries/
+              gsutil cp ${changed_file} gs://$GCS_BUCKET/queries/${changed_file}
             fi
           done
