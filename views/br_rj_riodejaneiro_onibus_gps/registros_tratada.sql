@@ -15,7 +15,7 @@ gps AS (
   FROM `rj-smtr.br_rj_riodejaneiro_onibus_gps.registros`
   WHERE DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) < 2
 )
-SELECT
+SELECT DISTINCT
   ordem, latitude, longitude, timestamp_gps, velocidade, linha, timestamp_captura, data, hora,
   extract(time from gps.timestamp_captura) as hora_completa,
   ST_INTERSECTS(ponto, (SELECT poly FROM garagem_polygon)) fora_garagem
