@@ -1,13 +1,13 @@
 WITH paradas as (
   /*
   paradas:
-    Tabela contendo os dados geográficos (lat/lon) para todas as estações e garagens que temos cadastradas para o BRT, cujas tabelas base são as presentes 
+    Tabela contendo os dados geográficos (lat/lon) para todas as estações e garagens que temos cadastradas para o SPPO, cujas tabelas base são as presentes 
     nas cláusulas FROM.
     A tabela em si é apenas uma união de todas as garagens e estações que estejam cadastradas como ativas (cláusula 'where ativa = 1')
   */
   select
     ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_estacao nome_parada, 'estacao' tipo_parada
-  from `rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt` t1
+  from `rj-smtr.br_rj_riodejaneiro_transporte.terminais_onibus_coordenadas` t1
   union all
   select
     ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_empresa nome_parada, 'garagem' tipo_parada
@@ -22,7 +22,7 @@ onibus_parados AS (
   */
   select
     *, ST_GEOGPOINT(longitude, latitude) ponto_carro
-  from `rj-smtr.dashboard_monitoramento_brt.velocidade_carro` 
+  from `rj-smtr.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_carro` 
   ),
 distancia AS (
   /*

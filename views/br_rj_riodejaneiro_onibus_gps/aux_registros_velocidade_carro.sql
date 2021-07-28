@@ -14,7 +14,7 @@ wrows:
 WITH wrows AS (
   SELECT ST_GEOGPOINT(longitude, latitude) point, timestamp_captura, timestamp_gps, latitude, longitude, placa,
         ROW_NUMBER() OVER (PARTITION BY placa ORDER BY timestamp_captura) n_row
-  from `rj-smtr.dashboard_monitoramento_brt.registros_filtrada`),
+  from `rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_tratada_8_dias`),
 /*
 distances:
   Neste passo calculamos a diferença de tempo ('minutos') e a distância entre dois pontos capturados consecutivamente. Para isso, nos valemos da indexação
@@ -55,7 +55,7 @@ distances AS (
 /*
 times:
   Neste passo, criamos uma tabela vazia com as faixas de 10 minutos, as quais popularemos com as velocidades médias calculadas por faixa.
-  Fazemos isso, selecionando a data mínima e máxima presente no dado base (`rj-smtr.dashboard_monitoramento_brt.registros_filtrada`) e utilizando
+  Fazemos isso, selecionando a data mínima e máxima presente no dado base (`rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_tratada_8_dias`) e utilizando
   GENERATE_TIMESTAMP_ARRAY para gerar todas as timestamps para os intervalos de 10 minutos compreendidos entre as datas máxima e mínima.
     Ex:
     times
@@ -70,7 +70,7 @@ times AS (
   FROM (
     SELECT
         CAST(MIN(data) AS TIMESTAMP) min_date, TIMESTAMP_ADD(CAST(MAX(data) AS TIMESTAMP), INTERVAL 1 DAY) max_date
-    FROM `rj-smtr.dashboard_monitoramento_brt.registros_filtrada`) t 
+    FROM `rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_tratada_8_dias`) t 
   JOIN UNNEST(GENERATE_TIMESTAMP_ARRAY(t.min_date, t.max_date, INTERVAL 10 MINUTE)) ts
 ),
 /*
