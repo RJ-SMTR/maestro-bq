@@ -1,7 +1,7 @@
 WITH gps AS (
   SELECT *, 
     REGEXP_REPLACE(SPLIT(trajeto, ' ')[SAFE_OFFSET(0)], '[^a-zA-Z0-9]', '') linha_trajeto
-  FROM `rj-smtr.dashboard_monitoramento_brt.registros_filtrada` 
+  FROM `rj-smtr.br_rj_riodejaneiro_brt_gps.registros_tratada_8_dias` 
 )
 SELECT 
   t.*,
