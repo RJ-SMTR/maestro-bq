@@ -1,0 +1,3 @@
+# Only override necessary settings (others are inherited from defaults.yaml)
+partitioning:
+  column: "data"
