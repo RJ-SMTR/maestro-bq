@@ -12,6 +12,10 @@ views:
     materialized: true
     depends_on: [br_rj_riodejaneiro_brt_gps.materialized_registros_logs]
 
+  test_registros_logs:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_brt_gps.registros_logs]
+
 # Definição de taxa de atualização
 scheduling:
   cron: "0 * * * *"
