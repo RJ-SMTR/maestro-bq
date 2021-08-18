@@ -4,17 +4,9 @@
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
-  materialized_registros_logs:
-    materialized: true
-    depends_on: [br_rj_riodejaneiro_brt_gps.registros_logs]
-
-  materialized_registros_logs_count:
-    materialized: true
-    depends_on: [br_rj_riodejaneiro_brt_gps.materialized_registros_logs]
-
-  test_registros_logs:
+  area_planejamento:
     materialized: false
-    depends_on: [br_rj_riodejaneiro_brt_gps.registros_logs]
+    depends_on: [br_rj_riodejaneiro_geo.bairros]
 
 # Definição de taxa de atualização
 scheduling:
@@ -31,13 +23,13 @@ scheduling:
 #   * <To-do> GENERATE_ARRAY
 # - period: período (conforme especificado acima)
 partitioning:
-  column: "timestamp_captura"
+  column: "column_name"
   type: "DATE"
   period: ""
 
 # Parâmetros da query
 parameters:
-  n_capturas_hora: 60
+  param_name: "param_value"
 
 # Parâmetros de backfill
 backfill:
