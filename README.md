@@ -1,13 +1,6 @@
 # maestro-bq
 Versionamento de queries para o BigQuery, herdadas do repositório https://github.com/RJ-SMTR/maestro
 
-## Adiciona
-
-- Sensor `materialized_views_update_sensor`: verifica por alterações nos YAMLs no `maestro-bq` e, quando existem, atualiza o cron no Redis. Caso, ao verificar uma alteração no YAML, também haja alteração no SQL, informa o Redis dessa mesma informação;
-- Sensor `materialized_views_execute_sensor`: avalia os cron expressions de cada materialized view no Redis e executa caso seja o momento. Se o SQL foi alterado, dropa a tabela. Se a tabela não existe (ou foi dropada), cria a tabela com a query SQL e preenchendo com dados desde `backfill.start_timestamp` (do YAML) até o timestamp da run. Se a tabela não foi criada, realiza a query filtrando entre `date_range_start` e `date_range_end` (especificar na query)
-- `repositories.helpers.constants.constants`: um objeto `enum.Enum` contendo constantes utilizadas em vários trechos do código. Para o momento, a única adicionada é o hostname do Redis, mantendo consistência em toda a codebase
-
-**Obs:** ambos SQL e YAML devem ter o mesmo nome, somente com extensões diferentes!!!
 
 ## Atributos disponíveis para queries
 
