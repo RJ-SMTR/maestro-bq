@@ -74,7 +74,7 @@ select shape_id,
        start_pt, 
        end_pt,
        data_versao,
-       STRUCT({{ maestro_sha }} AS maestro_sha, {{ maestro_bq_sha }} AS maestro_bq_sha) versao_repo
+       STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 from merged m 
 join linhas l
 on m.shape_id = l.trip_id
