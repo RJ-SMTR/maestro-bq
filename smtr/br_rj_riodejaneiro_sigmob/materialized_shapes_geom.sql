@@ -21,6 +21,7 @@ select shape_id,
        SAFE_CAST(json_value(content, "$.shape_pt_lat") AS FLOAT64) shape_pt_lat,
        SAFE_CAST(json_value(content, "$.shape_pt_lon") AS FLOAT64) shape_pt_lon,
        SAFE_CAST(json_value(content, "$.shape_pt_sequence") as INT64) shape_pt_sequence,
+       DATETIME(data_versao) AS data_versao
 from `rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes` s
 -- Adicionar filtro para data_versao correspondendo aos filtos aplicados em trips/linhas
 -- where date(data_versao) = date_sub(current_date(), interval 1 day)
@@ -28,16 +29,18 @@ from `rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes` s
 pts as (
 -- CONSTRUCT POINT GEOGRAPHIES 
 SELECT *, 
-      st_geogpoint(shape_pt_lon, shape_pt_lat) as ponto_shape
+      st_geogpoint(shape_pt_lon, shape_pt_lat) as ponto_shape,
+
 FROM contents
 order by shape_id, shape_pt_sequence
 ),
 shapes as (
 -- BUILD LINESTRINGS OVER SHAPE POINTS
 select shape_id, 
-       st_makeline(array(select ponto_shape from pts a2 where a1.shape_id = a2.shape_id )) as shape
+       st_makeline(array(select ponto_shape from pts a2 where a1.shape_id = a2.shape_id )) as shape,
+       a1.data_versao
 from pts a1
-group by shape_id),
+group by shape_id, a1.data_versao),
 boundary as (
 -- EXTRACT START AND END POINTS FROM SHAPES
 select t1.shape_id,
@@ -58,6 +61,7 @@ select s.shape_id, shape,
        round(ST_LENGTH(shape),1) shape_distance,
        start_pt,
        end_pt,
+       data_versao
 from shapes s
 join boundary b
 on s.shape_id = b.shape_id)
@@ -69,7 +73,8 @@ select shape_id,
        shape_distance, 
        start_pt, 
        end_pt,
-       ({{ maestro-sha }} as maestro_sha, {{ maestro_bq_sha }} as maestro_bq_sha) versao_repo
+       data_versao,
+       STRUCT({{ maestro_sha }} AS maestro_sha, {{ maestro_bq_sha }} AS maestro_bq_sha) versao_repo
 from merged m 
 join linhas l
 on m.shape_id = l.trip_id

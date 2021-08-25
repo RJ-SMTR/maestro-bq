@@ -4,13 +4,13 @@
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
-  shapes_geom:
+  materialized_shapes_geom:
     materialized: true
     depends_on: [br_rj_riodejaneiro_sigmob.shapes]
 
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 * * * *"
+  cron: "0 0 4 * *"
 
 # Definição de particionamento
 # - column: nome da coluna
