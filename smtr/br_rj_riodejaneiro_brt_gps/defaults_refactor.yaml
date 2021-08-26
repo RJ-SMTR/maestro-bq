@@ -32,7 +32,7 @@ views:
         br_rj_riodejaneiro_transporte.garagens,
         br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro,
       ]
-  registros_velocidade_carro:
+  registros_tratamento_velocidade:
     materialized: false
     depends_on:
       [
@@ -40,7 +40,7 @@ views:
         br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_status,
       ]
 
-  registros_flag_trajeto_correto:
+  registros_tratamento_flag_trajeto_correto:
     materialized: false
     depends_on: [br_rj_riodejaneiro_brt_gps.registros_filtrada]
 
@@ -48,8 +48,8 @@ views:
     materialized: true
     depends_on:
       [
-        br_rj_riodejaneiro_brt_gps.registros_velocidade_carro,
-        br_rj_riodejaneiro_brt_gps.registros_flag_trajeto_correto,
+        br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade_carro,
+        br_rj_riodejaneiro_brt_gps.registros_tratamento_flag_trajeto_correto,
       ]
 
 # Definição de taxa de atualização

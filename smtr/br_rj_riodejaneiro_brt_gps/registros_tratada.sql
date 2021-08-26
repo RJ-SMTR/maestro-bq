@@ -1,10 +1,27 @@
-WITH box AS (
+WITH
+  velocidades AS (
   SELECT
     *
-  FROM `rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa`
-)
-SELECT *
-FROM `rj-smtr.br_rj_riodejaneiro_brt_gps.registros` 
-WHERE DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) < 2
-AND longitude BETWEEN (SELECT min_longitude FROM box) AND (SELECT max_longitude FROM box)
-AND latitude BETWEEN (SELECT min_latitude FROM box) AND (SELECT max_latitude FROM box)
+  FROM
+    `rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade` ),
+  flags AS (
+  SELECT
+    *
+  FROM
+    `rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_flag_trajeto_correto` )
+SELECT
+  v.*,
+  count_compliance,
+  flag_trajeto_correto
+FROM
+  velocidades v
+JOIN
+  flags f
+ON
+  v.codigo = f.codigo
+  AND v.linha = f.linha
+  AND v.timestamp_gps = f.timestamp_gps
+ORDER BY
+  codigo,
+  linha,
+  timestamp_gps
