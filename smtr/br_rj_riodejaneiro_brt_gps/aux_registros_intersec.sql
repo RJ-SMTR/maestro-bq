@@ -1,0 +1,54 @@
+with shapes as (
+/*
+Buffer shapes to compensate gps precision, buffer boundary points to detect start/end of trip
+*/
+select *
+from `rj-smtr.br_rj_riodejaneiro_sigmob.shapes_geom` 
+),
+registros as (
+/*
+Generate ponto_carro for GEOG operations
+*/
+select *, ST_GEOGPOINT(longitude, latitude) ponto_carro
+from `rj-smtr.br_rj_riodejaneiro_brt_gps.registros_filtrada` 
+),
+times as (
+/*
+Generate empty table of intervals
+*/
+select faixa_horaria 
+from (
+select CAST(MIN(data) as TIMESTAMP) min_date, TIMESTAMP_ADD(CAST(MAX(data) as TIMESTAMP), interval 1 day) max_date
+from registros ) r
+join UNNEST(GENERATE_TIMESTAMP_ARRAY(r.min_date, r.max_date, Interval {{ faixa_horaria }} minute)) faixa_horaria
+),
+faixas as (
+/*
+Join registros with intervals generated above
+*/
+select codigo, linha, timestamp_captura, faixa_horaria, longitude, latitude, ponto_carro, data, hora
+from times t
+join registros r
+on (r.timestamp_captura between datetime(faixa_horaria) and datetime(timestamp_add(faixa_horaria, interval 2 minute)))
+),
+intersects as (
+/*
+Count number of intersects between vehicle and informed route shape
+*/
+    select codigo as vehicle_id, f.linha as linha_gps,s.linha_gtfs , shape_distance as distance,
+        data, hora, faixa_horaria, s.shape_id as trip_id,
+        min(timestamp_captura) as timestamp_inicio,
+        count(timestamp_captura) as total_count,
+        count(case when st_dwithin(ponto_carro, shape, {{ buffer_size_meters}}) then 1 end) n_intersec,
+        case
+            when count(case when st_dwithin(start_pt,ponto_carro,{{ buffer_size_meters }}) is true then 1 end)>=1 then 'start'
+            when count(case when st_dwithin(end_pt, ponto_carro, {{ buffer_size_meters }}) is true then 1 end)>=1 then 'end'
+            else 'middle' end as status
+from faixas f
+join shapes s
+on 1=1
+group by codigo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distance
+)
+select * from intersects
+where n_intersec>0 
+order by vehicle_id, trip_id, faixa_horaria, n_intersec

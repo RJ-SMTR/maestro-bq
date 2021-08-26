@@ -4,9 +4,25 @@
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
+  registros_tratada_8_dias:
+    materialized: false
+    depends_on:
+      [
+        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
+        br_rj_riodejaneiro_brt_gps.registros_filtrada,
+      ]
+
+  registros_filtrada:
+    materialized: false
+    depends_on:
+      [
+        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
+        br_rj_riodejaneiro_brt_gps.registros,
+      ]
+
   aux_registros_velocidade_carro:
     materialized: false
-    depends_on: [br_rj_riodejaneiro_brt_gps.registros_tratada_8_dias]
+    depends_on: [br_rj_riodejaneiro_brt_gps.registros_filtrada]
 
   aux_registros_velocidade_status:
     materialized: false
@@ -17,29 +33,37 @@ views:
         br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro,
       ]
 
-  registros_tratada_8_dias:
+  aux_registros_intersec:
     materialized: false
     depends_on:
       [
-        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
-        br_rj_riodejaneiro_brt_gps.registros,
+        br_rj_riodejaneiro_sigmob.shapes_geom,
+        br_rj_riodejaneiro_brt_gps.registros_filtrada,
       ]
 
-  registros_tratada_velocidade:
+  registros_tratamento_velocidade:
     materialized: false
     depends_on:
       [
-        br_rj_riodejaneiro_brt_gps.registros_tratada_8_dias,
+        br_rj_riodejaneiro_brt_gps.registros_filtrada,
         br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_status,
       ]
 
-  registros_tratada:
+  registros_tratamento_flag_trajeto_correto:
     materialized: false
+    depends_on: [br_rj_riodejaneiro_brt_gps.registros_filtrada]
+
+  registros_tratada:
+    materialized: true
     depends_on:
       [
-        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
-        br_rj_riodejaneiro_brt_gps.registros,
+        br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade_carro,
+        br_rj_riodejaneiro_brt_gps.registros_tratamento_flag_trajeto_correto,
       ]
+
+  realized_trips:
+    materialized: true
+    depends_on: [br_rj_riodejaneiro_brt_gps.aux_registros_intersec]
 
 # Definição de taxa de atualização
 scheduling:
@@ -62,7 +86,11 @@ partitioning:
 
 # Parâmetros da query
 parameters:
-  param_name: "param_value"
+  filtro_min_velocidade: 10
+  filtro_max_velocidade: 90
+  buffer_size_meters: 100
+  faixa_minutes: 5
+  registros_filtrada: rj-smtr.br_rj_riodejaneiro_brt_gps.registros_filtrada
 
 # Parâmetros de backfill
 backfill:
