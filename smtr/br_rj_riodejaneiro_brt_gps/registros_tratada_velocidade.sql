@@ -1,3 +1,4 @@
+# Calcula velocidade
 WITH gps AS (
   SELECT *, 
     REGEXP_REPLACE(SPLIT(trajeto, ' ')[SAFE_OFFSET(0)], '[^a-zA-Z0-9]', '') linha_trajeto
