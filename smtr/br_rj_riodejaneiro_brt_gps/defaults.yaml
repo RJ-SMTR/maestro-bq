@@ -62,7 +62,7 @@ partitioning:
 
 # Parâmetros da query
 parameters:
-  param_name: "param_value"
+  param_name: "param_values"
 
 # Parâmetros de backfill
 backfill:
