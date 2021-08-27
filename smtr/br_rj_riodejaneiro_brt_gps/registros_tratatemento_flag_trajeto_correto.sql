@@ -1,33 +1,38 @@
 WITH
+  registros AS (
+  SELECT
+    distinct *,
+  FROM
+    `rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratada_1_dia` r ),
   counts AS (
   SELECT
     *,
-    COUNT(
-      CASE
-        WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), {{ buffer_size_meters }}) THEN 1
-    END
-      ) OVER (PARTITION BY codigo ORDER BY timestamp_gps ROWS BETWEEN ({{ faixa_minutes }} - 1) PRECEDING AND CURRENT ROW) AS count_compliance,
-    COUNT(timestamp_gps) OVER (PARTITION BY codigo ORDER BY timestamp_gps ROWS BETWEEN ({{ faixa_minutes }} - 1) PRECEDING AND CURRENT ROW) AS total_count
+    CASE
+      WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), 100) THEN TRUE
+    ELSE FALSE
+    END AS flag_trajeto_correto,
+    CASE
+      WHEN COUNT(CASE
+        WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), 100) THEN 1 END) 
+        OVER (PARTITION BY codigo ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) range between 600 preceding and current row) >= 1
+      THEN true
+      ELSE False
+    END AS flag_trajeto_correto_hist
   FROM
-    `rj-smtr-dev.br_rj_riodejaneiro_brt_gps.materialized_registros_tratada` r
+    registros r
   JOIN
     `rj-smtr-dev.br_rj_riodejaneiro_sigmob.materialized_shapes_geom` s
   ON
     r.linha = s.linha_gtfs
-  WHERE
-    DATE(timestamp_gps) = "2021-08-01" ) -- remove filter or pass as param
+)
 SELECT
   codigo,
   linha,
   linha_gtfs,
   timestamp_gps,
-  count_compliance,
-  total_count,
-  CASE
-    WHEN total_count >={{ faixa_minutes }} AND count_compliance = {{ faixa_minutes }} THEN TRUE
-    WHEN total_count < {{ faixa_minutes }} AND count_compliance >= total_count THEN TRUE
-    ELSE FALSE
-END
-  AS flag_trajeto_correto
+  timestamp_captura,
+  flag_trajeto_correto,
+  flag_trajeto_correto_hist
 FROM
   counts c
+order by codigo, timestamp_gps
