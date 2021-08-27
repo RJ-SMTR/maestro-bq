@@ -24,7 +24,7 @@ select shape_id,
        SAFE_CAST(json_value(content, "$.shape_pt_sequence") as INT64) shape_pt_sequence,
        DATE(data_versao) AS data_versao
 from `rj-smtr.br_rj_riodejaneiro_sigmob.shapes` s
-where date(t.data_versao) between DATE_SUB(DATE({{ date_range_end }}), INTERVAL 1 DAY) AND DATE({{ date_range_end }})
+where date(data_versao) between DATE_SUB(DATE({{ date_range_end }}), INTERVAL 1 DAY) AND DATE({{ date_range_end }})
  ),
 pts as (
 -- CONSTRUCT POINT GEOGRAPHIES 
