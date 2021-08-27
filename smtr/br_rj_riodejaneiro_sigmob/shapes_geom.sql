@@ -78,4 +78,3 @@ select shape_id,
 from merged m 
 join linhas l
 on m.shape_id = l.trip_id
-where data_versao between DATE_SUB(DATE({{ date_range_end }}), INTERVAL 1 DAY) AND DATE({{ date_range_end }})
