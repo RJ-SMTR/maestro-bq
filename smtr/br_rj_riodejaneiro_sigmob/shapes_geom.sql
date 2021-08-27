@@ -4,7 +4,7 @@ select trip_id,
        json_value(t.content,"$.route_id") route_id,
        
 from `rj-smtr.br_rj_riodejaneiro_sigmob.trips` t
-where date(t.data_versao) = date_sub(current_date(), interval 1 day)
+where date(t.data_versao) between DATE_SUB(DATE({{ date_range_end }}), INTERVAL 1 DAY) AND DATE({{ date_range_end }})
 ),
 linhas as (
 select trip_id, t.route_id, json_value(r.content, "$.route_short_name") linha
@@ -12,7 +12,8 @@ from trips t
 inner join (
 select *
 from `rj-smtr.br_rj_riodejaneiro_sigmob.routes`
-where date(data_versao) = date_sub(current_date(), interval 1 day)) r
+where date(data_versao) between DATE_SUB(DATE({{ date_range_end }}), INTERVAL 1 DAY) 
+                        AND DATE({{ date_range_end }})) r
 on t.route_id = r.route_id
 ),
 contents as (
@@ -21,10 +22,9 @@ select shape_id,
        SAFE_CAST(json_value(content, "$.shape_pt_lat") AS FLOAT64) shape_pt_lat,
        SAFE_CAST(json_value(content, "$.shape_pt_lon") AS FLOAT64) shape_pt_lon,
        SAFE_CAST(json_value(content, "$.shape_pt_sequence") as INT64) shape_pt_sequence,
-       DATETIME(data_versao) AS data_versao
-from `rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes` s
--- Adicionar filtro para data_versao correspondendo aos filtos aplicados em trips/linhas
--- where date(data_versao) = date_sub(current_date(), interval 1 day)
+       DATE(data_versao) AS data_versao
+from `rj-smtr.br_rj_riodejaneiro_sigmob.shapes` s
+where date(t.data_versao) between DATE_SUB(DATE({{ date_range_end }}), INTERVAL 1 DAY) AND DATE({{ date_range_end }})
  ),
 pts as (
 -- CONSTRUCT POINT GEOGRAPHIES 
@@ -56,7 +56,7 @@ on t1.shape_id = t2.shape_id
 where t2.rn = 1 and t1.shape_pt_sequence = 1
 ),
 merged as (
--- JOIN SHAPES AND BOUNDARY POINTS, BUFFERING BOUNDARY POINTS
+-- JOIN SHAPES AND BOUNDARY POINTS
 select s.shape_id, shape, 
        round(ST_LENGTH(shape),1) shape_distance,
        start_pt,
@@ -78,3 +78,4 @@ select shape_id,
 from merged m 
 join linhas l
 on m.shape_id = l.trip_id
+where data_versao between DATE_SUB(DATE({{ date_range_end }}), INTERVAL 1 DAY) AND DATE({{ date_range_end }})

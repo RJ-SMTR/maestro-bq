@@ -4,7 +4,7 @@
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
-  materialized_shapes_geom:
+  shapes_geom:
     materialized: true
     depends_on: [br_rj_riodejaneiro_sigmob.shapes]
 
@@ -24,7 +24,7 @@ scheduling:
 # - period: período (conforme especificado acima)
 partitioning:
   column: "data_versao"
-  type: "DATE"
+  type: ""
   period: ""
 
 # Parâmetros da query
@@ -34,4 +34,4 @@ parameters:
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-08-25 00:00:00"
+  start_timestamp: "2021-08-24 00:00:00"
