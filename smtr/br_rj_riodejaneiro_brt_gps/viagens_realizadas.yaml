@@ -1,4 +1,4 @@
 parameters:
     intersec: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_intersec"
-    filtro_max_velocidade: 10
-    filtro_min_velocidade: 90
+    filtro_min_velocidade: 10
+    filtro_max_velocidade: 90

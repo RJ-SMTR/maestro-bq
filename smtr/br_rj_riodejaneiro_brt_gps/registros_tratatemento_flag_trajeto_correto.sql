@@ -9,14 +9,16 @@ WITH
   SELECT
     *,
     CASE
-      WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), 100) THEN TRUE
+      WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), {{ tamanho_buffer_metros }}) THEN TRUE
     ELSE FALSE
     END AS flag_trajeto_correto,
     CASE
       WHEN COUNT(CASE
-        WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), 100) THEN 1 END) 
-        OVER (PARTITION BY codigo ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) range between 600 preceding and current row) >= 1
-      THEN true
+        WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), {{ tamanho_buffer_metros }}) THEN 1 END) 
+        OVER (PARTITION BY id_veiculo 
+              ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
+              RANGE BETWEEN {{ intervalo_max_desvio_minutos }}*60 PRECEDING AND CURRENT ROW) >= 1
+      THEN True
       ELSE False
     END AS flag_trajeto_correto_hist
   FROM

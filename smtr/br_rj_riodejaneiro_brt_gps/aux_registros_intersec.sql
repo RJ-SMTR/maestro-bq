@@ -49,8 +49,9 @@ Count number of intersects between vehicle and informed route shape
 from faixas f
 join shapes s
 on 1=1
-group by codigo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distancia
+AND data_versao = data
+group by id_veiculo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distancia
 )
 select * from intersects
 where n_intersec>0 
-order by vehicle_id, trip_id, faixa_horaria, n_intersec
+order by id_veiculo, trip_id, faixa_horaria, n_intersec

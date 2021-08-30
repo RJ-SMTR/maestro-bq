@@ -1,3 +1,4 @@
 parameters:
   estacoes: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt"
   garagens: "rj-smtr.br_rj_riodejaneiro_transporte.garagens"
+  velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro"

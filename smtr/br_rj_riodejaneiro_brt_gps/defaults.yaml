@@ -78,14 +78,7 @@ partitioning:
 
 # Parâmetros da query
 parameters:
-  filtro_min_velocidade: 10
-  filtro_max_velocidade: 90
-  buffer_size_meters: 100
-  faixa_horaria_minutos: 5
   registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_filtrada"
-  aux_registros_velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro"
-  
-  aux_registros_intersec: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_intersec"
 
 # Parâmetros de backfill
 backfill:
