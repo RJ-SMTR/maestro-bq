@@ -3,12 +3,16 @@ WITH
   SELECT
     *
   FROM
-    `rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade` ),
+    {{ tratamento_velocidade }} 
+  where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+  ),
   flags AS (
   SELECT
     *
   FROM
-    `rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_flag_trajeto_correto` )
+    {{ tratamento_flag_trajeto_correto }}
+  where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})  
+  )
 SELECT
   v.*,
   count_compliance,
@@ -18,10 +22,6 @@ FROM
 JOIN
   flags f
 ON
-  v.codigo = f.codigo
+  v.id_veiculo = f.id_veiculo
   AND v.linha = f.linha
   AND v.timestamp_gps = f.timestamp_gps
-ORDER BY
-  codigo,
-  linha,
-  timestamp_gps

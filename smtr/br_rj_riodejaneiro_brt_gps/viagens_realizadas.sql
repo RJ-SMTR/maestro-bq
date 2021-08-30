@@ -9,7 +9,8 @@ with t as (
             order by vehicle_id, trip_id, faixa_horaria
             rows between 1 preceding and current row) = 'middleend' ends
     from `rj-smtr.br_rj_riodejaneiro_brt_gps.aux_registros_intersec`
-    where linha_gps=linha_gtfs
+    where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
+    and linha_gps=linha_gtfs
     order by trip_id, faixa_horaria),
 s as (
 select *,

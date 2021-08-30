@@ -4,14 +4,6 @@
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
-  registros_tratada_8_dias:
-    materialized: false
-    depends_on:
-      [
-        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
-        br_rj_riodejaneiro_brt_gps.registros_filtrada,
-      ]
-
   registros_filtrada:
     materialized: false
     depends_on:
@@ -61,7 +53,7 @@ views:
         br_rj_riodejaneiro_brt_gps.registros_tratamento_flag_trajeto_correto,
       ]
 
-  realized_trips:
+  viagens_realizadas:
     materialized: true
     depends_on: [br_rj_riodejaneiro_brt_gps.aux_registros_intersec]
 
@@ -80,8 +72,8 @@ scheduling:
 #   * <To-do> GENERATE_ARRAY
 # - period: período (conforme especificado acima)
 partitioning:
-  column: "column_name"
-  type: "DATE"
+  column: "data"
+  type: ""
   period: ""
 
 # Parâmetros da query
@@ -89,10 +81,13 @@ parameters:
   filtro_min_velocidade: 10
   filtro_max_velocidade: 90
   buffer_size_meters: 100
-  faixa_minutes: 5
-  registros_filtrada: rj-smtr.br_rj_riodejaneiro_brt_gps.registros_filtrada
+  faixa_horaria_minutos: 5
+  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_filtrada"
+  aux_registros_velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro"
+  
+  aux_registros_intersec: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_intersec"
 
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-01-01 00:00:00"
+  start_timestamp: "2021-08-01 00:00:00"

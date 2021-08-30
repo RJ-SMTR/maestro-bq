@@ -1,9 +1,10 @@
 WITH
   registros AS (
-  SELECT
-    distinct *,
+  SELECT *
   FROM
-    `rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratada_1_dia` r ),
+  {{ registros_filtrada }} r 
+  where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
+  ),
   counts AS (
   SELECT
     *,
@@ -21,7 +22,7 @@ WITH
   FROM
     registros r
   JOIN
-    `rj-smtr-dev.br_rj_riodejaneiro_sigmob.materialized_shapes_geom` s
+    {{ shapes }} s
   ON
     r.linha = s.linha_gtfs
 )
@@ -35,4 +36,3 @@ SELECT
   flag_trajeto_correto_hist
 FROM
   counts c
-order by codigo, timestamp_gps

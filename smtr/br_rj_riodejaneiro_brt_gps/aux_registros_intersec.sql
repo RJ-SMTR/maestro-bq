@@ -3,14 +3,16 @@ with shapes as (
 Buffer shapes to compensate gps precision, buffer boundary points to detect start/end of trip
 */
 select *
-from `rj-smtr.br_rj_riodejaneiro_sigmob.shapes_geom` 
+from {{ shapes }}
+where data_versao between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
 ),
 registros as (
 /*
 Generate ponto_carro for GEOG operations
 */
 select *, ST_GEOGPOINT(longitude, latitude) ponto_carro
-from `rj-smtr.br_rj_riodejaneiro_brt_gps.registros_filtrada` 
+from {{ registros_filtrada }}
+where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
 ),
 times as (
 /*
@@ -26,19 +28,19 @@ faixas as (
 /*
 Join registros with intervals generated above
 */
-select codigo, linha, timestamp_captura, faixa_horaria, longitude, latitude, ponto_carro, data, hora
+select id_veiculo, linha, timestamp_captura, faixa_horaria, longitude, latitude, ponto_carro, data, hora
 from times t
 join registros r
-on (r.timestamp_captura between datetime(faixa_horaria) and datetime(timestamp_add(faixa_horaria, interval 2 minute)))
+on (r.timestamp_captura between datetime(faixa_horaria) and datetime(timestamp_add(faixa_horaria, interval {{ faixa_horaria }} minute)))
 ),
 intersects as (
 /*
 Count number of intersects between vehicle and informed route shape
 */
-    select codigo as vehicle_id, f.linha as linha_gps,s.linha_gtfs , shape_distance as distance,
+    select id_veiculo, f.linha as linha_gps,s.linha_gtfs , shape_distance as distancia,
         data, hora, faixa_horaria, s.shape_id as trip_id,
         min(timestamp_captura) as timestamp_inicio,
-        count(timestamp_captura) as total_count,
+        count(timestamp_captura) as total_capturas,
         count(case when st_dwithin(ponto_carro, shape, {{ buffer_size_meters}}) then 1 end) n_intersec,
         case
             when count(case when st_dwithin(start_pt,ponto_carro,{{ buffer_size_meters }}) is true then 1 end)>=1 then 'start'
@@ -47,7 +49,7 @@ Count number of intersects between vehicle and informed route shape
 from faixas f
 join shapes s
 on 1=1
-group by codigo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distance
+group by codigo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distancia
 )
 select * from intersects
 where n_intersec>0 
