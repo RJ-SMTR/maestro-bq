@@ -1,3 +1,3 @@
 parameters:
   tratamento_velocidade: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade"
-  tratamento_flag_trajeto: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_flag_trajeto_correto"
+  tratamento_flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_flag_trajeto_correto"

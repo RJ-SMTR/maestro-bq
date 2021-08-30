@@ -48,10 +48,11 @@ Count number of intersects between vehicle and informed route shape
             else 'middle' end as status
 from faixas f
 join shapes s
-on 1=1
-AND data_versao = data
+on s.data_versao = f.data
 group by id_veiculo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distancia
 )
-select * from intersects
+select *,
+        STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
+from intersects
 where n_intersec>0 
 order by id_veiculo, trip_id, faixa_horaria, n_intersec

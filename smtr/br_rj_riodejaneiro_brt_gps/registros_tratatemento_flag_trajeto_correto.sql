@@ -32,9 +32,11 @@ SELECT
   codigo,
   linha,
   linha_gtfs,
+  data,
   timestamp_gps,
   timestamp_captura,
   flag_trajeto_correto,
-  flag_trajeto_correto_hist
+  flag_trajeto_correto_hist,
+  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM
   counts c

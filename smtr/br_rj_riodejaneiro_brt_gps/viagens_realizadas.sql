@@ -36,9 +36,10 @@ select id_veiculo,linha_gps, linha_gtfs, distance, trip_id,
 from s),
 realized_trips as (
 select *,
-       1 as trajectory_type,
-       datetime_diff(arrival_time, departure_time, minute) as elapsed_time, 
-       round(SAFE_DIVIDE(distance/1000, datetime_diff(arrival_time, departure_time, minute)/60), 1) as average_speed
+       1 as tipo_trajeto,
+       datetime_diff(arrival_time, departure_time, minute) as tempo_gasto, 
+       round(SAFE_DIVIDE(distance/1000, datetime_diff(arrival_time, departure_time, minute)/60), 1) as velocidade_trajeto,
+       STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 from w
 where departure_time is not null
 order by id_veiculo, linha_gtfs, trip_id, departure_time)

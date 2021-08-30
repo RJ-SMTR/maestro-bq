@@ -31,6 +31,7 @@ SELECT
   case
     when distancia_parada < 1000 then tipo_parada
     else 'nao_identificado'
-  end status_tipo_parada
+  end status_tipo_parada,
+  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM distancia
 WHERE nrow = 1

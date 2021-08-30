@@ -13,8 +13,9 @@ SELECT
   t2.tipo_parada,
   t2.distancia_parada,
   t2.status_movimento,
-  t2.status_tipo_parada
+  t2.status_tipo_parada,
+  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM gps t
-JOIN {{ aux_registros_velocidade_status }} t2
+JOIN {{ velocidade_status }} t2
 ON t.timestamp_captura = t2.timestamp_captura
 AND t.placa_veiculo = t2.placa_veiculo

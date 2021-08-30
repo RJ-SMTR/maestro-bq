@@ -1,6 +1,6 @@
 WITH wrows AS (
   SELECT ST_GEOGPOINT(longitude, latitude) point, timestamp_captura, timestamp_gps, latitude, longitude, placa_veiculo,
-        ROW_NUMBER() OVER (PARTITION BY placa ORDER BY timestamp_captura) n_row
+        ROW_NUMBER() OVER (PARTITION BY placa_veiculo ORDER BY timestamp_captura) n_row
   from {{ registros_filtrada }}
   where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})   
 ),  
@@ -14,14 +14,15 @@ distances AS (
   FROM wrows t1
   JOIN wrows t2
   ON t1.n_row = t2.n_row -1
-  AND t1.placa = t2.placa
+  AND t1.placa_veiculo = t2.placa_veiculo
   ),
 times AS (
   SELECT ts
   FROM (
     SELECT
         CAST(MIN(data) AS TIMESTAMP) min_date, TIMESTAMP_ADD(CAST(MAX(data) AS TIMESTAMP), INTERVAL 1 DAY) max_date
-  FROM {{ registros_filtrada }}) t 
+  FROM {{ registros_filtrada }} 
+  WHERE data BETWEEN DATE({{ date_range_start }}) and DATE({{ date_range_end }})) t 
   JOIN UNNEST(GENERATE_TIMESTAMP_ARRAY(t.min_date, t.max_date, INTERVAL {{ faixa_horaria_minutos }} MINUTE)) ts
 ),
 speed AS (
@@ -35,11 +36,12 @@ speed AS (
       ts1 > DATETIME_ADD(DATETIME(ts), INTERVAL {{ faixa_horaria_minutos }} MINUTE))
  )
 SELECT
-  ts2 as timestamp_captura, t1.placa_veiculo, latitude, longitude, AVG(t1.velocidade) velocidade
+  ts2 as timestamp_captura, t1.placa_veiculo, latitude, longitude, AVG(t1.velocidade) velocidade,
+  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM speed
-JOIN (SELECT ts, placa, avg(SAFE_DIVIDE(distancia, minutos) * 6/100) velocidade 
+JOIN (SELECT ts, placa_veiculo, avg(SAFE_DIVIDE(distancia, minutos) * 6/100) velocidade 
       FROM speed 
-      GROUP BY ts, placa) t1
+      GROUP BY ts, placa_veiculo) t1
 ON t1.ts = speed.ts 
 AND t1.placa_veiculo = speed.placa_veiculo
 GROUP BY ts2, placa_veiculo, latitude, longitude
