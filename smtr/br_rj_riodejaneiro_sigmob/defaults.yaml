@@ -10,7 +10,7 @@ views:
 
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 0 4 * *"
+  cron: "0 4 * * *"
 
 # Definição de particionamento
 # - column: nome da coluna
@@ -29,8 +29,9 @@ partitioning:
 
 # Parâmetros da query
 parameters:
-  param_name: "param_value"
-
+  trips: "rj-smtr.br_rj_riodejaneiro_sigmob.trips"
+  routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
+  shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S

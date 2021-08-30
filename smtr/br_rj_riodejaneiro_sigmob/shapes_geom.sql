@@ -3,7 +3,7 @@ trips as (
 select trip_id,
        json_value(t.content,"$.route_id") route_id,
        
-from `rj-smtr.br_rj_riodejaneiro_sigmob.trips` t
+from {{ trips }} t
 where date(t.data_versao) between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
 ),
 linhas as (
@@ -11,7 +11,7 @@ select trip_id, t.route_id, json_value(r.content, "$.route_short_name") linha
 from trips t
 inner join (
 select *
-from `rj-smtr.br_rj_riodejaneiro_sigmob.routes`
+from {{ routes }}
 where date(data_versao) between DATE({{ date_range_start }}) and DATE({{ date_range_end }})) r
 on t.route_id = r.route_id
 ),
@@ -22,7 +22,7 @@ select shape_id,
        SAFE_CAST(json_value(content, "$.shape_pt_lon") AS FLOAT64) shape_pt_lon,
        SAFE_CAST(json_value(content, "$.shape_pt_sequence") as INT64) shape_pt_sequence,
        DATE(data_versao) AS data_versao
-from `rj-smtr.br_rj_riodejaneiro_sigmob.shapes` s
+from {{ shapes }} s
 where date(data_versao) between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
  ),
 pts as (
