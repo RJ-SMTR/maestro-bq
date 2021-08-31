@@ -20,9 +20,10 @@ Generate empty table of intervals
 */
 select faixa_horaria 
 from (
-select CAST(MIN(data) as TIMESTAMP) min_date, TIMESTAMP_ADD(CAST(MAX(data) as TIMESTAMP), interval 1 day) max_date
-from registros ) r
-join UNNEST(GENERATE_TIMESTAMP_ARRAY(r.min_date, r.max_date, Interval {{ faixa_horaria }} minute)) faixa_horaria
+select CAST(MIN(data) as TIMESTAMP) min_date, TIMESTAMP_ADD(CAST(MAX(data) as TIMESTAMP), INTERVAL 1 day) max_date
+from registros) r
+-- this is a line
+join UNNEST(GENERATE_TIMESTAMP_ARRAY(r.min_date, r.max_date, INTERVAL {{ faixa_horaria_minutos }} minute)) faixa_horaria
 ),
 faixas as (
 /*
@@ -31,7 +32,7 @@ Join registros with intervals generated above
 select id_veiculo, linha, timestamp_captura, faixa_horaria, longitude, latitude, ponto_carro, data, hora
 from times t
 join registros r
-on (r.timestamp_captura between datetime(faixa_horaria) and datetime(timestamp_add(faixa_horaria, interval {{ faixa_horaria }} minute)))
+on (r.timestamp_captura between datetime(faixa_horaria) and datetime(timestamp_add(faixa_horaria, interval {{ faixa_horaria_minutos }} minute)))
 ),
 intersects as (
 /*

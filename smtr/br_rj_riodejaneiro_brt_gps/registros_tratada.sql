@@ -1,4 +1,4 @@
--- Join dos passos de tratamento
+-- Join dos passos de tratamento and test
 WITH
   velocidades AS (
   SELECT
