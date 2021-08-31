@@ -1,22 +1,23 @@
+-- Join dos passos de tratamento
 WITH
   velocidades AS (
   SELECT
-    *
+    * except(versao)
   FROM
     {{ tratamento_velocidade }} 
   WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
   ),
   flags AS (
   SELECT
-    *
+    * except(versao)
   FROM
     {{ tratamento_flag_trajeto_correto }}
   WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})  
   )
 SELECT
   v.*,
-  count_compliance,
   flag_trajeto_correto,
+  flag_trajeto_correto_hist,
   STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM
   velocidades v

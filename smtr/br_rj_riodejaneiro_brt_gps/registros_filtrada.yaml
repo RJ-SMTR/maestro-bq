@@ -1,3 +1,0 @@
-parameters:
-  registros: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros"
-  limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa"

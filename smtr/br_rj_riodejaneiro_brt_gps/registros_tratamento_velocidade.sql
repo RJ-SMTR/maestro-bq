@@ -1,3 +1,4 @@
+--JOIN dos passos auxiliares para velocidade
 WITH gps AS (
   SELECT *, 
     REGEXP_REPLACE(SPLIT(trajeto, ' ')[SAFE_OFFSET(0)], '[^a-zA-Z0-9]', '') linha_trajeto
@@ -14,7 +15,6 @@ SELECT
   t2.distancia_parada,
   t2.status_movimento,
   t2.status_tipo_parada,
-  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM gps t
 JOIN {{ velocidade_status }} t2
 ON t.timestamp_captura = t2.timestamp_captura

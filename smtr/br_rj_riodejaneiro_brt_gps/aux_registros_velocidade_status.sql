@@ -1,3 +1,4 @@
+-- calcula estado de movimento do carro em operação
 WITH paradas as (
   select
     ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_estacao nome_parada, 'estacao' tipo_parada
@@ -11,12 +12,12 @@ onibus_parados AS (
   select
     *, ST_GEOGPOINT(longitude, latitude) ponto_carro
   from {{ velocidade_carro }} 
-  where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})   
+  where extract(date from timestamp_captura) between DATE({{ date_range_start }}) and DATE({{ date_range_end }})   
   ),
 distancia AS (
   SELECT 
     timestamp_captura, velocidade, placa_veiculo, longitude, latitude, nome_parada, tipo_parada,
-    ST_DISTANCE(ponto_carro, ponto_parada) distancia_parada, 
+    ST_DISTANCE(ponto_carro, ponto_parada) distancia_parada, versao
     ROW_NUMBER() OVER (PARTITION BY timestamp_captura, placa_veiculo ORDER BY ST_DISTANCE(ponto_carro, ponto_parada)) nrow
   FROM paradas p
   join onibus_parados o
@@ -32,6 +33,5 @@ SELECT
     when distancia_parada < 1000 then tipo_parada
     else 'nao_identificado'
   end status_tipo_parada,
-  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM distancia
 WHERE nrow = 1

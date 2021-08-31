@@ -17,7 +17,7 @@ SELECT
   timestamp_captura, 	
   data, 	
   hora,
-    STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao 	
+  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao 	
 FROM {{ registros }} 
 WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})  
 AND DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) < 2

@@ -1,4 +1,0 @@
-parameters:
-    shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom"
-    faixa_horaria_minutos: 5
-    buffer_size_meters: 100

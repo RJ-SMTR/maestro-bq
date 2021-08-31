@@ -78,7 +78,24 @@ partitioning:
 
 # Parâmetros da query
 parameters:
-  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_filtrada"
+  # dependências de views/tabelas
+  registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros" # registros_filtrada
+  limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
+  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_filtrada" # registros_tratamento_*
+  estacoes: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_velocidade_status
+  garagens: "rj-smtr.br_rj_riodejaneiro_transporte.garagens" # aux_registros_velocidade_status
+  velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro" # aux_registros_velocidade_status
+  velocidade_status: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_status" # registros_tratamento_velocidade
+  shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom" # flag_trajeto_correto, aux_registros_intersec
+  tratamento_velocidade: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade" # registros_tratada
+  tratamento_flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_flag_trajeto_correto" # registros_tratada
+  intersec: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_intersec" # viagens_realizadas
+  filtro_min_velocidade: 10 # viagens_realizadas
+  filtro_max_velocidade: 90 # viagens_realizadas
+  tamanho_buffer_metros: 100 # aux_registros_intersec
+  intervalo_max_desvio_segundos: 600 # flag_trajeto_correto
+  faixa_horaria_minutos: 5 # aux_registros_intersec
+  buffer_size_meters: 100 # aux_registros_intersec/ flag_trajeto_correto
 
 # Parâmetros de backfill
 backfill:

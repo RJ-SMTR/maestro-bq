@@ -1,3 +1,4 @@
+-- intersec route shapes and car points
 WITH
   registros AS (
   SELECT *
@@ -17,7 +18,7 @@ WITH
         WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), {{ tamanho_buffer_metros }}) THEN 1 END) 
         OVER (PARTITION BY id_veiculo 
               ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
-              RANGE BETWEEN {{ intervalo_max_desvio_minutos }}*60 PRECEDING AND CURRENT ROW) >= 1
+              RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) >= 1
       THEN True
       ELSE False
     END AS flag_trajeto_correto_hist
@@ -29,7 +30,7 @@ WITH
     r.linha = s.linha_gtfs
 )
 SELECT
-  codigo,
+  id_veiculo,
   linha,
   linha_gtfs,
   data,
