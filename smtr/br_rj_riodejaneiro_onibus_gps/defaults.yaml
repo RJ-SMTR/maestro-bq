@@ -4,13 +4,21 @@
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
-  registros_agg_data_hora_consorcio:
+  registros_filtrada:
     materialized: false
     depends_on:
       [
-        br_rj_riodejaneiro_onibus_gps.registros_tratada,
-        br_rj_riodejaneiro_transporte.linhas_sppo,
+        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
+        br_rj_riodejaneiro_onibus_gps.registros,
       ]
+
+  registros_agg_data_hora_consorcio:
+  materialized: false
+  depends_on:
+    [
+      br_rj_riodejaneiro_onibus_gps.registros_tratada,
+      br_rj_riodejaneiro_transporte.linhas_sppo,
+    ]
 
   registros_agg_data_hora_linha:
     materialized: false
@@ -20,18 +28,50 @@ views:
     materialized: false
     depends_on: [br_rj_riodejaneiro_onibus_gps.registros_tratada]
 
-  registros_tratada_8_dias:
+  aux_registros_velocidade_carro:
     materialized: false
-    depends_on: [br_rj_riodejaneiro_onibus_gps.registros_tratada]
+    depends_on: [br_rj_riodejaneiro_onibus_gps.registros_filtrada]
+
+  aux_registros_velocidade_status:
+    materialized: false
+    depends_on:
+      [
+        br_rj_riodejaneiro_transporte.terminais_onibus_coordenadas,
+        br_rj_riodejaneiro_transporte.garagens,
+        br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_carro,
+      ]
+
+  aux_registros_intersec:
+    materialized: false
+    depends_on:
+      [
+        br_rj_riodejaneiro_sigmob.shapes_geom,
+        br_rj_riodejaneiro_onibus_gps.registros_filtrada,
+      ]
+
+  registros_tratamento_velocidade:
+    materialized: false
+    depends_on:
+      [
+        br_rj_riodejaneiro_onibus_gps.registros_filtrada,
+        br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_status,
+      ]
+
+  registros_tratamento_flag_trajeto_correto:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_onibus_gps.registros_filtrada]
 
   registros_tratada:
     materialized: false
     depends_on:
       [
-        br_rj_riodejaneiro_geo.garagens_polygon,
-        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
-        br_rj_riodejaneiro_onibus_gps.registros,
+        br_rj_riodejaneiro_onibus_gps.registros_tratamento_velocidade_carro,
+        br_rj_riodejaneiro_onibus_gps.registros_tratamento_flag_trajeto_correto,
       ]
+
+  viagens_realizadas:
+    materialized: true
+    depends_on: [br_rj_riodejaneiro_onibus_gps.aux_registros_intersec]
 
 # Definição de taxa de atualização
 scheduling:
@@ -48,15 +88,33 @@ scheduling:
 #   * <To-do> GENERATE_ARRAY
 # - period: período (conforme especificado acima)
 partitioning:
-  column: "column_name"
-  type: "DATE"
+  column: "data"
+  type: ""
   period: ""
 
 # Parâmetros da query
 parameters:
-  param_name: "param_value"
+  # dependências de views/tabelas
+  registros: "rj-smtr.br_rj_riodejaneiro_onibus_gps.registros" # registros_filtrada
+  polygon_garagem: "rj-smtr.br_rj_riodejaneiro_geo.garagens_polygon" # registros_filtrada
+  limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
+  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.registros_filtrada" # registros_tratamento_*
+  terminais: "rj-smtr.br_rj_riodejaneiro_transporte.terminais_onibus_coordenadas" # aux_registros_velocidade_status
+  garagens: "rj-smtr.br_rj_riodejaneiro_transporte.garagens" # aux_registros_velocidade_status
+  velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_carro" # aux_registros_velocidade_status
+  velocidade_status: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_status" # registros_tratamento_velocidade
+  shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom" # flag_trajeto_correto, aux_registros_intersec
+  tratamento_velocidade: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.registros_tratamento_velocidade" # registros_tratada
+  tratamento_flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.registros_tratamento_flag_trajeto_correto" # registros_tratada
+  intersec: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_intersec" # viagens_realizadas
+  filtro_min_velocidade: 10 # viagens_realizadas
+  filtro_max_velocidade: 90 # viagens_realizadas
+  tamanho_buffer_metros: 100 # aux_registros_intersec
+  intervalo_max_desvio_segundos: 600 # flag_trajeto_correto
+  faixa_horaria_minutos: 5 # aux_registros_intersec
+  buffer_size_meters: 100 # aux_registros_intersec/ flag_trajeto_correto
 
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-01-01 00:00:00"
+  start_timestamp: "2021-08-24 00:00:00"
