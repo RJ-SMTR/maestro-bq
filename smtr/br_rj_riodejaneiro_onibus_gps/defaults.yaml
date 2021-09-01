@@ -1,0 +1,62 @@
+# Lista de views do dataset
+# Atributos de cada view:
+# - name: nome sem terminação .sql ou .yaml
+# - materialized: true|false para materializar ou não
+# - depends_on: lista de views das quais ela depende
+views:
+  registros_agg_data_hora_consorcio:
+    materialized: false
+    depends_on:
+      [
+        br_rj_riodejaneiro_onibus_gps.registros_tratada,
+        br_rj_riodejaneiro_transporte.linhas_sppo,
+      ]
+
+  registros_agg_data_hora_linha:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_onibus_gps.registros_tratada]
+
+  registros_agg_data_hora:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_onibus_gps.registros_tratada]
+
+  registros_tratada_8_dias:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_onibus_gps.registros_tratada]
+
+  registros_tratada:
+    materialized: false
+    depends_on:
+      [
+        br_rj_riodejaneiro_geo.garagens_polygon,
+        br_rj_riodejaneiro_geo.limites_geograficos_caixa,
+        br_rj_riodejaneiro_onibus_gps.registros,
+      ]
+
+# Definição de taxa de atualização
+scheduling:
+  cron: "0 * * * *"
+
+# Definição de particionamento
+# - column: nome da coluna
+# - type: deve ser um dos seguintes
+#   * DATE (não exige período)
+#   * DATE_TRUNC (exige período MONTH/YEAR)
+#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * <To-do> RANGE_BUCKET
+#   * <To-do> GENERATE_ARRAY
+# - period: período (conforme especificado acima)
+partitioning:
+  column: "column_name"
+  type: "DATE"
+  period: ""
+
+# Parâmetros da query
+parameters:
+  param_name: "param_value"
+
+# Parâmetros de backfill
+backfill:
+  # Formato %Y-%m-%d %H:%M:%S
+  start_timestamp: "2021-01-01 00:00:00"
