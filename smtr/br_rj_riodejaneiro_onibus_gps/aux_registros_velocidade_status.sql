@@ -11,8 +11,7 @@ WITH paradas as (
 onibus_parados AS (
   select
     *, ST_GEOGPOINT(longitude, latitude) ponto_carro
-  from {{ velocidade_carro }} 
-  where extract(date from timestamp_captura) between DATE({{ date_range_start }}) and DATE({{ date_range_end }})   
+  from {{ velocidade_carro }}   
   ),
 distancia AS (
   SELECT 

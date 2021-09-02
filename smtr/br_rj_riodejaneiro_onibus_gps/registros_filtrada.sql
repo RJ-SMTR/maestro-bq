@@ -14,7 +14,7 @@ gps AS (
     ST_GEOGPOINT(longitude, latitude) ponto
   FROM {{ registros }}
   WHERE DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) < 2
-  AND data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
+  and data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
 ),
 filtrada as (
 SELECT DISTINCT

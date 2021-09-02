@@ -11,7 +11,7 @@ WITH
   SELECT
     * except(versao)
   FROM
-    {{ tratamento_flag_trajeto_correto }}
+    {{ flag_trajeto_correto }}
   WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})  
   )
 SELECT

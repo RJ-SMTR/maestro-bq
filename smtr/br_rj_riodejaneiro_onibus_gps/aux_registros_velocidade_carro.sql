@@ -2,8 +2,7 @@
 WITH wrows AS (
   SELECT ST_GEOGPOINT(longitude, latitude) point, timestamp_captura, timestamp_gps, latitude, longitude, id_veiculo, linha, data,
         ROW_NUMBER() OVER (PARTITION BY id_veiculo ORDER BY timestamp_captura) n_row
-  from {{ registros_filtrada }}
-  where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})   
+  from {{ registros_filtrada }}   
 ),  
 distances AS (
   SELECT
@@ -23,8 +22,7 @@ times AS (
   FROM (
     SELECT
         CAST(MIN(data) AS TIMESTAMP) min_date, TIMESTAMP_ADD(CAST(MAX(data) AS TIMESTAMP), INTERVAL 1 DAY) max_date
-  FROM {{ registros_filtrada }} 
-  WHERE data BETWEEN DATE({{ date_range_start }}) and DATE({{ date_range_end }})) t 
+  FROM {{ registros_filtrada }} ) t 
   JOIN UNNEST(GENERATE_TIMESTAMP_ARRAY(t.min_date, t.max_date, INTERVAL {{ faixa_horaria_minutos }} MINUTE)) ts
 ),
 speed AS (

@@ -3,8 +3,7 @@ with shapes as (
 Buffer shapes to compensate gps precision, buffer boundary points to detect start/end of trip
 */
 select *
-from {{ shapes }}
-where data_versao between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
+from {{ shapes }} 
 ),
 registros as (
 /*
@@ -12,7 +11,6 @@ Generate ponto_carro for GEOG operations
 */
 select *, ST_GEOGPOINT(longitude, latitude) ponto_carro
 from {{ registros_filtrada }}
-where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
 ),
 times as (
 /*
@@ -42,10 +40,10 @@ Count number of intersects between vehicle and informed route shape
         data, hora, faixa_horaria, s.shape_id as trip_id,
         min(timestamp_captura) as timestamp_inicio,
         count(timestamp_captura) as total_capturas,
-        count(case when st_dwithin(ponto_carro, shape, {{ buffer_size_meters}}) then 1 end) n_intersec,
+        count(case when st_dwithin(ponto_carro, shape, {{ tamanho_buffer_metros}}) then 1 end) n_intersec,
         case
-            when count(case when st_dwithin(start_pt,ponto_carro,{{ buffer_size_meters }}) is true then 1 end)>=1 then 'start'
-            when count(case when st_dwithin(end_pt, ponto_carro, {{ buffer_size_meters }}) is true then 1 end)>=1 then 'end'
+            when count(case when st_dwithin(start_pt,ponto_carro,{{ tamanho_buffer_metros }}) is true then 1 end)>=1 then 'start'
+            when count(case when st_dwithin(end_pt, ponto_carro, {{ tamanho_buffer_metros }}) is true then 1 end)>=1 then 'end'
             else 'middle' end as status
 from faixas f
 join shapes s
@@ -56,4 +54,3 @@ select *,
         STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 from intersects
 where n_intersec>0 
-order by id_veiculo, trip_id, faixa_horaria, n_intersec
