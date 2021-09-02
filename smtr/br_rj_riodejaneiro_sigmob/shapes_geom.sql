@@ -7,7 +7,7 @@ from {{ trips }} t
 where date(t.data_versao) between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
 ),
 linhas as (
-select trip_id, t.route_id, json_value(r.content, "$.route_short_name") linha
+select trip_id, t.route_id, json_value(r.content, "$.route_short_name") linha, json_value(r.content, "$.idModalSmtr") id_modal_smtr
 from trips t
 inner join (
 select *
