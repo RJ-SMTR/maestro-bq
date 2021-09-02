@@ -1,3 +1,4 @@
+-- idModal: SPPO - 22, 23, BRT- 20, 
 with
 trips as (
 select trip_id,
@@ -67,6 +68,7 @@ on s.shape_id = b.shape_id)
 
 select shape_id,
        route_id,
+       id_modal_smtr,
        replace(linha, " ", "") as linha_gtfs, 
        shape, 
        shape_distance, 
