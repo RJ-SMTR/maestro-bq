@@ -21,8 +21,11 @@ SELECT
     THEN True
     ELSE False
   END AS flag_trajeto_correto_hist
-FROM
-  {{ shapes }} s
+FROM (
+  SELECT * 
+  FROM {{ shapes }}
+  WHERE id_modal_smtr in ('22', '23')
+) s
 JOIN
   registros r
 ON

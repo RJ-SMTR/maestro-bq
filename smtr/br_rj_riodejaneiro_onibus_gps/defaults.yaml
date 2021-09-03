@@ -20,7 +20,7 @@ partitioning:
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-08-01 00:00:00"
+  start_timestamp: "2021-08-25 00:00:00"
 
 # Parâmetros da query
 parameters:
@@ -58,7 +58,7 @@ parameters:
 # - depends_on: lista de views das quais ela depende
 views:
   registros_filtrada:
-    materialized: true
+    materialized: false
     depends_on:
       - br_rj_riodejaneiro_geo.limites_geograficos_caixa
       - br_rj_riodejaneiro_onibus_gps.registros
@@ -103,7 +103,7 @@ views:
       - br_rj_riodejaneiro_onibus_gps.registros_filtrada
 
   registros_tratada:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_carro
       - br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto
