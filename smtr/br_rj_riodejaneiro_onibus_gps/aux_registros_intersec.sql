@@ -47,7 +47,7 @@ Count number of intersects between vehicle and informed route shape
             else 'middle' end as status
 from faixas f
 join shapes s
-on s.data_versao = f.data
+on s.data_versao = f.data and f.linha = linha_gtfs
 group by id_veiculo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distancia
 )
 select *,

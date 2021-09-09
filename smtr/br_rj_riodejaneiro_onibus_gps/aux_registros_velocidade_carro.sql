@@ -1,21 +1,30 @@
 -- Calcula velocidades nos ultimos 10 min
-WITH wrows AS (
-  SELECT ST_GEOGPOINT(longitude, latitude) point, timestamp_captura, timestamp_gps, latitude, longitude, id_veiculo, linha, data,
-        ROW_NUMBER() OVER (PARTITION BY id_veiculo ORDER BY timestamp_captura) n_row
+WITH registros AS (
+  SELECT   
+        ST_GEOGPOINT(longitude, latitude) point,
+        lag(ST_GEOGPOINT(longitude, latitude)) over (partition by id_veiculo order by timestamp_captura) prev_point,
+        lag(timestamp_captura) over (partition by id_veiculo order by timestamp_captura) ts1,
+        timestamp_captura ts2,
+        timestamp_gps,
+        latitude,
+        longitude,
+        id_veiculo,
+        linha,
+        data,
   from {{ registros_filtrada }}   
 ),  
 distances AS (
   SELECT
-    t1.timestamp_captura ts1, 
-    t2.timestamp_captura ts2, 
-    t1.latitude, t1.longitude, t1.id_veiculo, t1.linha,
-    DATETIME_DIFF(t2.timestamp_captura, t1.timestamp_captura, SECOND) / 60 minutos,
-    ST_DISTANCE(t1.point, t2.point) distancia,
-    t1.data
-  FROM wrows t1
-  JOIN wrows t2
-  ON t1.n_row = t2.n_row -1
-  AND t1.id_veiculo = t2.id_veiculo
+    ts1, 
+    ts2, 
+    latitude,
+    longitude, 
+    id_veiculo, 
+    linha,
+    DATETIME_DIFF(ts2, ts1, SECOND) / 60 minutos,
+    ST_DISTANCE(prev_point, point) distancia,
+    data
+  FROM registros
   ),
 times AS (
   SELECT ts
@@ -39,7 +48,7 @@ SELECT
   ts2 as timestamp_captura, data, t1.id_veiculo, linha, latitude, longitude, AVG(t1.velocidade) velocidade,
   STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM speed
-JOIN (SELECT ts, id_veiculo, avg(SAFE_DIVIDE(distancia, minutos) * 6/100) velocidade 
+JOIN (SELECT ts, id_veiculo, round(avg(SAFE_DIVIDE(distancia, minutos) * 6/100), 1) velocidade 
       FROM speed 
       GROUP BY ts, id_veiculo) t1
 ON t1.ts = speed.ts 

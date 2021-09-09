@@ -58,7 +58,7 @@ parameters:
 # - depends_on: lista de views das quais ela depende
 views:
   registros_filtrada:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_geo.limites_geograficos_caixa
       - br_rj_riodejaneiro_onibus_gps.registros
@@ -109,6 +109,6 @@ views:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto
 
   viagens_realizadas:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_intersec
