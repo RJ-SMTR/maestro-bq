@@ -45,10 +45,10 @@ speed AS (
       ts1 > DATETIME_ADD(DATETIME(ts), INTERVAL {{ faixa_horaria_minutos }} MINUTE))
  )
 SELECT
-  ts2 as timestamp_captura, data, t1.id_veiculo, linha, latitude, longitude, AVG(t1.velocidade) velocidade,
+  ts2 as timestamp_captura, data, t1.id_veiculo, linha, latitude, longitude, round(AVG(t1.velocidade), 1) velocidade,
   STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM speed
-JOIN (SELECT ts, id_veiculo, round(avg(SAFE_DIVIDE(distancia, minutos) * 6/100), 1) velocidade 
+JOIN (SELECT ts, id_veiculo, avg(SAFE_DIVIDE(distancia, minutos) * 6/100) velocidade 
       FROM speed 
       GROUP BY ts, id_veiculo) t1
 ON t1.ts = speed.ts 

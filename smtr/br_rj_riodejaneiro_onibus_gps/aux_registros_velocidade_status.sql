@@ -16,7 +16,7 @@ onibus_parados AS (
 distancia AS (
   SELECT 
     data, timestamp_captura, velocidade, id_veiculo, linha, longitude, latitude, nome_parada, tipo_parada,
-    ST_DISTANCE(ponto_carro, ponto_parada) distancia_parada, versao,
+    ROUND(ST_DISTANCE(ponto_carro, ponto_parada), 1) distancia_parada, versao,
     ROW_NUMBER() OVER (PARTITION BY timestamp_captura, id_veiculo ORDER BY ST_DISTANCE(ponto_carro, ponto_parada)) nrow
   FROM paradas p
   join onibus_parados o
