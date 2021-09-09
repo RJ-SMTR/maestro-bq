@@ -1,3 +1,55 @@
+# Definição de taxa de atualização
+scheduling:
+  cron: "0 4 * * *"
+# Parâmetros de backfill
+backfill:
+  # Formato %Y-%m-%d %H:%M:%S
+  start_timestamp: "2021-08-24 00:00:00"
+
+  # Definição de particionamento
+# - column: nome da coluna
+# - type: deve ser um dos seguintes
+#   * DATE (não exige período)
+#   * DATE_TRUNC (exige período MONTH/YEAR)
+#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * <To-do> RANGE_BUCKET
+#   * <To-do> GENERATE_ARRAY
+# - period: período (conforme especificado acima)
+partitioning:
+  column: "data"
+  type: ""
+  period: ""
+
+# Parâmetros da query
+parameters:
+  # Filtro de velocidade no cálculo de viagens realizadas
+  ## Serão consideradas somente velocidades entre os valores abaixo
+  filtro_min_velocidade: 10 # viagens_realizadas
+  filtro_max_velocidade: 90 # viagens_realizadas
+
+  # Parametros de intersecção do ônibus com rota
+  ## Tamanho do buffer da rota
+  tamanho_buffer_metros: 100 # aux_registros_intersec /flag_trajeto_corret
+  ## Intervalo máximo que um veículo pode ficar fora da rota para ser considerado
+  ## dentro da rota. Afeta a flag flag_trajeto_correto_hist
+  intervalo_max_desvio_segundos: 600 # flag_trajeto_correto
+  ## Intervalo mínimo de detecção de saída de viagem
+  faixa_horaria_minutos: 5 # aux_registros_intersec
+
+  # dependências de views/tabelas
+  registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros" # registros_filtrada
+  limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
+  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_filtrada" # aux_registros_*
+  estacoes: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_velocidade_status
+  garagens: "rj-smtr.br_rj_riodejaneiro_transporte.garagens" # aux_registros_velocidade_status
+  velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro" # aux_registros_velocidade_status
+  velocidade_status: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_status" # registros_tratamento_velocidade
+  shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom" # aux_registros_flag_trajeto_correto, aux_registros_intersec
+  tratamento_velocidade: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade" # registros_tratada
+  flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_flag_trajeto_correto" # registros_tratada
+  intersec: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_intersec" # viagens_realizadas
+
 # Lista de views do dataset
 # Atributos de cada view:
 # - name: nome sem terminação .sql ou .yaml
@@ -5,7 +57,7 @@
 # - depends_on: lista de views das quais ela depende
 views:
   registros_filtrada:
-    materialized: false
+    materialized: true
     depends_on:
       [
         br_rj_riodejaneiro_geo.limites_geograficos_caixa,
@@ -25,6 +77,10 @@ views:
         br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro,
       ]
 
+  aux_registros_flag_trajeto_correto:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_brt_gps.registros_filtrada]
+
   aux_registros_intersec:
     materialized: false
     depends_on:
@@ -41,12 +97,8 @@ views:
         br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_status,
       ]
 
-  registros_tratamento_flag_trajeto_correto:
-    materialized: false
-    depends_on: [br_rj_riodejaneiro_brt_gps.registros_filtrada]
-
   registros_tratada:
-    materialized: false
+    materialized: true
     depends_on:
       [
         br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade_carro,
@@ -56,48 +108,3 @@ views:
   viagens_realizadas:
     materialized: true
     depends_on: [br_rj_riodejaneiro_brt_gps.aux_registros_intersec]
-
-# Definição de taxa de atualização
-scheduling:
-  cron: "0 * * * *"
-
-# Definição de particionamento
-# - column: nome da coluna
-# - type: deve ser um dos seguintes
-#   * DATE (não exige período)
-#   * DATE_TRUNC (exige período MONTH/YEAR)
-#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
-#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
-#   * <To-do> RANGE_BUCKET
-#   * <To-do> GENERATE_ARRAY
-# - period: período (conforme especificado acima)
-partitioning:
-  column: "data"
-  type: ""
-  period: ""
-
-# Parâmetros da query
-parameters:
-  # dependências de views/tabelas
-  registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros" # registros_filtrada
-  limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
-  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_filtrada" # registros_tratamento_*
-  estacoes: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_velocidade_status
-  garagens: "rj-smtr.br_rj_riodejaneiro_transporte.garagens" # aux_registros_velocidade_status
-  velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro" # aux_registros_velocidade_status
-  velocidade_status: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_status" # registros_tratamento_velocidade
-  shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom" # flag_trajeto_correto, aux_registros_intersec
-  tratamento_velocidade: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade" # registros_tratada
-  tratamento_flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_tratamento_flag_trajeto_correto" # registros_tratada
-  intersec: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_intersec" # viagens_realizadas
-  filtro_min_velocidade: 10 # viagens_realizadas
-  filtro_max_velocidade: 90 # viagens_realizadas
-  tamanho_buffer_metros: 100 # aux_registros_intersec
-  intervalo_max_desvio_segundos: 600 # flag_trajeto_correto
-  faixa_horaria_minutos: 5 # aux_registros_intersec
-  buffer_size_meters: 100 # aux_registros_intersec/ flag_trajeto_correto
-
-# Parâmetros de backfill
-backfill:
-  # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-08-24 00:00:00"

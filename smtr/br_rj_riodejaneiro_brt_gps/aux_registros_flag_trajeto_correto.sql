@@ -3,8 +3,7 @@ WITH
   registros AS (
   SELECT *
   FROM
-  {{ registros_filtrada }} r 
-  where data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
+  {{ registros_filtrada }} r
   ),
   counts AS (
   SELECT
@@ -19,8 +18,8 @@ WITH
         OVER (PARTITION BY id_veiculo 
               ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
               RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) >= 1
-      THEN True
-      ELSE False
+      THEN true
+      ELSE false
     END AS flag_trajeto_correto_hist
   FROM
     registros r
