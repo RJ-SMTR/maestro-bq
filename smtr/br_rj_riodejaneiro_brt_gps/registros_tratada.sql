@@ -24,6 +24,6 @@ FROM
 JOIN
   flags f
 ON
-  v.id_veiculo = f.id_veiculo
+  v.placa_veiculo = f.placa_veiculo
   AND v.linha = f.linha
-  AND v.timestamp_gps = f.timestamp_gps
+  AND v.timestamp_captura = f.timestamp_captura

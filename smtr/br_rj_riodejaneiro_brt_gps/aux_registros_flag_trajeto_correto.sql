@@ -15,7 +15,7 @@ WITH
     CASE
       WHEN COUNT(CASE
         WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), {{ tamanho_buffer_metros }}) THEN 1 END) 
-        OVER (PARTITION BY id_veiculo 
+        OVER (PARTITION BY placa_veiculo 
               ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
               RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) >= 1
       THEN true
@@ -27,9 +27,11 @@ WITH
     {{ shapes }} s
   ON
     r.linha = s.linha_gtfs
+  AND  
+  s.data_versao = r.data
 )
 SELECT
-  id_veiculo,
+  placa_veiculo,
   linha,
   linha_gtfs,
   data,

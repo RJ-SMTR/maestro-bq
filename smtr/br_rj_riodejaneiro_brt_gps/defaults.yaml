@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 4 * * *"
+  cron: "0 0 4 * *"
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
@@ -89,22 +89,14 @@ views:
         br_rj_riodejaneiro_brt_gps.registros_filtrada,
       ]
 
-  registros_tratamento_velocidade:
-    materialized: false
-    depends_on:
-      [
-        br_rj_riodejaneiro_brt_gps.registros_filtrada,
-        br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_status,
-      ]
-
   registros_tratada:
     materialized: true
     depends_on:
       [
-        br_rj_riodejaneiro_brt_gps.registros_tratamento_velocidade_carro,
+        br_rj_riodejaneiro_brt_gps.aux_registros_velocidade_carro,
         br_rj_riodejaneiro_brt_gps.registros_tratamento_flag_trajeto_correto,
       ]
 
   viagens_realizadas:
-    materialized: true
+    materialized: false
     depends_on: [br_rj_riodejaneiro_brt_gps.aux_registros_intersec]
