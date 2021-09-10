@@ -20,7 +20,8 @@ with
     faixas as (
         --Join registros with intervals generated above
         SELECT 
-            id_veiculo, 
+            id_veiculo,
+            placa_veiculo, 
             linha, 
             timestamp_captura, 
             faixa_horaria, 
@@ -36,7 +37,8 @@ with
     intersects as (
         --Count number of intersects between vehicle and informed route shape
         SELECT 
-            id_veiculo, 
+            id_veiculo,
+            placa_veiculo, 
             f.linha as linha_gps,
             s.linha_gtfs, 
             shape_distance as distancia,
@@ -53,8 +55,12 @@ with
                 ELSE 'middle' END AS status
     FROM faixas f
     JOIN shapes s
-    ON s.data_versao = f.data
-    GROUP by id_veiculo, faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distancia
+    ON 
+        s.data_versao = f.data 
+    AND 
+        f.linha = linha_gtfs
+    GROUP by 
+        id_veiculo, placa_veiculo,faixa_horaria, linha_gps, linha_gtfs, trip_id, data, hora, distancia
     )
 select *,
         STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao

@@ -98,5 +98,5 @@ views:
       ]
 
   viagens_realizadas:
-    materialized: false
+    materialized: true
     depends_on: [br_rj_riodejaneiro_brt_gps.aux_registros_intersec]
