@@ -38,13 +38,11 @@ SELECT
     json_value(content, '$.endereco') as endereco,
     json_value(content, '$.IDBairro') as IDBairro,
     json_value(content, '$.IDRa') as IDRa,
-    json_value(content, '$.stop_id') as stop_id,
     json_value(content, '$.MultiModal') as MultiModal,
     json_value(content, '$.id_sequencial') as id_sequencial,
     json_value(content, '$.NumeroLinha') as NumeroLinha,
     json_value(content, '$.Vista') as Vista,
     json_value(content, '$.Horarios') as Horarios,
     json_value(content, '$.id') as id
-    
 FROM {{ stops }} t
-where data_versao = (select max(data_versao) FROM `rj-smtr.br_rj_riodejaneiro_sigmob.stops`)
+where data_versao = (select max(data_versao) FROM {{ stops }})
