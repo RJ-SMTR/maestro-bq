@@ -10,6 +10,9 @@ views:
   stops_desaninhada:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  agg_stops_vistoriadas:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stops]
 
 # Definição de taxa de atualização
 scheduling:
