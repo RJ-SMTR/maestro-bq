@@ -15,20 +15,26 @@ possíveis para a linha informada.
 */
 WITH
   registros AS (
-    SELECT id_veiculo, linha, latitude, longitude, data, timestamp_gps, timestamp_captura
+    SELECT id_veiculo, linha, latitude, longitude, data, posicao_veiculo_geo, timestamp_gps
     FROM
     {{ registros_filtrada }} r 
   ),
 counts AS (
   SELECT
-    *,
+    r.*,
+    s.data_versao,
+    s.linha_gtfs,
+    DATE_DIFF(r.data, s.data_versao, day) datadiff,
+    Greatest(DATE_DIFF(r.data, s.data_versao, day)) datediff_great,
+    Greatest(DATE_DIFF(r.data, s.data_versao, day)) = DATE_DIFF(r.data, s.data_versao, day) datediff_comp,
+    DATE_DIFF(r.data, s.data_versao, day) > 0 datadiff_0,
     CASE
-      WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), {{ tamanho_buffer_metros }}) THEN TRUE
+      WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN TRUE
       ELSE FALSE
     END AS flag_trajeto_correto,
     CASE
       WHEN 
-        COUNT(CASE WHEN st_dwithin(shape, st_geogpoint(longitude, latitude), {{ tamanho_buffer_metros }}) THEN 1 END) 
+        COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
         OVER (PARTITION BY id_veiculo 
               ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
               RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) >= 1 
@@ -45,7 +51,7 @@ counts AS (
   ON
     r.linha = s.linha_gtfs
   AND
-    r.data = s.data_versao
+  # TODO: fazer merge com view de de/para d
 )
 SELECT
   id_veiculo,
@@ -53,11 +59,13 @@ SELECT
   linha_gtfs,
   data,
   timestamp_gps,
-  timestamp_captura,
   LOGICAL_OR(flag_trajeto_correto) AS flag_trajeto_correto,
   LOGICAL_OR(flag_trajeto_correto_hist) AS flag_trajeto_correto_hist,
   LOGICAL_OR(flag_linha_existe_sigmob) AS flag_linha_existe_sigmob,
-  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
+  STRUCT({{ maestro_sha }} AS versao_maestro, 
+        {{ maestro_bq_sha }} AS versao_maestro_bq,
+        data_versao AS data_versao_sigmob
+        ) versao
 FROM
   counts c
 GROUP BY
@@ -65,5 +73,5 @@ GROUP BY
   linha,
   linha_gtfs,
   data,
-  timestamp_gps,
-  timestamp_captura
+  data_versao,
+  timestamp_gps

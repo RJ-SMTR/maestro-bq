@@ -42,6 +42,12 @@ parameters:
   intervalo_max_desvio_segundos: 600 # flag_trajeto_correto
   ## Intervalo mínimo de detecção de saída de viagem
   faixa_horaria_minutos: 5 # aux_registros_intersec
+  ## data de referência da versão do sigmob utilizada para calcular o histórico
+  data_versao_sigmob_historico: "2021-08-24"
+  ## velocidade mínima para que o carro seja considerado em movimento na metologia da aux_registros_velocidade_carro
+  velocidade_limiar_parado: 3
+  ## distância
+  distancia_limiar: 
 
   # dependências de views/tabelas
   registros: "rj-smtr.br_rj_riodejaneiro_onibus_gps.registros" # registros_filtrada

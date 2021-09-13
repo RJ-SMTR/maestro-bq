@@ -22,7 +22,7 @@ WITH garagem_polygon AS
 /*2. Filtra registros antigos. Remove registros que tem diferença maior que 1 minuto entre o timestamp_captura e timestamp_gps.*/
 (
 	SELECT  *
-	       ,ST_GEOGPOINT(longitude,latitude) ponto
+	       ,ST_GEOGPOINT(longitude,latitude) posicao_veiculo_geo
 	FROM {{ registros }}
 	WHERE DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) BETWEEN 0 AND 1
 	AND data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }}) 
@@ -32,9 +32,10 @@ WITH garagem_polygon AS
 	SELECT  DISTINCT ordem AS id_veiculo
 	       ,latitude
 	       ,longitude
-	       ,timestamp_gps
+		   ,posicao_veiculo_geo
 	       ,velocidade
 	       ,linha
+	       ,timestamp_gps
 	       ,timestamp_captura
 	       ,data
 	       ,hora

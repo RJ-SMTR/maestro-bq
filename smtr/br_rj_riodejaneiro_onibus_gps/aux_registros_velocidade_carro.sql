@@ -1,11 +1,10 @@
 -- Calcula velocidades nos ultimos 10 min
 WITH registros AS (
   SELECT   
-        ST_GEOGPOINT(longitude, latitude) point,
-        lag(ST_GEOGPOINT(longitude, latitude)) over (partition by id_veiculo order by timestamp_captura) prev_point,
-        lag(timestamp_captura) over (partition by id_veiculo order by timestamp_captura) ts1,
-        timestamp_captura ts2,
-        timestamp_gps,
+        posicao_veiculo_geo point,
+        lag(posicao_veiculo_geo) over (partition by id_veiculo order by timestamp_gps) prev_point,
+        lag(timestamp_gps) over (partition by id_veiculo order by timestamp_gps) ts1,
+        timestamp_gps ts2,
         latitude,
         longitude,
         id_veiculo,
@@ -45,7 +44,17 @@ speed AS (
       ts1 > DATETIME_ADD(DATETIME(ts), INTERVAL {{ faixa_horaria_minutos }} MINUTE))
  )
 SELECT
-  ts2 as timestamp_captura, data, t1.id_veiculo, linha, latitude, longitude, round(AVG(t1.velocidade), 1) velocidade,
+  ts2 as timestamp_gps, 
+  data, 
+  t1.id_veiculo, 
+  linha, 
+  latitude, 
+  longitude, 
+  round(AVG(t1.velocidade), 1) velocidade,
+  case
+    when round(AVG(t1.velocidade), 1) < {{ velocidade_limiar_parado }} then 'parado'
+    else 'andando'
+  end status_movimento,
   STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM speed
 JOIN (SELECT ts, id_veiculo, avg(SAFE_DIVIDE(distancia, minutos) * 6/100) velocidade 
