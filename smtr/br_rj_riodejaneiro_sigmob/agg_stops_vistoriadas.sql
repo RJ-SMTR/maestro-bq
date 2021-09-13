@@ -11,4 +11,4 @@ select data_versao, AP, Bairro,
     count(*) n_pontos
 from t
 group by data_versao, AP, Bairro
-order by 1,2,3
+order by 1,2,3 
