@@ -7,6 +7,12 @@ views:
   shapes_geom:
     materialized: true
     depends_on: [br_rj_riodejaneiro_sigmob.shapes]
+  stops_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  agg_stops_vistoriadas:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stops]
 
 # Definição de taxa de atualização
 scheduling:
@@ -32,6 +38,8 @@ parameters:
   trips: "rj-smtr.br_rj_riodejaneiro_sigmob.trips"
   routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
+  stops: "rj-smtr.br_rj_riodejaneiro_sigmob.stops"
+
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
