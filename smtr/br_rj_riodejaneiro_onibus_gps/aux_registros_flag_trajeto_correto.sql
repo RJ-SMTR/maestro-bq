@@ -24,10 +24,6 @@ counts AS (
     r.*,
     s.data_versao,
     s.linha_gtfs,
-    DATE_DIFF(r.data, s.data_versao, day) datadiff,
-    Greatest(DATE_DIFF(r.data, s.data_versao, day)) datediff_great,
-    Greatest(DATE_DIFF(r.data, s.data_versao, day)) = DATE_DIFF(r.data, s.data_versao, day) datediff_comp,
-    DATE_DIFF(r.data, s.data_versao, day) > 0 datadiff_0,
     CASE
       WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN TRUE
       ELSE FALSE
@@ -42,16 +38,21 @@ counts AS (
       ELSE False
     END AS flag_trajeto_correto_hist,
     CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob 
-  FROM registros r
+  FROM (
+    SELECT t1.*, t2.data_versao_efetiva
+    FROM registros t1
+    JOIN  {{ data_versao_efetiva }} t2
+    ON t1.data = t2.data
+  ) r
   LEFT JOIN (
     SELECT * 
-    FROM {{ shapes }}
+    FROM {{ shapes }} 
     WHERE id_modal_smtr in ({{ id_modal_smtr|join(', ') }})
   ) s
   ON
     r.linha = s.linha_gtfs
   AND
-  # TODO: fazer merge com view de de/para d
+    r.data_versao_efetiva = s.data_versao
 )
 SELECT
   id_veiculo,

@@ -14,7 +14,7 @@ scheduling:
 # - period: período (conforme especificado acima)
 partitioning:
   column: "data"
-  type: ""
+  type: "DATE"
   period: ""
 
 # Parâmetros de backfill
@@ -42,12 +42,10 @@ parameters:
   intervalo_max_desvio_segundos: 600 # flag_trajeto_correto
   ## Intervalo mínimo de detecção de saída de viagem
   faixa_horaria_minutos: 5 # aux_registros_intersec
-  ## data de referência da versão do sigmob utilizada para calcular o histórico
-  data_versao_sigmob_historico: "2021-08-24"
   ## velocidade mínima para que o carro seja considerado em movimento em aux_registros_velocidade_carro
   velocidade_limiar_parado: 3
   ## distância mínima para que o veículo seja identificado parado em um terminal ou garagem em aux_registros_velocidade_status
-  distancia_limiar: 1000
+  distancia_limiar_parada: 1000
 
   # dependências de views/tabelas
   registros: "rj-smtr.br_rj_riodejaneiro_onibus_gps.registros" # registros_filtrada
@@ -56,12 +54,14 @@ parameters:
   registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada" # registros_tratamento_*
   terminais: "rj-smtr.br_rj_riodejaneiro_transporte.terminais_onibus_coordenadas" # aux_registros_velocidade_status
   garagens: "rj-smtr.br_rj_riodejaneiro_transporte.garagens" # aux_registros_velocidade_status
-  velocidade_carro: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_carro" # aux_registros_velocidade_status
-  velocidade_status: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_status" # registros_tratamento_velocidade
+  velocidade: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade" # aux_registros_velocidade_status
+  parada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_parada" # registros_tratamento_velocidade
   shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom" # flag_trajeto_correto, aux_registros_intersec
   flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto" # registros_tratada
   intersec: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_intersec" # viagens_realizadas
-
+  data_versao_efetiva: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.data_versao_efetiva"
+  registros_tratada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.registros_tratada"
+  linhas_sppo: "rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo"
 # Lista de views do dataset
 # Atributos de cada view:
 # - name: nome sem terminação .sql ou .yaml

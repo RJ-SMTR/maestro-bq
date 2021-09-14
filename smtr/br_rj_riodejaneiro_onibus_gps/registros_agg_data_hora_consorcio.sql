@@ -3,8 +3,8 @@ SELECT
     EXTRACT(HOUR FROM hora_completa) hora,
     consorcio,
     count(distinct id_veiculo) n_veiculos
-from `rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_tratada` t1
-join `rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo` t2
+from {{ registros_tratada }} t1
+join {{ linhas_sppo }} t2
 on t1.linha = t2.linha_completa
 where t1.fora_garagem is true
 and data = 
