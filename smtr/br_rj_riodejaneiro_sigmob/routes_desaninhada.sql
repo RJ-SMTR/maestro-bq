@@ -40,3 +40,4 @@ select
     json_value(content, '$.Vista') Vista,
     json_value(content, '$.Complemento') Complemento,
 from {{ routes }}
+
