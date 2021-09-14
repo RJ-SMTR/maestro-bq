@@ -1,14 +1,16 @@
 /*
 Descrição:
-Calcula se o veículo está dentro do trajeto correto dado o trajeto cadastrado no SIGMOB e 
-a linha que está no registro.
+Calcula se o veículo está dentro do trajeto correto dado o traçado (shape) cadastrado no SIGMOB em relação à linha que está sendo
+transmitida.
 1. Calcula as intersecções definindo um 'buffer', utilizado por st_dwithin para identificar se o ponto está à uma
-distância menor ou igual ao buffer do traçado definido no SIGMOB.
+distância menor ou igual ao tamanho do buffer em relação ao traçado definido no SIGMOB.
 2. Calcula um histórico de intersecções nos ultimos 10 minutos de registros de cada carro. Definimos que o carro é
 considerado fora do trajeto definido se a cada 10 minutos, ele não esteve dentro do traçado planejado pelo menos uma
 vez.
 3. Identifica se a linha informada no registro capturado existe nas definições presentes no SIGMOB.
-4. Como não conseguimos identificar o itinerário que o carro está realizando, no passo counts, os resultados de
+4. Definimos em outra tabela uma 'data_versao_efetiva', esse passo serve tanto para definir qual versão do SIGMOB utilizaremos em 
+caso de falha na captura, quanto para definir qual versão será utilizada para o cálculo retroativo do histórico de registros que temos.
+5. Como não conseguimos identificar o itinerário que o carro está realizando, no passo counts, os resultados de
 intersecções são dobrados, devido ao fato de cada linha apresentar dois itinerários possíveis (ida/volta). Portanto,
 ao final, realizamos uma agregação LOGICAL_OR que é true caso o carro esteja dentro do traçado de algum dos itinerários
 possíveis para a linha informada.
@@ -24,10 +26,12 @@ counts AS (
     r.*,
     s.data_versao,
     s.linha_gtfs,
+    -- 1. Buffer e intersecções
     CASE
       WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN TRUE
       ELSE FALSE
     END AS flag_trajeto_correto,
+    -- 2. Histórico de intersecções nos últimos 10 minutos a partir da timestamp_gps atual
     CASE
       WHEN 
         COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
@@ -37,7 +41,9 @@ counts AS (
         THEN True
       ELSE False
     END AS flag_trajeto_correto_hist,
+    -- 3. Identificação de cadastro da linha no SIGMOB
     CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob 
+  -- 4. Join com data_versao_efetiva para definição de quais shapes serão considerados no cálculo das flags
   FROM (
     SELECT t1.*, t2.data_versao_efetiva
     FROM registros t1
@@ -54,6 +60,7 @@ counts AS (
   AND
     r.data_versao_efetiva = s.data_versao
 )
+-- 5. Agregação com LOGICAL_OR para evitar duplicação de registros
 SELECT
   id_veiculo,
   linha,

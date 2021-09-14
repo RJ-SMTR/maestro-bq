@@ -1,9 +1,27 @@
+/*Descrição:
+Calcula intersecções das posições (posicao_veiculo_geo) registradas com o traçado (shape) da linha informada.
+O cálculo é realizado para todos os itinerários relacionados à uma dada linha, unicamente identificados pelo
+"trip_id".
+1. Geramos uma tabela com apenas uma coluna 'faixa_horaria', utilizada para agregar os registros a cada 5 minutos
+2. Junção (Join) da tabela de registros_filtrada com as faixas horarias criada em 1
+3. Cálculo das intersecções. Como descrito acima, contamos quantas vezes as posições informadas nos registros estiveram
+a pelo menos 100 metros do traçado planejado.
+4. Calculamos um 'status' relativo ao estado da viagem sendo realizada na faixa horária considerada. Para tal, usamos a
+mesma metodologia das intersecções, mas definindo o buffer em torno dos pontos iniciais e finais de cada traçado. Assim,
+conseguimos identificar começo, meio ou fim da viagem.
+5. Definimos em outra tabela uma 'data_versao_efetiva', esse passo serve tanto para definir qual versão do SIGMOB 
+utilizaremos em caso de falha na captura do SIGMOB, quanto para definir qual versão será utilizada para o cálculo 
+retroativo do histórico de registros que temos.
+
+*/
+
 WITH
 registros as (
 	SELECT *
 	FROM {{	 registros_filtrada }}
 ),
-times AS ( /* Generate empty TABLE of intervals */
+times AS ( 
+	-- 1. Geração das faixas horárias
 	SELECT
 		faixa_horaria
 	FROM (
@@ -15,8 +33,8 @@ times AS ( /* Generate empty TABLE of intervals */
 		UNNEST (GENERATE_TIMESTAMP_ARRAY(r.min_date,
 			r.max_date,
 		INTERVAL {{ faixa_horaria_minutos }} minute) ) faixa_horaria ),
-faixas AS ( /*
-	JOIN registros WITH intervals generated above */
+faixas AS ( 
+	-- 2. Join da registros_filtrada com as faixas horárias geradas acima
 	SELECT
 		id_veiculo,
 		linha,
@@ -34,7 +52,7 @@ faixas AS ( /*
 	ON
 		(r.timestamp_captura BETWEEN datetime(faixa_horaria)
 		AND datetime(TIMESTAMP_ADD(faixa_horaria, INTERVAL {{ faixa_horaria_minutos }} minute))) ),
-intersects AS ( /* Count number of intersects BETWEEN vehicle AND informed route shape */
+intersects AS ( 
 	SELECT
 		id_veiculo,
 		f.linha AS linha_gps,
@@ -46,10 +64,12 @@ intersects AS ( /* Count number of intersects BETWEEN vehicle AND informed route
 		s.shape_id AS trip_id,
 		MIN(timestamp_captura) AS timestamp_inicio,
 		COUNT(timestamp_captura) AS total_capturas,
+		-- 3. Contagem do número de intersecções a cada faixa_horaria
 		COUNT(CASE
 			WHEN st_dwithin(posicao_veiculo_geo, shape, {{ tamanho_buffer_metros}}) THEN 1
 		END
 		) n_intersec,
+		-- 4. Identificação do estado da viagem a cada faixa horária
 		CASE
 		WHEN COUNT(CASE
 			WHEN st_dwithin(start_pt,
@@ -67,6 +87,7 @@ intersects AS ( /* Count number of intersects BETWEEN vehicle AND informed route
 		'middle'
 	END
 		AS status
+	-- 5. Junção com data_versao_efetiva
 	FROM (
 		SELECT t1.*, t2.data_versao_efetiva
 		FROM faixas t1

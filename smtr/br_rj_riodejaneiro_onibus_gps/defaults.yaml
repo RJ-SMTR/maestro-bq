@@ -51,17 +51,18 @@ parameters:
   registros: "rj-smtr.br_rj_riodejaneiro_onibus_gps.registros" # registros_filtrada
   polygon_garagem: "rj-smtr.br_rj_riodejaneiro_geo.garagens_polygon" # registros_filtrada
   limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
-  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada" # registros_tratamento_*
+  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada" # aux_registros_*
   terminais: "rj-smtr.br_rj_riodejaneiro_transporte.terminais_onibus_coordenadas" # aux_registros_velocidade_status
   garagens: "rj-smtr.br_rj_riodejaneiro_transporte.garagens" # aux_registros_velocidade_status
-  velocidade: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade" # aux_registros_velocidade_status
-  parada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_parada" # registros_tratamento_velocidade
   shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom" # flag_trajeto_correto, aux_registros_intersec
-  flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto" # registros_tratada
   intersec: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_intersec" # viagens_realizadas
-  data_versao_efetiva: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.data_versao_efetiva"
-  registros_tratada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.registros_tratada"
-  linhas_sppo: "rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo"
+  data_versao_efetiva: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.data_versao_efetiva" # aux_registros_intersec, aux_registros_flag_trajeto_correto
+  velocidade: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade" # registros_tratada
+  parada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_parada" # registros_tratada
+  flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto" # registros_tratada
+  registros_tratada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.registros_tratada" # registros_agg_*
+  linhas_sppo: "rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo" # registros_agg_data_hora_consorcio
+
 # Lista de views do dataset
 # Atributos de cada view:
 # - name: nome sem terminação .sql ou .yaml
@@ -69,24 +70,24 @@ parameters:
 # - depends_on: lista de views das quais ela depende
 views:
   aux_registros_filtrada:
-    materialized: true
+    materialized: false
     depends_on:
       - br_rj_riodejaneiro_geo.limites_geograficos_caixa
       - br_rj_riodejaneiro_onibus_gps.registros
 
   registros_agg_data_hora_consorcio:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.registros_tratada
       - br_rj_riodejaneiro_transporte.linhas_sppo
 
   registros_agg_data_hora_linha:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.registros_tratada
 
   registros_agg_data_hora:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.registros_tratada
 
@@ -114,12 +115,12 @@ views:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada
 
   registros_tratada:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_carro
       - br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto
 
   viagens_realizadas:
-    materialized: false
+    materialized: true
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_intersec
