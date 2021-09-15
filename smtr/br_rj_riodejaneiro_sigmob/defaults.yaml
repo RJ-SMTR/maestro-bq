@@ -13,6 +13,9 @@ views:
   agg_stops_vistoriadas:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  routes_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.routes]
 
 # Definição de taxa de atualização
 scheduling:
@@ -39,7 +42,12 @@ parameters:
   routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
   stops: "rj-smtr.br_rj_riodejaneiro_sigmob.stops"
-
+  
+  # Data de início do sigmob
+  ## Todos os dados anteriores a esta data serão comparados com ela
+  ## Dados posteriores serão comparados por dia.
+  data_inicio_sigmob_historico: "2021-08-24"
+  
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
