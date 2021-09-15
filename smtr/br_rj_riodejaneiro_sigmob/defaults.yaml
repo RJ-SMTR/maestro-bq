@@ -32,6 +32,10 @@ parameters:
   trips: "rj-smtr.br_rj_riodejaneiro_sigmob.trips"
   routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
+  
+  # Data de início do sigmob
+  ## Todos os dados anteriores a esta data serão comparados com ela
+  ## Dados posteriores serão comparados por dia.
   data_inicio_sigmob_historico: "2021-08-24"
 # Parâmetros de backfill
 backfill:
