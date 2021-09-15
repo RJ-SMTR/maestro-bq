@@ -15,7 +15,7 @@ WITH
   terminais AS (
     -- 1. Selecionamos terminais, criando uma geometria de ponto para cada.
     SELECT
-      ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_terminal nome_parada, 'terminal' tipo_parada
+      ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_estacao nome_parada, 'terminal' tipo_parada
     FROM {{ terminais }}
   ),
   garagem_polygon AS (

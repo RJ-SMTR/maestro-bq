@@ -26,7 +26,7 @@ parameters:
   # IdModalSMTR
   # 22 -> SPPO
   # 23 -> SPPO Executivo
-  id_modal_smtr: ["'22'", "'23'"]
+  id_modal_smtr: "22"
 
   # Filtro de velocidade no cálculo de viagens realizadas
   ## Serão consideradas somente velocidades entre os valores abaixo
@@ -53,7 +53,7 @@ parameters:
   registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros" # registros_filtrada
   limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
   registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_filtrada" # aux_registros_*
-  estacoes: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_parada
+  terminais: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_parada
   polygon_garagem: "rj-smtr.br_rj_riodejaneiro_geo.garagens_polygon" # aux_registros_parada
   shapes: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.shapes_geom" # aux_registros_flag_trajeto_correto, aux_registros_intersec
   data_versao_efetiva: "rj-smtr-dev.br_rj_riodejaneiro_sigmob.data_versao_efetiva" # aux_registros_flag_trajeto_correto, aux_registros_intersec
