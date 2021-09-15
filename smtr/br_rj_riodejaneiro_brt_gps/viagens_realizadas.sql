@@ -41,7 +41,7 @@ with
         from s
     ),
     realized_trips as (
-        select * except(status, starts, ends),
+        select *,
             1 as tipo_trajeto,
             datetime_diff(datetime_chegada, datetime_partida, minute) as tempo_gasto, 
             round(SAFE_DIVIDE(distancia/1000, datetime_diff(datetime_chegada, datetime_partida, minute)/60), 1) as velocidade_trajeto,
