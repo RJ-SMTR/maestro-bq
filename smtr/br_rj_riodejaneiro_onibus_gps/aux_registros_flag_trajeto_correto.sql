@@ -21,7 +21,7 @@ WITH
     FROM
     {{ registros_filtrada }} r 
   ),
-counts AS (
+  counts AS (
   SELECT
     r.*,
     s.data_versao,
@@ -42,7 +42,11 @@ counts AS (
       ELSE False
     END AS flag_trajeto_correto_hist,
     -- 3. Identificação de cadastro da linha no SIGMOB
-    CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob 
+    CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob
+    COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
+        OVER (PARTITION BY id_veiculo 
+              ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
+              RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) AS n
   -- 4. Join com data_versao_efetiva para definição de quais shapes serão considerados no cálculo das flags
   FROM (
     SELECT t1.*, t2.data_versao_efetiva
@@ -59,27 +63,71 @@ counts AS (
     r.linha = s.linha_gtfs
   AND
     r.data_versao_efetiva = s.data_versao
-)
--- 5. Agregação com LOGICAL_OR para evitar duplicação de registros
+  ),
+  flags as  (
+    -- 5. Agregação com LOGICAL_OR para evitar duplicação de registros
+    SELECT
+      id_veiculo,
+      linha,
+      linha_gtfs,
+      data,
+      timestamp_gps,
+      LOGICAL_OR(flag_trajeto_correto) AS flag_trajeto_correto,
+      LOGICAL_OR(flag_trajeto_correto_hist) AS flag_trajeto_correto_hist,
+      LOGICAL_OR(flag_linha_existe_sigmob) AS flag_linha_existe_sigmob,
+      STRUCT({{ maestro_sha }} AS versao_maestro, 
+            {{ maestro_bq_sha }} AS versao_maestro_bq,
+            data_versao AS data_versao_sigmob
+            ) versao
+    FROM
+      counts c
+    GROUP BY
+      id_veiculo,
+      linha,
+      linha_gtfs,
+      data,
+      data_versao,
+      timestamp_gps
+  ),
+  counts as (
+  select 
+      id_veiculo,
+      timestamp_gps,
+      linha,
+      (case when flag_trajeto_correto is true then 3 else 0 end + 
+      case when flag_trajeto_correto_hist is true then 2 else 0 end + 
+      case when flag_linha_existe_sigmob is true then 1 else 0 end) most_true, 
+      count(linha) over (partition by id_veiculo, timestamp_gps) ct,
+      row_number() over(partition by id_veiculo, timestamp_gps) rn, 
+  from flags
+  ),
+  provavel as (
+    select 
+        id_veiculo,
+        timestamp_gps,
+        linha,
+        CASE
+          WHEN ct>1
+          THEN    
+              CASE 
+              WHEN most_true = max(most_true) over(partition by id_veiculo, timestamp_gps order by rn) 
+              AND lead(most_true) over(partition by id_veiculo, timestamp_gps order by rn) < max(most_true) over(partition by id_veiculo, timestamp_gps order by rn)
+              THEN linha 
+              WHEN most_true = lead(most_true) over(partition by id_veiculo, timestamp_gps order by rn)
+              THEN linha
+              ELSE lead(linha) over(partition by id_veiculo, timestamp_gps order by rn) end
+          WHEN ct = 1
+          THEN linha
+        END AS linha_provavel
+    FROM counts
+  )
 SELECT
-  id_veiculo,
-  linha,
-  linha_gtfs,
-  data,
-  timestamp_gps,
-  LOGICAL_OR(flag_trajeto_correto) AS flag_trajeto_correto,
-  LOGICAL_OR(flag_trajeto_correto_hist) AS flag_trajeto_correto_hist,
-  LOGICAL_OR(flag_linha_existe_sigmob) AS flag_linha_existe_sigmob,
-  STRUCT({{ maestro_sha }} AS versao_maestro, 
-        {{ maestro_bq_sha }} AS versao_maestro_bq,
-        data_versao AS data_versao_sigmob
-        ) versao
+  f.*
 FROM
-  counts c
-GROUP BY
-  id_veiculo,
-  linha,
-  linha_gtfs,
-  data,
-  data_versao,
-  timestamp_gps
+  flags f
+JOIN
+  provavel P
+ON
+  f.id_veiculo = p.id_veiculo
+  AND f.timestamp_gps = p.timestamp_gps
+  AND f.linha = p.linha_provavel

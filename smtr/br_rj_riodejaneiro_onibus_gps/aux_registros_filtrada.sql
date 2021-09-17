@@ -27,7 +27,7 @@ gps AS (
 filtrada AS (
   /*1,2, e 3. Muda o nome de variáveis para o padrão do projeto.*/
   SELECT
-    DISTINCT ordem AS id_veiculo,
+    ordem AS id_veiculo,
     latitude,
     longitude,
     posicao_veiculo_geo,
@@ -36,7 +36,8 @@ filtrada AS (
     timestamp_gps,
     timestamp_captura,
     DATA,
-    hora
+    hora,
+    row_number() over (partition by id_veiculo, timestamp_gps, linha) rn
   FROM
     gps
   WHERE
@@ -47,8 +48,10 @@ filtrada AS (
       ( SELECT max_latitude FROM box)) 
   )
 SELECT
-  *,
+  * except(rn),
   STRUCT({{ maestro_sha }} AS versao_maestro,
     {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM
   filtrada
+WHERE
+  rn = 1

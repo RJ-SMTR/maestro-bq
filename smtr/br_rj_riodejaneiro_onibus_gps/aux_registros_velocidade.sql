@@ -19,6 +19,7 @@ with v as (
         data,
         id_veiculo,
         timestamp_gps,
+        linha,
         -- 1. Cálculo da velocidade. 
         ifnull(round(safe_divide(
             st_distance(
@@ -37,14 +38,14 @@ with v as (
             ) * 3.6, 0), 0) as velocidade
     from  {{ registros_filtrada }})
 SELECT
-  timestamp_gps, 
-  data,
-  id_veiculo, 
-  velocidade,
-  -- 2. Determinação do estado de movimento do veículo.
-  case
-    when velocidade < {{ velocidade_limiar_parado }} then 'parado'
-    else 'andando'
-  end status_movimento,
-  STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
+    timestamp_gps, 
+    data,
+    id_veiculo, 
+    velocidade,
+    -- 2. Determinação do estado de movimento do veículo.
+    case
+        when velocidade < {{ velocidade_limiar_parado }} then 'parado'
+        else 'andando'
+    end status_movimento,
+    STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM v

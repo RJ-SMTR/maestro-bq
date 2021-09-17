@@ -24,7 +24,7 @@ WITH
       longitude,
 
     FROM {{ registros_filtrada }}
-  )
+  ),
   velocidades AS (
     -- 2. velocidades
     SELECT

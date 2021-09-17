@@ -11,25 +11,26 @@ parada, será considerado como parado no terminal com menor distancia.
 4. Caso o veiculo não esteja intersectando o polígono das garagens, ele será considerado como parado dentro
 de uma garagem (o polígono é vazado nas garagens, a não intersecção implica em estar dentro de um dos 'buracos').
 */
-WITH terminais as (
-  -- 1. Selecionamos terminais, criando uma geometria de ponto para cada.
-  select
-    ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_terminal nome_parada, 'terminal' tipo_parada
-  from {{ terminais }}),
-garagem_polygon AS (
-  -- 1. Selecionamos o polígono das garagens.
-	SELECT  ST_GEOGFROMTEXT(WKT,make_valid => true) AS poly
-	FROM {{ polygon_garagem }}
-),
-distancia AS (
-  --2. Calculamos as distâncias e definimos nrow
-  SELECT 
-    timestamp_gps, posicao_veiculo_geo, id_veiculo, nome_parada, tipo_parada,
-    ROUND(ST_DISTANCE(posicao_veiculo_geo, ponto_parada), 1) distancia_parada,
-    ROW_NUMBER() OVER (PARTITION BY timestamp_gps, id_veiculo ORDER BY ST_DISTANCE(posicao_veiculo_geo, ponto_parada)) nrow
-  FROM terminais p
-  join {{ registros_filtrada }} r
-  on 1=1
+WITH 
+  terminais as (
+    -- 1. Selecionamos terminais, criando uma geometria de ponto para cada.
+    select
+      ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_terminal nome_parada, 'terminal' tipo_parada
+    from {{ terminais }}),
+  garagem_polygon AS (
+    -- 1. Selecionamos o polígono das garagens.
+    SELECT  ST_GEOGFROMTEXT(WKT,make_valid => true) AS poly
+    FROM {{ polygon_garagem }}
+  ),
+  distancia AS (
+    --2. Calculamos as distâncias e definimos nrow
+    SELECT 
+      timestamp_gps, linha, posicao_veiculo_geo, id_veiculo, nome_parada, tipo_parada,
+      ROUND(ST_DISTANCE(posicao_veiculo_geo, ponto_parada), 1) distancia_parada,
+      ROW_NUMBER() OVER (PARTITION BY timestamp_gps, id_veiculo ORDER BY ST_DISTANCE(posicao_veiculo_geo, ponto_parada)) nrow
+    FROM terminais p
+    join {{ registros_filtrada }} r
+    on 1=1
   )
 SELECT
   * except(nrow),
