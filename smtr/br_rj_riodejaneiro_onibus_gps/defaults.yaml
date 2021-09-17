@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 * * * *"
+  cron: "0 0 * * *"
 
 # Definição de particionamento
 # - column: nome da coluna
@@ -14,7 +14,7 @@ scheduling:
 # - period: período (conforme especificado acima)
 partitioning:
   column: "data"
-  type: "DATE"
+  type: ""
   period: ""
 
 # Parâmetros de backfill
@@ -119,8 +119,15 @@ views:
   registros_tratada:
     materialized: true
     depends_on:
-      - br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade_carro
+      - br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada
+      - br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade
+      - br_rj_riodejaneiro_onibus_gps.aux_registros_parada
       - br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto
+
+  registros_tratada_8_dias:
+    materialized: true
+    depends_on:
+      - br_rj_riodejaneiro_onibus_gps.registros_tratada
 
   viagens_realizadas:
     materialized: true

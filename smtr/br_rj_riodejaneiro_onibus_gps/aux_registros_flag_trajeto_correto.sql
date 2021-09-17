@@ -21,48 +21,48 @@ WITH
     FROM
     {{ registros_filtrada }} r 
   ),
-  counts AS (
-  SELECT
-    r.*,
-    s.data_versao,
-    s.linha_gtfs,
-    -- 1. Buffer e intersecções
-    CASE
-      WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN TRUE
-      ELSE FALSE
-    END AS flag_trajeto_correto,
-    -- 2. Histórico de intersecções nos últimos 10 minutos a partir da timestamp_gps atual
-    CASE
-      WHEN 
-        COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
-        OVER (PARTITION BY id_veiculo 
-              ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
-              RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) >= 1 
-        THEN True
-      ELSE False
-    END AS flag_trajeto_correto_hist,
-    -- 3. Identificação de cadastro da linha no SIGMOB
-    CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob
-    COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
-        OVER (PARTITION BY id_veiculo 
-              ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
-              RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) AS n
-  -- 4. Join com data_versao_efetiva para definição de quais shapes serão considerados no cálculo das flags
-  FROM (
-    SELECT t1.*, t2.data_versao_efetiva
-    FROM registros t1
-    JOIN  {{ data_versao_efetiva }} t2
-    ON t1.data = t2.data
-  ) r
-  LEFT JOIN (
-    SELECT * 
-    FROM {{ shapes }} 
-    WHERE id_modal_smtr in ({{ id_modal_smtr|join(', ') }})
-  ) s
-  ON
-    r.linha = s.linha_gtfs
-  AND
-    r.data_versao_efetiva = s.data_versao
+  intersec AS (
+    SELECT
+      r.*,
+      s.data_versao,
+      s.linha_gtfs,
+      -- 1. Buffer e intersecções
+      CASE
+        WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN TRUE
+        ELSE FALSE
+      END AS flag_trajeto_correto,
+      -- 2. Histórico de intersecções nos últimos 10 minutos a partir da timestamp_gps atual
+      CASE
+        WHEN 
+          COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
+          OVER (PARTITION BY id_veiculo 
+                ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
+                RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) >= 1 
+          THEN True
+        ELSE False
+      END AS flag_trajeto_correto_hist,
+      -- 3. Identificação de cadastro da linha no SIGMOB
+      CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob,
+      COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
+          OVER (PARTITION BY id_veiculo 
+                ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
+                RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) AS n
+    -- 4. Join com data_versao_efetiva para definição de quais shapes serão considerados no cálculo das flags
+    FROM (
+      SELECT t1.*, t2.data_versao_efetiva
+      FROM registros t1
+      JOIN  {{ data_versao_efetiva }} t2
+      ON t1.data = t2.data
+    ) r
+    LEFT JOIN (
+      SELECT * 
+      FROM {{ shapes }} 
+      WHERE id_modal_smtr in ({{ id_modal_smtr|join(', ') }})
+    ) s
+    ON
+      r.linha = s.linha_gtfs
+    AND
+      r.data_versao_efetiva = s.data_versao
   ),
   flags as  (
     -- 5. Agregação com LOGICAL_OR para evitar duplicação de registros
@@ -80,7 +80,7 @@ WITH
             data_versao AS data_versao_sigmob
             ) versao
     FROM
-      counts c
+      intersec i
     GROUP BY
       id_veiculo,
       linha,
