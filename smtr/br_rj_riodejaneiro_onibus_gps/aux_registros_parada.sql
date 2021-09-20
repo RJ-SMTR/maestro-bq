@@ -27,7 +27,8 @@ WITH
     --2. Calculamos as distâncias e definimos nrow
     SELECT 
       id_veiculo, 
-      timestamp_gps, 
+      timestamp_gps,
+      data, 
       linha, 
       posicao_veiculo_geo, 
       nome_parada, 
@@ -39,7 +40,10 @@ WITH
     on 1=1
   )
 SELECT
-  * except(nrow),
+  data,
+  id_veiculo,
+  timestamp_gps,
+  linha,
   /*
   3. e 4. Identificamos o status do veículo como 'terminal', 'garagem' (para os veículos parados) ou 
   'nao_identificado' (para os veículos mais distantes de uma parada que o limiar definido)
@@ -47,7 +51,7 @@ SELECT
   case
     when distancia_parada < {{ distancia_limiar_parada }} then tipo_parada
     when not ST_INTERSECTS(posicao_veiculo_geo, (SELECT  poly FROM garagem_polygon)) then 'garagem'
-    else 'nao_identificado'
-  end status_tipo_parada,
+    else null
+  end tipo_parada,
 FROM distancia
 WHERE nrow = 1

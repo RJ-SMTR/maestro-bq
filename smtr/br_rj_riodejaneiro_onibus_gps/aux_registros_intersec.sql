@@ -74,13 +74,13 @@ intersects AS (
 		WHEN COUNT(CASE
 			WHEN st_dwithin(start_pt,
 			posicao_veiculo_geo,
-			{{ tamanho_buffer_metros }}) IS TRUE THEN 1
+			{{ buffer_inicio_fim_metros }}) IS TRUE THEN 1
 		END
 		)>=1 THEN 'start'
 		WHEN COUNT(CASE
 			WHEN st_dwithin(end_pt,
 			posicao_veiculo_geo,
-			{{ tamanho_buffer_metros }}) IS TRUE THEN 1
+			{{ buffer_inicio_fim_metros }}) IS TRUE THEN 1
 		END
 		)>=1 THEN 'end'
 		ELSE

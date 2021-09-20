@@ -19,26 +19,28 @@ WITH
       id_veiculo,
       timestamp_gps,
       timestamp_captura,
+      velocidade,
       linha,
       latitude,
       longitude,
 
     FROM {{ registros_filtrada }}
+    WHERE data BETWEEN DATE("{{ date_range_start }}") AND DATE("{{ date_range_end }}")
   ),
   velocidades AS (
     -- 2. velocidades
     SELECT
-      id_veiculo, timestamp_gps, linha, velocidade, status_movimento
+      id_veiculo, timestamp_gps, linha, velocidade, distancia, flag_em_movimento
     FROM
       {{ velocidade }} 
-    WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    WHERE data BETWEEN DATE("{{ date_range_start }}") AND DATE("{{ date_range_end }}")
   ),
   paradas as (
     -- 3. paradas
     SELECT 
-      id_veiculo, timestamp_gps, status_tipo_parada,
+      id_veiculo, timestamp_gps, linha, tipo_parada,
     FROM {{ parada }}
-    WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    WHERE data BETWEEN DATE("{{ date_range_start }}") AND DATE("{{ date_range_end }}")
   ),
   flags AS (
     -- 4. flag_trajeto_correto
@@ -46,23 +48,30 @@ WITH
       id_veiculo, timestamp_gps, linha, flag_linha_existe_sigmob,flag_trajeto_correto, flag_trajeto_correto_hist
     FROM
       {{ flag_trajeto_correto }}
-    WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})  
+    WHERE data BETWEEN DATE("{{ date_range_start }}") AND DATE("{{ date_range_end }}")  
   )
 -- 5. Junção final
 SELECT
   date(r.timestamp_gps) data,
+  "SPPO" modo,
   r.timestamp_gps,
-  extract(time FROM r.timestamp_gps) AS hora_completa, 
   r.id_veiculo,
   r.latitude,
   r.longitude,
+  r.velocidade velocidade_instantanea,
   v.velocidade velocidade_estimada_10_min,
-  v.status_movimento,
-  status_tipo_parada,
-  r.linha,
+  v.flag_em_movimento,
+  p.tipo_parada,
+  r.linha servico,
   flag_linha_existe_sigmob,
   flag_trajeto_correto,
   flag_trajeto_correto_hist,
+  CASE 
+    WHEN 
+      flag_em_movimento IS true AND flag_trajeto_correto_hist is true
+      THEN true
+  ELSE false
+  END flag_em_operacao,
   STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM
   registros r
@@ -79,13 +88,11 @@ JOIN
 ON
   r.id_veiculo = v.id_veiculo
   AND  r.timestamp_gps = v.timestamp_gps
-  AND  v.linha = f.linha
-
+  AND  r.linha = v.linha
 
 JOIN 
   paradas p
 ON  
   r.id_veiculo = p.id_veiculo
   AND  r.timestamp_gps = p.timestamp_gps
-  AND p.linha = f.linha
-
+  AND r.linha = p.linha

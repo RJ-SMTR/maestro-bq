@@ -38,7 +38,9 @@ parameters:
 
   # Parametros de intercecção do ônibus com rota
   ## Tamanho do buffer da rota
-  tamanho_buffer_metros: 100 # aux_registros_intersec /flag_trajeto_corret
+  tamanho_buffer_metros: 100 # aux_registros_intersec /flag_trajeto_correto
+  ## buffer em torno dos pontos iniciais e finais dos shapes
+  buffer_inicio_fim_metros: 250 # aux_registros_intersec
   ## Intervalo máximo que um veículo pode ficar dentro da rota para ser considerado
   ## dentro da rota. Afeta a flag flag_trajeto_correto_hist
   intervalo_max_desvio_segundos: 600 # flag_trajeto_correto
@@ -49,7 +51,7 @@ parameters:
   ## janela sobre a qual a média móvel da velocidade é calculada em aux_registros_velocidade
   janela_movel_velocidade: 600
   ## distância mínima para que o veículo seja identificado parado em um terminal ou garagem em aux_registros_parada
-  distancia_limiar_parada: 1000
+  distancia_limiar_parada: 250
 
   # dependências de views/tabelas
   registros: "rj-smtr.br_rj_riodejaneiro_onibus_gps.registros" # aux_registros_filtrada
@@ -132,7 +134,7 @@ views:
     materialized: false
     depends_on:
       - br_rj_riodejaneiro_onibus_gps.gps_sppo
-      
+
   viagens_realizadas:
     materialized: true
     depends_on:

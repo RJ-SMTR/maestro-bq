@@ -21,6 +21,12 @@ with
         id_veiculo,
         timestamp_gps,
         linha,
+        ST_DISTANCE(
+                posicao_veiculo_geo,
+                lag(posicao_veiculo_geo) over (
+                partition by id_veiculo, linha
+                order by timestamp_gps)
+        ) distancia,
         IFNULL(
             SAFE_DIVIDE(
                 ST_DISTANCE(
@@ -42,9 +48,11 @@ with
     ),
     medias as (
         select 
+        data,
         id_veiculo,
         timestamp_gps,
         linha,
+        distancia, 
         velocidade, # velocidade do pontual
         AVG(velocidade) OVER (
             PARTITION BY id_veiculo, linha
@@ -58,11 +66,12 @@ SELECT
     data,
     id_veiculo,
     linha, 
+    distancia,
     ROUND(velocidade_media, 1) as velocidade,
     -- 2. Determinação do estado de movimento do veículo.
     case
-        when velocidade_media < {{ velocidade_limiar_parado }} then 'parado'
-        else 'andando'
-    end status_movimento,
+        when velocidade_media < {{ velocidade_limiar_parado }} then false
+        else true
+    end flag_em_movimento,
     STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM medias
