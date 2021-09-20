@@ -43,10 +43,6 @@ WITH
       END AS flag_trajeto_correto_hist,
       -- 3. Identificação de cadastro da linha no SIGMOB
       CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob,
-      COUNT(CASE WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN 1 END) 
-          OVER (PARTITION BY id_veiculo 
-                ORDER BY UNIX_SECONDS(TIMESTAMP(timestamp_gps)) 
-                RANGE BETWEEN {{ intervalo_max_desvio_segundos }} PRECEDING AND CURRENT ROW) AS n
     -- 4. Join com data_versao_efetiva para definição de quais shapes serão considerados no cálculo das flags
     FROM (
       SELECT t1.*, t2.data_versao_efetiva
@@ -98,7 +94,7 @@ WITH
       case when flag_trajeto_correto_hist is true then 2 else 0 end + 
       case when flag_linha_existe_sigmob is true then 1 else 0 end) most_true, 
       count(linha) over (partition by id_veiculo, timestamp_gps) ct,
-      row_number() over(partition by id_veiculo, timestamp_gps) rn, 
+      row_number() over (partition by id_veiculo, timestamp_gps) rn
   from flags
   ),
   provavel as (
@@ -111,7 +107,8 @@ WITH
           THEN    
               CASE 
               WHEN most_true = max(most_true) over(partition by id_veiculo, timestamp_gps order by rn) 
-              AND lead(most_true) over(partition by id_veiculo, timestamp_gps order by rn) < max(most_true) over(partition by id_veiculo, timestamp_gps order by rn)
+              AND lead(most_true) over(partition by id_veiculo, timestamp_gps order by rn) < max(most_true) over(
+                    partition by id_veiculo, timestamp_gps order by rn)
               THEN linha 
               WHEN most_true = lead(most_true) over(partition by id_veiculo, timestamp_gps order by rn)
               THEN linha

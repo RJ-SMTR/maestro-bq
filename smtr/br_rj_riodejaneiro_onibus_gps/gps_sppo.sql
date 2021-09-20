@@ -28,7 +28,7 @@ WITH
   velocidades AS (
     -- 2. velocidades
     SELECT
-      id_veiculo, timestamp_gps, velocidade, status_movimento
+      id_veiculo, timestamp_gps, linha, velocidade, status_movimento
     FROM
       {{ velocidade }} 
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
@@ -43,7 +43,7 @@ WITH
   flags AS (
     -- 4. flag_trajeto_correto
     SELECT
-      id_veiculo, timestamp_gps, flag_linha_existe_sigmob,flag_trajeto_correto, flag_trajeto_correto_hist
+      id_veiculo, timestamp_gps, linha, flag_linha_existe_sigmob,flag_trajeto_correto, flag_trajeto_correto_hist
     FROM
       {{ flag_trajeto_correto }}
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})  
@@ -68,19 +68,24 @@ FROM
   registros r
 
 JOIN
-  velocidades v
-ON
-  r.id_veiculo = v.id_veiculo
-  AND  r.timestamp_gps = v.timestamp_gps
-
-JOIN
   flags f
 ON
   r.id_veiculo = f.id_veiculo
   AND r.timestamp_gps = f.timestamp_gps
+  AND r.linha = f.linha
+
+JOIN
+  velocidades v
+ON
+  r.id_veiculo = v.id_veiculo
+  AND  r.timestamp_gps = v.timestamp_gps
+  AND  v.linha = f.linha
+
+
 JOIN 
   paradas p
 ON  
   r.id_veiculo = p.id_veiculo
   AND  r.timestamp_gps = p.timestamp_gps
+  AND p.linha = f.linha
 

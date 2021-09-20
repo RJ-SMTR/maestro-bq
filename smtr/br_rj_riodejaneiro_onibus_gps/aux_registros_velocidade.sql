@@ -14,38 +14,55 @@ um valor nulo.
 2. Após o calculo da velocidade, definimos a coluna 'status_movimento'. Veículos abaixo da 'velocidade_limiar_parado', são
 considerados como 'parado'. Caso contrário, são considerados 'andando'
 */
-with v as (
-    select distinct 
+with 
+    t_velocidade as (
+    select
         data,
         id_veiculo,
         timestamp_gps,
         linha,
-        -- 1. Cálculo da velocidade. 
-        ifnull(round(safe_divide(
-            st_distance(
-                first_value(posicao_veiculo_geo) over (partition by id_veiculo 
-                    order by unix_seconds(timestamp(timestamp_gps)) asc
-                    range between 600 preceding and current row),
-                posicao_veiculo_geo
+        IFNULL(
+            SAFE_DIVIDE(
+                ST_DISTANCE(
+                posicao_veiculo_geo,
+                lag(posicao_veiculo_geo) over (
+                partition by id_veiculo, linha
+                order by timestamp_gps)
                 ),
-            datetime_diff(
+                DATETIME_DIFF(
                 timestamp_gps,
-                first_value(timestamp_gps) over (partition by id_veiculo 
-                    order by unix_seconds(timestamp(timestamp_gps)) asc
-                    range between 600 preceding and current row), 
+                lag(timestamp_gps) over (
+                partition by id_veiculo, linha
+                order by timestamp_gps),
                 SECOND
-                )
-            ) * 3.6, 0), 0) as velocidade
-    from  {{ registros_filtrada }})
+                )),
+            0
+        ) * 3.6 velocidade 
+    from  {{ registros_filtrada }}
+    ),
+    medias as (
+        select 
+        id_veiculo,
+        timestamp_gps,
+        linha,
+        velocidade, # velocidade do pontual
+        AVG(velocidade) OVER (
+            PARTITION BY id_veiculo, linha
+            ORDER BY unix_seconds(timestamp(timestamp_gps))
+            RANGE BETWEEN {{ janela_movel_velocidade }} PRECEDING AND CURRENT ROW
+        ) velocidade_media # velocidade com média móvel
+    from t_velocidade
+    )
 SELECT
     timestamp_gps, 
     data,
-    id_veiculo, 
-    velocidade,
+    id_veiculo,
+    linha, 
+    ROUND(velocidade_media, 1) as velocidade,
     -- 2. Determinação do estado de movimento do veículo.
     case
-        when velocidade < {{ velocidade_limiar_parado }} then 'parado'
+        when velocidade_media < {{ velocidade_limiar_parado }} then 'parado'
         else 'andando'
     end status_movimento,
     STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
-FROM v
+FROM medias

@@ -16,7 +16,8 @@ WITH
     -- 1. Selecionamos terminais, criando uma geometria de ponto para cada.
     select
       ST_GEOGPOINT(longitude, latitude) ponto_parada, nome_terminal nome_parada, 'terminal' tipo_parada
-    from {{ terminais }}),
+    from {{ terminais }}
+  ),
   garagem_polygon AS (
     -- 1. Selecionamos o polígono das garagens.
     SELECT  ST_GEOGFROMTEXT(WKT,make_valid => true) AS poly
@@ -25,7 +26,12 @@ WITH
   distancia AS (
     --2. Calculamos as distâncias e definimos nrow
     SELECT 
-      timestamp_gps, linha, posicao_veiculo_geo, id_veiculo, nome_parada, tipo_parada,
+      id_veiculo, 
+      timestamp_gps, 
+      linha, 
+      posicao_veiculo_geo, 
+      nome_parada, 
+      tipo_parada,
       ROUND(ST_DISTANCE(posicao_veiculo_geo, ponto_parada), 1) distancia_parada,
       ROW_NUMBER() OVER (PARTITION BY timestamp_gps, id_veiculo ORDER BY ST_DISTANCE(posicao_veiculo_geo, ponto_parada)) nrow
     FROM terminais p
