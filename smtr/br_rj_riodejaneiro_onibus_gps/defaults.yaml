@@ -48,6 +48,8 @@ parameters:
   faixa_horaria_minutos: 5 # aux_registros_intersec
   ## velocidade mínima para que o carro seja considerado em movimento em aux_registros_velocidade
   velocidade_limiar_parado: 3
+  ## velocidade máxima média que o veículo pode atingir para evitar outliers provenientes de túneis
+  velocidade_maxima: 60
   ## janela sobre a qual a média móvel da velocidade é calculada em aux_registros_velocidade
   janela_movel_velocidade: 600
   ## distância mínima para que o veículo seja identificado parado em um terminal ou garagem em aux_registros_parada

@@ -67,7 +67,12 @@ SELECT
     id_veiculo,
     linha, 
     distancia,
-    ROUND(velocidade_media, 1) as velocidade,
+    ROUND(
+        CASE WHEN velocidade_media < {{ velocidade_maxima }}
+            THEN {{ velocidade_maxima }}
+            ELSE velocidade_media 
+        END, 
+        1) as velocidade,
     -- 2. Determinação do estado de movimento do veículo.
     case
         when velocidade_media < {{ velocidade_limiar_parado }} then false
