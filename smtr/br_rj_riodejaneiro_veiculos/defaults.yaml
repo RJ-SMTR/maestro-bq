@@ -1,0 +1,46 @@
+# Definição de taxa de atualização
+scheduling:
+  cron: "0 0 * * *"
+
+# Definição de particionamento
+# - column: nome da coluna
+# - type: deve ser um dos seguintes
+#   * DATE (não exige período)
+#   * DATE_TRUNC (exige período MONTH/YEAR)
+#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * <To-do> RANGE_BUCKET
+#   * <To-do> GENERATE_ARRAY
+# - period: período (conforme especificado acima)
+partitioning:
+  column: "data"
+  type: ""
+  period: ""
+
+# Parâmetros de backfill
+backfill:
+  # Formato %Y-%m-%d %H:%M:%S
+  start_timestamp: "2021-08-16 00:00:00"
+  interval:
+    days: 3
+
+# Parâmetros da query
+parameters:
+  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada"
+  velocidade: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade" # gps_sppo
+  parada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_parada" # gps_sppo
+  flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto" # gps_sppo
+
+# Lista de views do dataset
+# Atributos de cada view:
+# - name: nome sem terminação .sql ou .yaml
+# - materialized: true|false para materializar ou não
+# - depends_on: lista de views das quais ela depende
+views:
+  gps_sppo:
+    materialized: true
+    depends_on:
+      - br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada
+      - br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade
+      - br_rj_riodejaneiro_onibus_gps.aux_registros_parada
+      - br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto

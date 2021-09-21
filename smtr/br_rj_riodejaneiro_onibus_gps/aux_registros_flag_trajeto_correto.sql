@@ -26,6 +26,7 @@ WITH
       r.*,
       s.data_versao,
       s.linha_gtfs,
+      s.route_id,
       -- 1. Buffer e intersecções
       CASE
         WHEN st_dwithin(shape, posicao_veiculo_geo, {{ tamanho_buffer_metros }}) THEN TRUE
@@ -66,6 +67,7 @@ WITH
       id_veiculo,
       linha,
       linha_gtfs,
+      route_id,
       data,
       timestamp_gps,
       LOGICAL_OR(flag_trajeto_correto) AS flag_trajeto_correto,
@@ -81,6 +83,7 @@ WITH
       id_veiculo,
       linha,
       linha_gtfs,
+      route_id,
       data,
       data_versao,
       timestamp_gps

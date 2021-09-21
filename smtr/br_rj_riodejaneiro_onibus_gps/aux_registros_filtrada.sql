@@ -22,7 +22,8 @@ gps AS (
   FROM
     {{ registros }}
   WHERE
-    DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) BETWEEN 0 AND 1
+    data between DATE("{{ date_range_start }}") and DATE("{{ date_range_end }}")
+    AND DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) BETWEEN 0 AND 1
     ),
 filtrada AS (
   /*1,2, e 3. Muda o nome de variáveis para o padrão do projeto.*/

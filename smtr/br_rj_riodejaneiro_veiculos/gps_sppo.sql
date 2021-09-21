@@ -45,33 +45,40 @@ WITH
   flags AS (
     -- 4. flag_trajeto_correto
     SELECT
-      id_veiculo, timestamp_gps, linha, flag_linha_existe_sigmob,flag_trajeto_correto, flag_trajeto_correto_hist
+      id_veiculo,
+      timestamp_gps, 
+      linha,
+      route_id, 
+      flag_linha_existe_sigmob,
+      flag_trajeto_correto, 
+      flag_trajeto_correto_hist
     FROM
       {{ flag_trajeto_correto }}
     WHERE data BETWEEN DATE("{{ date_range_start }}") AND DATE("{{ date_range_end }}")  
   )
 -- 5. Junção final
 SELECT
-  date(r.timestamp_gps) data,
   "SPPO" modo,
   r.timestamp_gps,
+  date(r.timestamp_gps) data,
   r.id_veiculo,
+  r.linha servico,
   r.latitude,
   r.longitude,
-  r.velocidade velocidade_instantanea,
-  v.velocidade velocidade_estimada_10_min,
-  v.flag_em_movimento,
-  p.tipo_parada,
-  r.linha servico,
-  flag_linha_existe_sigmob,
-  flag_trajeto_correto,
-  flag_trajeto_correto_hist,
   CASE 
     WHEN 
       flag_em_movimento IS true AND flag_trajeto_correto_hist is true
       THEN true
   ELSE false
   END flag_em_operacao,
+  v.flag_em_movimento,
+  p.tipo_parada,
+  flag_linha_existe_sigmob,
+  flag_trajeto_correto,
+  flag_trajeto_correto_hist,
+  r.velocidade velocidade_instantanea,
+  v.velocidade velocidade_estimada_10_min,
+  v.distancia,
   STRUCT({{ maestro_sha }} AS versao_maestro, {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM
   registros r
