@@ -16,102 +16,102 @@ retroativo do histórico de registros que temos.
 */
 
 WITH
-registros as (
-	SELECT *
-	FROM {{ registros_filtrada }}
-),
-times AS ( 
-	-- 1. Geração das faixas horárias
-	SELECT
-		faixa_horaria
-	FROM (
+	registros as (
+		SELECT *
+		FROM {{	 registros_filtrada }}
+	),
+	times AS ( 
+		-- 1. Geração das faixas horárias
 		SELECT
-			CAST(MIN(data) AS TIMESTAMP) min_date,
-			TIMESTAMP_ADD(CAST(MAX(data) AS TIMESTAMP),INTERVAL 1 day) max_date
-		FROM registros) r
-	JOIN
-		UNNEST (GENERATE_TIMESTAMP_ARRAY(r.min_date,
-			r.max_date,
-		INTERVAL {{ faixa_horaria_minutos }} minute) ) faixa_horaria ),
-faixas AS ( 
-	-- 2. Join da registros_filtrada com as faixas horárias geradas acima
-	SELECT
-		id_veiculo,
-		linha,
-		timestamp_captura,
-		faixa_horaria,
-		longitude,
-		latitude,
-		posicao_veiculo_geo,
-		DATA,
-		hora
-	FROM
-		times t
-	JOIN
-		registros r
-	ON
-		(r.timestamp_captura BETWEEN datetime(faixa_horaria)
-		AND datetime(TIMESTAMP_ADD(faixa_horaria, INTERVAL {{ faixa_horaria_minutos }} minute))) ),
-intersects AS ( 
-	SELECT
-		id_veiculo,
-		f.linha AS linha_gps,
-		s.linha_gtfs,
-		shape_distance AS distancia,
-		data,
-		hora,
-		faixa_horaria,
-		s.shape_id AS trip_id,
-		MIN(timestamp_captura) AS timestamp_inicio,
-		COUNT(timestamp_captura) AS total_capturas,
-		-- 3. Contagem do número de intersecções a cada faixa_horaria
-		COUNT(CASE
-			WHEN st_dwithin(posicao_veiculo_geo, shape, {{ tamanho_buffer_metros}}) THEN 1
-		END
-		) n_intersec,
-		-- 4. Identificação do estado da viagem a cada faixa horária
-		CASE
-		WHEN COUNT(CASE
-			WHEN st_dwithin(start_pt,
+			faixa_horaria
+		FROM (
+			SELECT
+				CAST(MIN(data) AS TIMESTAMP) min_date,
+				TIMESTAMP_ADD(CAST(MAX(data) AS TIMESTAMP),INTERVAL 1 day) max_date
+			FROM registros) r
+		JOIN
+			UNNEST (GENERATE_TIMESTAMP_ARRAY(r.min_date,
+				r.max_date,
+			INTERVAL {{ faixa_horaria_minutos }} minute) ) faixa_horaria ),
+	faixas AS ( 
+		-- 2. Join da registros_filtrada com as faixas horárias geradas acima
+		SELECT
+			id_veiculo,
+			linha,
+			timestamp_captura,
+			faixa_horaria,
+			longitude,
+			latitude,
 			posicao_veiculo_geo,
-			{{ tamanho_buffer_metros }}) IS TRUE THEN 1
+			DATA,
+			hora
+		FROM
+			times t
+		JOIN
+			registros r
+		ON
+			(r.timestamp_captura BETWEEN datetime(faixa_horaria)
+			AND datetime(TIMESTAMP_ADD(faixa_horaria, INTERVAL {{ faixa_horaria_minutos }} minute))) ),
+	intersects AS ( 
+		SELECT
+			id_veiculo,
+			f.linha AS linha_gps,
+			s.linha_gtfs,
+			shape_distance AS distancia,
+			data,
+			hora,
+			faixa_horaria,
+			s.shape_id AS trip_id,
+			MIN(timestamp_captura) AS timestamp_inicio,
+			COUNT(timestamp_captura) AS total_capturas,
+			-- 3. Contagem do número de intersecções a cada faixa_horaria
+			COUNT(CASE
+				WHEN st_dwithin(posicao_veiculo_geo, shape, {{ tamanho_buffer_metros}}) THEN 1
+			END
+			) n_intersec,
+			-- 4. Identificação do estado da viagem a cada faixa horária
+			CASE
+			WHEN COUNT(CASE
+				WHEN st_dwithin(start_pt,
+				posicao_veiculo_geo,
+				{{ buffer_inicio_fim_metros }}) IS TRUE THEN 1
+			END
+			)>=1 THEN 'start'
+			WHEN COUNT(CASE
+				WHEN st_dwithin(end_pt,
+				posicao_veiculo_geo,
+				{{ buffer_inicio_fim_metros }}) IS TRUE THEN 1
+			END
+			)>=1 THEN 'end'
+			ELSE
+			'middle'
 		END
-		)>=1 THEN 'start'
-		WHEN COUNT(CASE
-			WHEN st_dwithin(end_pt,
-			posicao_veiculo_geo,
-			{{ tamanho_buffer_metros }}) IS TRUE THEN 1
-		END
-		)>=1 THEN 'end'
-		ELSE
-		'middle'
-	END
-		AS status
-	-- 5. Junção com data_versao_efetiva
-	FROM (
-		SELECT t1.*, t2.data_versao_efetiva
-		FROM faixas t1
-		JOIN  {{ data_versao_efetiva }} t2
-		ON t1.data = t2.data) f
-	JOIN {{ shapes }} s
-	ON
-		s.data_versao = f.data_versao_efetiva
-		AND f.linha = s.linha_gtfs
-	GROUP BY
-		id_veiculo,
-		faixa_horaria,
-		linha_gps,
-		linha_gtfs,
-		trip_id,
-		data,
-		hora,
-		distancia )
+			AS status
+		-- 5. Junção com data_versao_efetiva
+		FROM (
+			SELECT t1.*, t2.data_versao_efetiva
+			FROM faixas t1
+			JOIN  {{ data_versao_efetiva }} t2
+			ON t1.data = t2.data) f
+		JOIN
+			{{ shapes }} s
+		ON
+			s.data_versao = f.data_versao_efetiva
+			AND f.linha = s.linha_gtfs
+		GROUP BY
+			id_veiculo,
+			faixa_horaria,
+			linha_gps,
+			linha_gtfs,
+			trip_id,
+			data,
+			hora,
+			distancia )
 SELECT
-	*,
-	STRUCT(
-		{{ maestro_sha }} AS versao_maestro,
-		{{ maestro_bq_sha }} AS versao_maestro_bq) versao
+  *,
+  STRUCT({{ maestro_sha }} AS versao_maestro,
+    {{ maestro_bq_sha }} AS versao_maestro_bq) versao
 FROM
-	intersects
+  intersects
 WHERE
-	n_intersec > 0
+  n_intersec > 0

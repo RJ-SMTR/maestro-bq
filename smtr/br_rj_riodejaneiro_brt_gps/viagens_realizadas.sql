@@ -1,4 +1,4 @@
--- get start/end of trips, detects vehicles coming in the buffer at each boundary point
+--get start/end of trips, detects vehicles coming in the buffer at each boundary point
 with 
     t as (
         select id_veiculo,linha_gps,linha_gtfs,
