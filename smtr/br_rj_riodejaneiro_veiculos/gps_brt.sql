@@ -1,4 +1,4 @@
-brt_/*
+/*
 Descrição:
 Junção dos passos de tratamento, junta as informações extras que definimos a partir dos registros
 capturados.
@@ -23,7 +23,6 @@ WITH
         linha,
         latitude,
         longitude,
--- test
     FROM {{ brt_registros_filtrada }}
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
     ),
