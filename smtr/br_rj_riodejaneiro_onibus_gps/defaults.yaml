@@ -105,26 +105,26 @@ views:
       - br_rj_riodejaneiro_sigmob.shapes_geom
       - br_rj_riodejaneiro_sigmob.data_versao_efetiva
 
-  # registros_tratada_8_dias:
-  #   materialized: true
-  #   depends_on:
-  #     - br_rj_riodejaneiro_veiculos.gps_sppo
+  registros_tratada_8_dias:
+    materialized: false
+    depends_on:
+      - br_rj_riodejaneiro_veiculos.gps_sppo
 
-  # registros_agg_data_hora_consorcio:
-  #   materialized: false
-  #   depends_on:
-  #     - br_rj_riodejaneiro_veiculos.gps_sppo
-  #     - br_rj_riodejaneiro_transporte.linhas_sppo
+  registros_agg_data_hora_consorcio:
+    materialized: false
+    depends_on:
+      - br_rj_riodejaneiro_veiculos.gps_sppo
+      - br_rj_riodejaneiro_transporte.linhas_sppo
 
-  # registros_agg_data_hora_linha:
-  #   materialized: false
-  #   depends_on:
-  #     - br_rj_riodejaneiro_veiculos.gps_sppo
+  registros_agg_data_hora_linha:
+    materialized: false
+    depends_on:
+      - br_rj_riodejaneiro_veiculos.gps_sppo
 
-  # registros_agg_data_hora:
-  #   materialized: false
-  #   depends_on:
-  #     - br_rj_riodejaneiro_veiculos.gps_sppo
+  registros_agg_data_hora:
+    materialized: false
+    depends_on:
+      - br_rj_riodejaneiro_veiculos.gps_sppo
 
   viagens_realizadas:
     materialized: true
