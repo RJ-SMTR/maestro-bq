@@ -26,10 +26,14 @@ backfill:
 
 # Parâmetros da query
 parameters:
-  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada"
-  velocidade: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade" # gps_sppo
-  parada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_parada" # gps_sppo
-  flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto" # gps_sppo
+  sppo_registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_filtrada"
+  sppo_velocidade: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade" # gps_sppo
+  sppo_parada: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_parada" # gps_sppo
+  sppo_flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto" # gps_sppo
+  brt_registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_filtrada"
+  brt_velocidade: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_velocidade" # gps_brt
+  brt_parada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_parada" # gps_brt
+  brt_flag_trajeto_correto: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_flag_trajeto_correto" # gps_brt
 
 # Lista de views do dataset
 # Atributos de cada view:
@@ -44,3 +48,10 @@ views:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade
       - br_rj_riodejaneiro_onibus_gps.aux_registros_parada
       - br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto
+  gps_brt:
+    materialized: true
+    depends_on:
+      - br_rj_riodejaneiro_brt_gps.aux_registros_filtrada
+      - br_rj_riodejaneiro_brt_gps.aux_registros_velocidade
+      - br_rj_riodejaneiro_brt_gps.aux_registros_parada
+      - br_rj_riodejaneiro_brt_gps.aux_registros_flag_trajeto_correto
