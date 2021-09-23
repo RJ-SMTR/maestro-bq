@@ -17,6 +17,7 @@ WITH
     -- 1. registros_filtrada
     SELECT 
         id_veiculo,
+        placa_veiculo,
         timestamp_gps,
         timestamp_captura,
         velocidade,
@@ -59,6 +60,7 @@ SELECT
     r.timestamp_gps,
     date(r.timestamp_gps) data,
     r.id_veiculo,
+    r.placa_veiculo,
     r.linha servico,
     r.latitude,
     r.longitude,
