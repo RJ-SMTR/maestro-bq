@@ -2,6 +2,29 @@
 Versionamento de queries para o BigQuery, herdadas do repositório https://github.com/RJ-SMTR/maestro
 
 
+## Testando a query
+
+Crie um virtualenv e instale as dependências:
+
+```
+conda create -n maestro-bq
+conda activate maestro-bq
+pip install -r requirements.txt
+```
+
+Renderize uma query:
+
+`python helper/helper.py render <query-path>`
+
+Por exemplo:
+
+`python helper/helper.py render smtr/brt_rj_riodejaneiro_sigmob/data_versao_efetiva`
+
+A query renderizada será printada na tela e também será salva no seu clipboard.
+Para testar se ela compila, basta executá-la no BigQuery.
+
+Você pode mudar os atributos descritos na próxima secão no arquivo `helper/inner_params.yaml`.
+
 ## Atributos disponíveis para queries
 
 - `run_key`: a chave montada no Dagster para essa execução
