@@ -1,11 +1,10 @@
-create or replace view `rj-smtr-dev.projeto_multa_automatica.view_detalhes_linha_onibus_completa` as
 with frota as (
     select 
         data, 
         linha, 
         faixa_horaria,
-        count(distinct ordem) frota_aferida
-    from `rj-smtr-dev.projeto_multa_automatica.view_detalhes_veiculo_onibus_completa`
+        count(distinct id_veiculo) frota_aferida
+    from {{ detalhes_veiculo_onibus_completa }}
     where situacao = 'operando'
     and linha is not null
     group by data, linha, faixa_horaria),
@@ -17,7 +16,7 @@ combinacoes as (
     from (
         select cast(date_add(max(data), interval 1 day) as timestamp) max_data, cast(min(data) as timestamp) min_data
         from frota),
-    unnest(generate_timestamp_array(min_data, max_data, interval 10 minute)) faixa_horaria
+    unnest(generate_timestamp_array(min_data, max_data, interval {{ faixa_horaria }} minute)) faixa_horaria
     cross join (select distinct linha from frota where linha is not null) 
 ),
 frota_completa as (
@@ -41,15 +40,15 @@ capturas_por_faixa_horaria as (
         date(faixa_horaria) data,
         time(faixa_horaria) faixa_horaria,
         capturas,
-        case when sucessos = 0 then true else false end flag_falha_api, 
-        case when capturas <= 8 then true else false end flag_falha_capturas_smtr
+        case when sucessos <= {{ n_minimo_sucessos_api }} then true else false end flag_falha_api, 
+        case when capturas <= {{ n_minimo_sucessos_captura }} then true else false end flag_falha_capturas_smtr
     from (
     select 
-        timestamp_seconds(600 * div(unix_seconds(timestamp(timestamp_captura)), 600)) faixa_horaria,
+        timestamp_seconds({{ faixa_horaria * 60 }} * div(unix_seconds(timestamp(timestamp_captura)), {{ faixa_horaria * 60 }})) faixa_horaria,
         count(distinct timestamp_captura) capturas,
         sum(case when sucesso = true then 1 else 0 end) sucessos
-    from `rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs` 
-    group by timestamp_seconds(600 * div(unix_seconds(timestamp(timestamp_captura)), 600)))
+    from {{ registros_logs }}
+    group by timestamp_seconds({{ faixa_horaria * 60 }} * div(unix_seconds(timestamp(timestamp_captura)), {{ faixa_horaria * 60 }})))
     order by 1,2
 )
 select 
@@ -60,17 +59,17 @@ select
     frota_aferida,
     frota_determinada,
     case 
-        when frota_determinada <= 5 then frota_determinada                              # até 5 carros 
-        when extract(dayofweek from t1.data) = 1 then  floor(frota_determinada * 0.4)   # domingo
-        when extract(dayofweek from t1.data) = 7 then  floor(frota_determinada * 0.5)   # sábado
-        else floor(frota_determinada * 0.8)                                             # dias úteis
+        when frota_determinada <= {{ limiar_frota_determinada }} then frota_determinada                              # até 5 carros 
+        when extract(dayofweek from t1.data) = 1 then  floor(frota_determinada * {{ proporcao_domingo }})   # domingo
+        when extract(dayofweek from t1.data) = 7 then  floor(frota_determinada * {{ proporcao_sabado }})   # sábado
+        else floor(frota_determinada * {{ proporcao_dia_util }})                                             # dias úteis
     end frota_minima,
     frota_aferida / frota_determinada porcentagem_frota,
     case 
-        when frota_determinada <= 5 and frota_determinada > frota_aferida then true                              # até 5 carros 
-        when extract(dayofweek from t1.data) = 1 and  floor(frota_determinada * 0.4) < frota_aferida then true # domingo
-        when extract(dayofweek from t1.data) = 7 and  floor(frota_determinada * 0.5) < frota_aferida then true # sábado
-        when floor(frota_determinada * 0.8) < frota_aferida then true                                          # dias úteis
+        when frota_determinada <= {{ limiar_frota_determinada }} and frota_determinada > frota_aferida then true                              # até 5 carros 
+        when extract(dayofweek from t1.data) = 1 and  floor(frota_determinada * {{ proporcao_domingo }}) < frota_aferida then true # domingo
+        when extract(dayofweek from t1.data) = 7 and  floor(frota_determinada * {{ proporcao_sabado }}) < frota_aferida then true # sábado
+        when floor(frota_determinada * {{ proporcao_dia_util }}) < frota_aferida then true                                          # dias úteis
         else false
     end flag_irregular,
     frota_aferida = 0 flag_sem_carros,
