@@ -77,8 +77,8 @@ select
     flag_falha_api,
     flag_falha_capturas_smtr
 from frota_completa t1
-join `rj-smtr-dev.projeto_multa_automatica.fake_frota_determinada_onibus` t2
-on t1.linha = t2.linha
+join `rj-smtr-dev.projeto_multa_automatica.frota_determinada` t2
+on t1.linha = t2.route_short_name
 join capturas_por_faixa_horaria t3
 on t1.faixa_horaria = t3.faixa_horaria
 and t1.data = t3.data
