@@ -84,7 +84,7 @@ parameters:
     artigo: 017.IX
     
   # Rerências de tabelas
-  registros: rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.registros_tratada
+  registros: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_sppo
   registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
   detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
   detalhes_veiculo_linha_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
