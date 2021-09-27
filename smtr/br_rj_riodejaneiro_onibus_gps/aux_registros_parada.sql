@@ -36,7 +36,18 @@ WITH
       ROUND(ST_DISTANCE(posicao_veiculo_geo, ponto_parada), 1) distancia_parada,
       ROW_NUMBER() OVER (PARTITION BY timestamp_gps, id_veiculo ORDER BY ST_DISTANCE(posicao_veiculo_geo, ponto_parada)) nrow
     FROM terminais p
-    join {{ registros_filtrada }} r
+    JOIN (
+      SELECT 
+        id_veiculo, 
+        timestamp_gps,
+        data, 
+        linha, 
+        posicao_veiculo_geo
+      FROM  
+        {{ registros_filtrada }}
+      WHERE
+        data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+      ) r
     on 1=1
   )
 SELECT

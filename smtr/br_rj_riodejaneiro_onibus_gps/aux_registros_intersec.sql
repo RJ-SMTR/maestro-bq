@@ -19,6 +19,8 @@ WITH
 registros as (
 	SELECT *
 	FROM {{	 registros_filtrada }}
+    WHERE
+        data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
 ),
 times AS ( 
 	-- 1. Geração das faixas horárias
