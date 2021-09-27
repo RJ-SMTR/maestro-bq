@@ -37,7 +37,7 @@ WITH
       ROW_NUMBER() OVER (PARTITION BY timestamp_gps, id_veiculo ORDER BY ST_DISTANCE(posicao_veiculo_geo, ponto_parada)) nrow
     FROM terminais p
     JOIN (
-      SELECT
+      SELECT *
       FROM
         {{ registros_filtrada }}
       WHERE
