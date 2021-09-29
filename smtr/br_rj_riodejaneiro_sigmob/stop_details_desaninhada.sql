@@ -1,3 +1,4 @@
+/*Desaninha os campos presentes em 'content' da tabela stop_details*/
 SELECT 
   stop_id,
   json_value(content, '$.stop_name') stop_name,
