@@ -10,6 +10,9 @@ views:
   stops_desaninhada:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  stop_details_desaninhada:
+    materialize: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stop_details]
   agg_stops_vistoriadas:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
@@ -42,6 +45,7 @@ parameters:
   routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
   stops: "rj-smtr.br_rj_riodejaneiro_sigmob.stops"
+  stop_details: "rj-smtr.br_rj_riodejaneiro_sigmob.stop_details"
   
   # Data de início do sigmob
   ## Todos os dados anteriores a esta data serão comparados com ela
