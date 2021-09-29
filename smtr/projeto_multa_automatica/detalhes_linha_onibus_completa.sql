@@ -57,26 +57,26 @@ select
     cast(t1.faixa_horaria as string) faixa_horaria,
     pico,
     frota_aferida,
-    frota_determinada,
+    frota_servico,
     case 
-        when frota_determinada <= {{ limiar_frota_determinada }} then frota_determinada                              # até 5 carros 
-        when extract(dayofweek from t1.data) = 1 then  floor(frota_determinada * {{ proporcao_domingo }})   # domingo
-        when extract(dayofweek from t1.data) = 7 then  floor(frota_determinada * {{ proporcao_sabado }})   # sábado
-        else floor(frota_determinada * {{ proporcao_dia_util }})                                             # dias úteis
+        when frota_servico <= {{ limiar_frota_determinada }} then frota_servico                              # até 5 carros 
+        when extract(dayofweek from t1.data) = 1 then  floor(frota_servico * {{ proporcao_domingo }})   # domingo
+        when extract(dayofweek from t1.data) = 7 then  floor(frota_servico * {{ proporcao_sabado }})   # sábado
+        else floor(frota_servico * {{ proporcao_dia_util }})                                             # dias úteis
     end frota_minima,
-    frota_aferida / frota_determinada porcentagem_frota,
+    SAFE_DIVIDE(frota_aferida, frota_servico) porcentagem_frota,
     case 
-        when frota_determinada <= {{ limiar_frota_determinada }} and frota_determinada > frota_aferida then true                              # até 5 carros 
-        when extract(dayofweek from t1.data) = 1 and  floor(frota_determinada * {{ proporcao_domingo }}) < frota_aferida then true # domingo
-        when extract(dayofweek from t1.data) = 7 and  floor(frota_determinada * {{ proporcao_sabado }}) < frota_aferida then true # sábado
-        when floor(frota_determinada * {{ proporcao_dia_util }}) < frota_aferida then true                                          # dias úteis
+        when frota_servico <= {{ limiar_frota_determinada }} and frota_servico > frota_aferida then true                              # até 5 carros 
+        when extract(dayofweek from t1.data) = 1 and  floor(frota_servico * {{ proporcao_domingo }}) < frota_aferida then true # domingo
+        when extract(dayofweek from t1.data) = 7 and  floor(frota_servico * {{ proporcao_sabado }}) < frota_aferida then true # sábado
+        when floor(frota_servico * {{ proporcao_dia_util }}) < frota_aferida then true                                          # dias úteis
         else false
     end flag_irregular,
     frota_aferida = 0 flag_sem_carros,
     flag_falha_api,
     flag_falha_capturas_smtr
 from frota_completa t1
-join `rj-smtr-dev.projeto_multa_automatica.frota_determinada` t2
+join `rj-smtr-dev.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada` t2
 on t1.linha = t2.route_short_name
 join capturas_por_faixa_horaria t3
 on t1.faixa_horaria = t3.faixa_horaria

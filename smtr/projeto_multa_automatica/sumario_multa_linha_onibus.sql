@@ -21,7 +21,7 @@ select
     end tipo_dia,
     pico,
     faixa_horaria,
-    t1.frota_determinada,
+    t1.frota_servico,
     frota_minima,
     frota_aferida,
     porcentagem_frota,

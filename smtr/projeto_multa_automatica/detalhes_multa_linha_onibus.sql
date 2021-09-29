@@ -72,7 +72,7 @@ select
     pico,
     faixa_horaria,
     frota_aferida,
-    frota_determinada,
+    frota_servico,
     frota_minima,
     porcentagem_frota, 
     tipo_multa,
