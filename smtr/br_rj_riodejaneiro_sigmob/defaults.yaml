@@ -11,7 +11,7 @@ views:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
   stop_details_desaninhada:
-    materialize: false
+    materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stop_details]
   agg_stops_vistoriadas:
     materialized: false
@@ -49,12 +49,12 @@ parameters:
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
   stops: "rj-smtr.br_rj_riodejaneiro_sigmob.stops"
   stop_details: "rj-smtr.br_rj_riodejaneiro_sigmob.stop_details"
-  
+
   # Data de início do sigmob
   ## Todos os dados anteriores a esta data serão comparados com ela
   ## Dados posteriores serão comparados por dia.
   data_inicio_sigmob_historico: "2021-08-24"
-  
+
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
