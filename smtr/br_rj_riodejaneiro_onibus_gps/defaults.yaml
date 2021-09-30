@@ -20,7 +20,7 @@ partitioning:
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-08-01 00:00:00"
+  start_timestamp: "2021-03-01 00:00:00"
   interval:
     days: 30
 
