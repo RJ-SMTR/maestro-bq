@@ -1,0 +1,65 @@
+# Lista de views do dataset
+# Atributos de cada view:
+# - name: nome sem terminação .sql ou .yaml
+# - materialized: true|false para materializar ou não
+# - depends_on: lista de views das quais ela depende
+views:
+  shapes_geom:
+    materialized: true
+    depends_on: [br_rj_riodejaneiro_sigmob.shapes]
+  stops_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  stop_details_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stop_details]
+  agg_stops_vistoriadas:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  routes_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.routes]
+  data_versao_efetiva:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.routes]
+  frota_determinada_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.frota_determinada]
+
+
+# Definição de taxa de atualização
+scheduling:
+  cron: "0 4 * * *"
+
+# Definição de particionamento
+# - column: nome da coluna
+# - type: deve ser um dos seguintes
+#   * DATE (não exige período)
+#   * DATE_TRUNC (exige período MONTH/YEAR)
+#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * <To-do> RANGE_BUCKET
+#   * <To-do> GENERATE_ARRAY
+# - period: período (conforme especificado acima)
+partitioning:
+  column: "data_versao"
+  type: ""
+  period: ""
+
+# Parâmetros da query
+parameters:
+  trips: "rj-smtr.br_rj_riodejaneiro_sigmob.trips"
+  routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
+  shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
+  stops: "rj-smtr.br_rj_riodejaneiro_sigmob.stops"
+  stop_details: "rj-smtr.br_rj_riodejaneiro_sigmob.stop_details"
+
+  # Data de início do sigmob
+  ## Todos os dados anteriores a esta data serão comparados com ela
+  ## Dados posteriores serão comparados por dia.
+  data_inicio_sigmob_historico: "2021-08-24"
+
+# Parâmetros de backfill
+backfill:
+  # Formato %Y-%m-%d %H:%M:%S
+  start_timestamp: "2021-08-24 00:00:00"
