@@ -89,6 +89,7 @@ parameters:
   detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
   detalhes_veiculo_linha_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
   detalhes_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.detalhes_multa_linha_onibus
+  frota_determinada: rj-smtr-dev.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
   linhas: rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo
 
 # Parâmetros de backfill

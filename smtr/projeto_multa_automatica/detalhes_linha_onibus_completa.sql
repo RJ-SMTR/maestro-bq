@@ -50,6 +50,11 @@ capturas_por_faixa_horaria as (
     from {{ registros_logs }}
     group by timestamp_seconds({{ faixa_horaria * 60 }} * div(unix_seconds(timestamp(timestamp_captura)), {{ faixa_horaria * 60 }})))
     order by 1,2
+),
+frota_sigmob as (
+    select data_versao data, route_short_name, sum(frota_servico) frota_servico
+    from {{ frota_determinada }}
+    group by data_versao, route_short_name
 )
 select 
     t1.linha,
@@ -76,8 +81,9 @@ select
     flag_falha_api,
     flag_falha_capturas_smtr
 from frota_completa t1
-join `rj-smtr-dev.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada` t2
+join frota_sigmob t2
 on t1.linha = t2.route_short_name
+and t1.data = t2.data
 join capturas_por_faixa_horaria t3
 on t1.faixa_horaria = t3.faixa_horaria
 and t1.data = t3.data
