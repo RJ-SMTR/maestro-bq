@@ -67,9 +67,9 @@ select
     SAFE_DIVIDE(frota_aferida, frota_servico) porcentagem_frota,
     case 
         when frota_servico <= {{ limiar_frota_determinada }} and frota_servico > frota_aferida then true                              # até 5 carros 
-        when extract(dayofweek from t1.data) = 1 and  floor(frota_servico * {{ proporcao_domingo }}) < frota_aferida then true # domingo
-        when extract(dayofweek from t1.data) = 7 and  floor(frota_servico * {{ proporcao_sabado }}) < frota_aferida then true # sábado
-        when floor(frota_servico * {{ proporcao_dia_util }}) < frota_aferida then true                                          # dias úteis
+        when extract(dayofweek from t1.data) = 1 and  floor(frota_servico * {{ proporcao_domingo }}) > frota_aferida then true # domingo
+        when extract(dayofweek from t1.data) = 7 and  floor(frota_servico * {{ proporcao_sabado }}) > frota_aferida then true # sábado
+        when floor(frota_servico * {{ proporcao_dia_util }}) > frota_aferida then true                                          # dias úteis
         else false
     end flag_irregular,
     frota_aferida = 0 flag_sem_carros,
