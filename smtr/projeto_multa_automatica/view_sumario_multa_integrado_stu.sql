@@ -10,9 +10,10 @@ sumario AS (
     id_multa,
     linha,
     artigo_multa as codigo_infracao,
-    replace(
-      replace(faixa_horaria, "-", ""),
-        ":", "") as data_infracao
+    concat(
+      replace(data, "-", ""),
+      replace(faixa_horaria, ":", "")
+    ) as data_infracao
   FROM `rj-smtr-dev.projeto_multa_automatica.sumario_multa_linha_onibus` 
   WHERE DATE(data) = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
 )
