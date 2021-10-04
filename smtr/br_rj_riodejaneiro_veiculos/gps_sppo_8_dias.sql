@@ -1,3 +1,0 @@
-SELECT *
-FROM {{ gps_sppo }}
-WHERE data between DATE_SUB(CURRENT_DATE(), INTERVAL 8 DAY) and CURRENT_DATE()
