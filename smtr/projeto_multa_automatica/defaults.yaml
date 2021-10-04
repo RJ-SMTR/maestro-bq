@@ -48,7 +48,7 @@ parameters:
   ## Intervalo dos picos
   hora_pico:
     manha:
-      inicio: 5
+      inicio: 6
       fim: 8
     noite:
       inicio: 16
