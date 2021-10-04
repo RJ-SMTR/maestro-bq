@@ -22,6 +22,10 @@ views:
   data_versao_efetiva:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.routes]
+  frota_determinada_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.frota_determinada]
+
 
 # Definição de taxa de atualização
 scheduling:
@@ -59,3 +63,5 @@ parameters:
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
   start_timestamp: "2021-08-24 00:00:00"
+  interval:
+    days: 30
