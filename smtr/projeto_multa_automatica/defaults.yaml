@@ -45,6 +45,15 @@ parameters:
   ## da frota determinada.   
   limiar_frota_determinada: 5
 
+  ## Intervalo dos picos
+  hora_pico:
+    manha:
+      inicio: 5
+      fim: 8
+    noite:
+      inicio: 16
+      fim: 19
+
   ## Proporções da frota determinada por dia da semana
   proporcao_dia_util: 0.8
   proporcao_sabado: 0.5
