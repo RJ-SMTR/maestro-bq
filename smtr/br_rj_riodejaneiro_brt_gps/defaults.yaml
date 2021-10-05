@@ -54,7 +54,7 @@ parameters:
   ## Velocidade mínima para que o carro seja considerado em movimento em aux_registros_velocidade
   velocidade_limiar_parado: 3
   ## Distância mínima para que o veículo seja identificado parado em um terminal ou garagem em aux_registros_parada
-  distancia_limiar_parada: 1000
+  distancia_limiar_parada: 250
 
   # dependências de views/tabelas
   registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros" # registros_filtrada
