@@ -4,28 +4,42 @@
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
-  shapes_geom:
-    materialized: true
-    depends_on: [br_rj_riodejaneiro_sigmob.shapes]
-  stops_desaninhada:
+  agency_desaninhada:
     materialized: false
-    depends_on: [br_rj_riodejaneiro_sigmob.stops]
-  stop_details_desaninhada:
+    depends_on: [br_rj_riodejaneiro_sigmob.agency]
+  calendar_desaninhada:
     materialized: false
-    depends_on: [br_rj_riodejaneiro_sigmob.stop_details]
-  agg_stops_vistoriadas:
+    depends_on: [br_rj_riodejaneiro_sigmob.calendar]
+  linhas_desaninhada:
     materialized: false
-    depends_on: [br_rj_riodejaneiro_sigmob.stops]
-  routes_desaninhada:
-    materialized: false
-    depends_on: [br_rj_riodejaneiro_sigmob.routes]
-  data_versao_efetiva:
-    materialized: false
-    depends_on: [br_rj_riodejaneiro_sigmob.routes]
+    depends_on: [br_rj_riodejaneiro_sigmob.linhas]
   frota_determinada_desaninhada:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.frota_determinada]
-
+  routes_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.routes]
+  shapes_geom:
+    materialized: true
+    depends_on: [br_rj_riodejaneiro_sigmob.shapes]
+  stop_details_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stop_details]
+  stop_times_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stop_times]
+  stops_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  trips_desaninhada:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.trips]
+  agg_stops_vistoriadas:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.stops]
+  data_versao_efetiva:
+    materialized: false
+    depends_on: [br_rj_riodejaneiro_sigmob.routes]
 
 # Definição de taxa de atualização
 scheduling:
@@ -69,11 +83,13 @@ parameters:
   data_inclusao_trips: "2021-08-03"
   data_inclusao_shapes: "2021-08-24"
   data_inclusao_stops: "2021-08-24"
-  data_inclusao_calendar: "2021-09-27"
-  data_inclusao_frota_determinada: "2021-09-27"
-  data_inclusao_stop_details: "2021-09-27"
+  data_inclusao_calendar: "2021-09-30"
+  data_inclusao_frota_determinada: "2021-09-30"
+  data_inclusao_stop_details: "2021-09-30"
 
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
   start_timestamp: "2021-08-24 00:00:00"
+  interval:
+    days: 30
