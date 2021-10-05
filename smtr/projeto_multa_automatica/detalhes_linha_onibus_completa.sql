@@ -22,11 +22,6 @@ combinacoes as (
 frota_completa as (
     select 
         c.data, c.linha, c.faixa_horaria, 
-        case 
-            when extract(hour from c.faixa_horaria) between 5 and 8 then 'manha' 
-            when extract(hour from c.faixa_horaria) between 16 and 19 then 'tarde'
-            else 'fora pico'
-        end pico,
         coalesce(f.frota_aferida, 0) frota_aferida
     from frota f
     full outer join combinacoes c
@@ -52,9 +47,98 @@ capturas_por_faixa_horaria as (
     order by 1,2
 ),
 frota_sigmob as (
-    select data_versao data, route_short_name, sum(frota_servico) frota_servico
-    from {{ frota_determinada }}
-    group by data_versao, route_short_name
+    select 
+        DATE(f.data_versao) data_versao,
+        route_short_name,
+        sum(FrotaServico) frota_servico,
+        consorcio
+    from 
+        {{ frota_determinada }} f
+    join (
+        select  
+            route_id, 
+            agency_id,
+            route_short_name,
+            data_versao
+        from {{ routes }}
+    ) r
+    on 
+        f.route_id = r.route_id
+    and 
+        DATE(f.data_versao) = r.data_versao
+    join (
+        select 
+            agency_id,
+            Normalize_and_Casefold(json_value(content, "$.agency_name")) consorcio,
+            DATE(data_versao) as data_versao
+    from {{ agency }}
+    ) c
+    on
+        r.agency_id = c.agency_id
+    and
+        r.data_versao = c.data_versao
+    group by 
+        f.data_versao, route_short_name, consorcio
+),
+frota_consorcio as (
+    SELECT
+        f1.*,
+        f2.*,
+        CASE
+            WHEN consorcio = "intersul"
+            THEN
+                CASE    
+                WHEN extract(hour from f1.faixa_horaria) between 6 and 9
+                THEN 'manhã'
+                WHEN extract(hour from f1.faixa_horaria) between 16 and 19
+                THEN 'noite'
+                ELSE 'fora_pico'
+                END
+            WHEN consorcio = 'internorte'
+            THEN
+                CASE    
+                WHEN 
+                    TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,30,0)
+                THEN 'manhã'
+                WHEN extract(hour from f1.faixa_horaria) between 16 and 19
+                THEN 'noite'
+                ELSE 'fora pico'
+                END
+            WHEN consorcio = 'transcarioca'
+            THEN
+                CASE    
+                WHEN 
+                    TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,30,0)
+                THEN 'manhã'
+                WHEN extract(hour from f1.faixa_horaria) between 16 and 19
+                THEN 'noite'
+                ELSE 'fora pico'
+                END
+            WHEN consorcio = "santa cruz"
+            THEN
+                CASE    
+                WHEN extract(hour from f1.faixa_horaria) between 5 and 8
+                THEN 'manhã'
+                WHEN extract(hour from f1.faixa_horaria) between 17 and 20
+                THEN 'noite'
+                ELSE 'fora pico'
+                END
+        END pico
+    FROM (
+        SELECT
+        t1.*,
+        t2.data_versao_efetiva
+        FROM frota_completa t1
+        JOIN {{ data_versao_efetiva }} t2
+        on t1.data = t2.data
+        ) f1
+    join 
+        frota_sigmob f2
+    on 
+        f1.linha = f2.route_short_name
+    and 
+        f1.data_versao_efetiva = f2.data_versao
+
 )
 select 
     t1.linha,
@@ -80,10 +164,7 @@ select
     frota_aferida = 0 flag_sem_carros,
     flag_falha_api,
     flag_falha_capturas_smtr
-from frota_completa t1
-join frota_sigmob t2
-on t1.linha = t2.route_short_name
+from frota_consorcio t1
+join capturas_por_faixa_horaria t2
+on t1.faixa_horaria = t2.faixa_horaria
 and t1.data = t2.data
-join capturas_por_faixa_horaria t3
-on t1.faixa_horaria = t3.faixa_horaria
-and t1.data = t3.data
