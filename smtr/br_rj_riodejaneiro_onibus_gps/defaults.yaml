@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 0 * * *"
+  cron: "0 * * * *"
 
 # Definição de particionamento
 # - column: nome da coluna
