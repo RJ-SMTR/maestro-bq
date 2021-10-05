@@ -48,3 +48,4 @@ SELECT
 FROM {{ stops }} t
 where data_versao = (select max(data_versao) FROM {{ stops }})
 and json_value(content, '$.Inexistente') = 'SIM'
+and json_value(content, '$.idModalSmtr') = '22'
