@@ -22,6 +22,11 @@ combinacoes as (
 frota_completa as (
     select 
         c.data, c.linha, c.faixa_horaria, 
+        case 
+            when extract(hour from c.faixa_horaria) between {{ hora_pico["manha"]["inicio"] }} and {{ hora_pico["manha"]["fim"] }} then 'manha' 
+            when extract(hour from c.faixa_horaria) between {{ hora_pico["noite"]["inicio"] }} and {{ hora_pico["noite"]["fim"] }} then 'tarde'
+            else 'fora pico'
+        end pico,
         coalesce(f.frota_aferida, 0) frota_aferida
     from frota f
     full outer join combinacoes c
