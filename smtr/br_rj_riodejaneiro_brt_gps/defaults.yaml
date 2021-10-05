@@ -108,3 +108,4 @@ views:
     materialized: false
     depends_on:
       - br_rj_riodejaneiro_brt_gps.aux_registros_intersec
+
