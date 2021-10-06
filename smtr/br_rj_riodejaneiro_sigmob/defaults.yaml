@@ -68,6 +68,7 @@ parameters:
   linhas: "rj-smtr.br_rj_riodejaneiro_sigmob.linhas"
   routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
+  shapes_geom: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes_geom"
   stop_times: "rj-smtr.br_rj_riodejaneiro_sigmob.stop_times"
   stop_details: "rj-smtr.br_rj_riodejaneiro_sigmob.stop_details"
   stops: "rj-smtr.br_rj_riodejaneiro_sigmob.stops"

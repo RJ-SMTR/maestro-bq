@@ -68,7 +68,7 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ shapes }})
+    FROM {{ shapes_geom }})
 ON data = DATE(data_versao)
 ),
 stop_details as (
