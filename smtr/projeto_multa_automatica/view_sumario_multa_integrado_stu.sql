@@ -1,21 +1,31 @@
 WITH
-consorcios AS (
-  SELECT
-    linha,
-    codigo AS permissao,
-  FROM `rj-smtr-dev.br_rj_riodejaneiro_sigmob.frota_determinada_consorcio` 
+consorcios as (
+  SELECT 
+    l.consorcio,
+    codigo as permissao,
+    linha,  
+  FROM (
+    select * 
+    from {{ linhas }}
+    WHERE servico = 'REGULAR') l
+  join (
+    select
+      codigo,
+      consorcio
+    from {{ codigos_consorcios }} 
+  ) c
+  on Normalize_and_Casefold(l.consorcio) = Normalize_and_Casefold(c.consorcio)
 ),
 sumario AS (
-  SELECT 
-    id_multa,
+  SELECT
     linha,
     artigo_multa as codigo_infracao,
     concat(
       replace(data, "-", ""),
       replace(faixa_horaria, ":", "")
     ) as data_infracao
-  FROM `rj-smtr-dev.projeto_multa_automatica.sumario_multa_linha_onibus` 
-  WHERE DATE(data) = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
+  FROM {{ sumario_multa_linha_onibus }}
+  WHERE DATE(data) = CURRENT_DATE()
 )
 
 SELECT

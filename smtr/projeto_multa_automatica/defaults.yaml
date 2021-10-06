@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 4 * * *"
+  cron: "0 21 * * *"
 
 # Definição de particionamento
 # - column: nome da coluna
@@ -13,8 +13,8 @@ scheduling:
 #   * <To-do> GENERATE_ARRAY
 # - period: período (conforme especificado acima)
 partitioning:
-  column: "data_versao"
-  type: ""
+  column: "data"
+  type: "DATE"
   period: ""
 
 # Parâmetros da query
@@ -91,22 +91,25 @@ parameters:
     artigo: 017.IX
 
   # Rerências de tabelas
-  registros: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_sppo
+  registros: rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo
   registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
   detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
   detalhes_veiculo_linha_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
   detalhes_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.detalhes_multa_linha_onibus
+  sumario_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.sumario_multa_linha_onibus
   data_versao_efetiva: rj-smtr-dev.br_rj_riodejaneiro_sigmob.data_versao_efetiva_frota_determinada
   frota_determinada: rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
   routes: rj-smtr.br_rj_riodejaneiro_sigmob.routes_desaninhada
   agency: rj-smtr.br_rj_riodejaneiro_sigmob.agency
   linhas: rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo
+  codigos_consorcios: rj-smtr.br_rj_riodejaneiro_transporte.codigos_consorcios
 
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-09-14 00:00:00"
-
+  start_timestamp: "2021-07-31 00:00:00"
+  interval:
+    days: 30
 # Lista de views do dataset
 # Atributos de cada view:
 # - name: nome sem terminação .sql ou .yaml
