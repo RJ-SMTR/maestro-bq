@@ -22,11 +22,6 @@ combinacoes as (
 frota_completa as (
     select 
         c.data, c.linha, c.faixa_horaria, 
-        case 
-            when extract(hour from c.faixa_horaria) between {{ hora_pico["manha"]["inicio"] }} and {{ hora_pico["manha"]["fim"] }} then 'manha' 
-            when extract(hour from c.faixa_horaria) between {{ hora_pico["noite"]["inicio"] }} and {{ hora_pico["noite"]["fim"] }} then 'tarde'
-            else 'fora pico'
-        end pico,
         coalesce(f.frota_aferida, 0) frota_aferida
     from frota f
     full outer join combinacoes c
@@ -93,39 +88,37 @@ frota_consorcio as (
             WHEN consorcio = "intersul"
             THEN
                 CASE    
-                WHEN extract(hour from f1.faixa_horaria) between 6 and 9
-                THEN 'manhã'
-                WHEN extract(hour from f1.faixa_horaria) between 16 and 19
-                THEN 'noite'
-                ELSE 'fora_pico'
+                WHEN TIME(f1.faixa_horaria) between TIME(6,0,0) and TIME(8,50,0)
+                THEN 'manha'
+                WHEN TIME(f1.faixa_horaria) between TIME(16,0,0) and TIME(18,50,0)
+                THEN 'tarde'
+                ELSE 'fora pico'
                 END
             WHEN consorcio = 'internorte'
             THEN
                 CASE    
-                WHEN 
-                    TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,30,0)
-                THEN 'manhã'
-                WHEN extract(hour from f1.faixa_horaria) between 16 and 19
-                THEN 'noite'
+                WHEN TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,20,0)
+                THEN 'manha'
+                WHEN TIME(f1.faixa_horaria) between TIME(16,0,0) and TIME(18,50,0)
+                THEN 'tarde'
                 ELSE 'fora pico'
                 END
             WHEN consorcio = 'transcarioca'
             THEN
                 CASE    
-                WHEN 
-                    TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,30,0)
-                THEN 'manhã'
-                WHEN extract(hour from f1.faixa_horaria) between 16 and 19
-                THEN 'noite'
+                WHEN TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,20,0)
+                THEN 'manha'
+                WHEN TIME(f1.faixa_horaria) between TIME(16,0,0) and TIME(18,50,0)
+                THEN 'tarde'
                 ELSE 'fora pico'
                 END
             WHEN consorcio = "santa cruz"
             THEN
                 CASE    
-                WHEN extract(hour from f1.faixa_horaria) between 5 and 8
-                THEN 'manhã'
-                WHEN extract(hour from f1.faixa_horaria) between 17 and 20
-                THEN 'noite'
+                WHEN TIME(f1.faixa_horaria) between TIME(5,0,0) and TIME(7,50,0)
+                THEN 'manha'
+                WHEN TIME(f1.faixa_horaria) between TIME(17,0,0) and TIME(19,50,0)
+                THEN 'tarde'
                 ELSE 'fora pico'
                 END
         END pico
