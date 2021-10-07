@@ -47,6 +47,8 @@ with
     FROM  {{ registros_filtrada }}
     WHERE
         data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+    AND
+        timestamp_gps between {{ date_range_start }} and {{ date_range_end }}
     ),
     medias as (
         select 
