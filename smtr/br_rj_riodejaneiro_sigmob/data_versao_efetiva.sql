@@ -8,7 +8,8 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ agency }})
+    FROM {{ agency }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 calendar as (
@@ -20,7 +21,8 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ calendar }})
+    FROM {{ calendar }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 frota_determinada as (
@@ -32,11 +34,12 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ frota_determinada }})
+    FROM {{ frota_determinada }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON DATE(data) = DATE(data_versao)
 ),
 linhas as (
-  SELECT 
+    SELECT 
     data,
     DATE(data_versao) as data_versao_original, 
     CASE WHEN data < DATE("{{ data_inclusao_linhas }}") THEN DATE("{{ data_inclusao_linhas }}") ELSE
@@ -44,19 +47,21 @@ linhas as (
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ linhas }})
+    FROM {{ linhas }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 routes as (
 SELECT 
     data,
     DATE(data_versao) as data_versao_original, 
-   CASE WHEN data < DATE("{{ data_inclusao_routes }}") THEN DATE("{{ data_inclusao_routes }}") ELSE
+    CASE WHEN data < DATE("{{ data_inclusao_routes }}") THEN DATE("{{ data_inclusao_routes }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ routes }})
+    FROM {{ routes }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = data_versao
 ),
 shapes as (
@@ -68,7 +73,8 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ shapes_geom }})
+    FROM {{ shapes_geom }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stop_details as (
@@ -80,7 +86,8 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ stop_details }})
+    FROM {{ stop_details }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stop_times as (
@@ -92,7 +99,8 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ stop_times }})
+    FROM {{ stop_times }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stops as (
@@ -104,7 +112,8 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ stops }})
+    FROM {{ stops }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 trips as (
@@ -116,7 +125,8 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ trips }})
+    FROM {{ trips }}
+    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 )
 select

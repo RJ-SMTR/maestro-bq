@@ -38,7 +38,7 @@ views:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
   data_versao_efetiva:
-    materialized: false
+    materialized: true
     depends_on: [br_rj_riodejaneiro_sigmob.routes]
 
 # Definição de taxa de atualização
