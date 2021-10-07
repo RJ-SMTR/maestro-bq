@@ -85,42 +85,23 @@ frota_consorcio as (
         f1.*,
         f2.*,
         CASE
-            WHEN consorcio = "intersul"
+            {% for consorcio, picos in hora_pico.items() %}
+            WHEN consorcio = '{{ consorcio }}'
             THEN
-                CASE    
-                WHEN TIME(f1.faixa_horaria) between TIME(6,0,0) and TIME(8,50,0)
-                THEN 'manha'
-                WHEN TIME(f1.faixa_horaria) between TIME(16,0,0) and TIME(18,50,0)
-                THEN 'tarde'
+                CASE 
+                {% for periodo, faixa in picos.items() %} 
+                WHEN TIME(f1.faixa_horaria) between TIME(
+                    {{ faixa['inicio']['hora'] }},
+                    {{ faixa['inicio']['minuto'] }},
+                    0) and TIME(
+                    {{ faixa['fim']['hora'] }},
+                    {{ faixa['fim']['minuto'] }},
+                    0)
+                THEN '{{ periodo }}'
+                {% endfor %}
                 ELSE 'fora pico'
-                END
-            WHEN consorcio = 'internorte'
-            THEN
-                CASE    
-                WHEN TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,20,0)
-                THEN 'manha'
-                WHEN TIME(f1.faixa_horaria) between TIME(16,0,0) and TIME(18,50,0)
-                THEN 'tarde'
-                ELSE 'fora pico'
-                END
-            WHEN consorcio = 'transcarioca'
-            THEN
-                CASE    
-                WHEN TIME(f1.faixa_horaria) between TIME(5,30,0) and TIME(8,20,0)
-                THEN 'manha'
-                WHEN TIME(f1.faixa_horaria) between TIME(16,0,0) and TIME(18,50,0)
-                THEN 'tarde'
-                ELSE 'fora pico'
-                END
-            WHEN consorcio = "santa cruz"
-            THEN
-                CASE    
-                WHEN TIME(f1.faixa_horaria) between TIME(5,0,0) and TIME(7,50,0)
-                THEN 'manha'
-                WHEN TIME(f1.faixa_horaria) between TIME(17,0,0) and TIME(19,50,0)
-                THEN 'tarde'
-                ELSE 'fora pico'
-                END
+            END
+            {% endfor %}
         END pico
     FROM (
         SELECT
