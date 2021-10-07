@@ -5,7 +5,9 @@ with frota as (
         faixa_horaria,
         count(distinct id_veiculo) frota_aferida
     from {{ detalhes_veiculo_onibus_completa }}
-    where situacao = 'operando'
+    where 
+    data between date({{ date_range_start }}) and date({{ date_range_end }})
+    and situacao = 'operando'
     and linha is not null
     group by data, linha, faixa_horaria),
 combinacoes as (
@@ -125,7 +127,7 @@ frota_consorcio as (
     FROM (
         SELECT
         t1.*,
-        t2.data_versao_efetiva
+        t2.data_versao_efetiva_frota_determinada as data_versao_efetiva
         FROM frota_completa t1
         JOIN {{ data_versao_efetiva }} t2
         on t1.data = t2.data
@@ -140,7 +142,7 @@ frota_consorcio as (
 )
 select 
     t1.linha,
-    cast(t1.data as string) data,
+    t1.data data,
     cast(t1.faixa_horaria as string) faixa_horaria,
     pico,
     frota_aferida,

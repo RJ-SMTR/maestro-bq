@@ -1,7 +1,8 @@
 with filtrada as (
     select *
-    from {{ detalhes_veiculo_linha_completa }}
-    where pico != 'fora pico'
+    from {{ detalhes_linha_onibus_completa }}
+    where DATE(data) between date({{ date_range_start }}) and date({{ date_range_end }})
+    and pico != 'fora pico'
     and flag_falha_api = False
     and flag_falha_capturas_smtr = False
 ),
@@ -66,7 +67,7 @@ geral as (
     union all
     select * from multa_X_horas_sem_carros)
 select 
-    concat(replace(data, '-', ''), '-', linha, '-', pico,'-', prioridade) id_multa,
+    concat(replace(cast(data as string), '-', ''), '-', linha, '-', pico,'-', prioridade) id_multa,
     linha,
     data,
     pico,
@@ -80,4 +81,3 @@ select
     prioridade
 from geral 
 where flag_multa = True
-order by linha, faixa_horaria
