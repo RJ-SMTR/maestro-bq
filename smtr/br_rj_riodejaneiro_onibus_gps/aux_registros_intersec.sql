@@ -22,7 +22,7 @@ registros as (
     WHERE
 		data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
     AND
-		timestamp_gps between {{ date_range_start }} and {{ date_range_end }}
+		timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
 ),
 times AS ( 
 	-- 1. Geração das faixas horárias

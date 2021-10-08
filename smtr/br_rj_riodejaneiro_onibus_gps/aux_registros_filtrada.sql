@@ -23,7 +23,7 @@ gps AS (
     {{ registros }}
   WHERE
     data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
-    AND timestamp_gps BETWEEN {{ date_range_start }} AND {{ date_range_end }}
+    AND timestamp_gps > {{ date_range_start }} AND timestamp_gps <= {{ date_range_end }}
     AND DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) BETWEEN 0 AND 1
     ),
 filtrada AS (
