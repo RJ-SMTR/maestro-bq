@@ -5,6 +5,9 @@ with multa_ultima_hora as (
             partition by linha, data, pico, tipo_multa 
             order by linha, data, pico, tipo_multa, faixa_horaria  DESC) row_num
         from {{ detalhes_multa_linha_onibus }}
+        where data between date({{ date_range_start }}) and date({{ date_range_end }})
+        and 
+        DATETIME(concat(cast(data as string), " ", faixa_horaria)) between {{ date_range_start }} and {{ date_range_end }}
         ) 
     where row_num = 1
     )

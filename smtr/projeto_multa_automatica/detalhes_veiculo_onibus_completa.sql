@@ -13,3 +13,4 @@ select distinct
     end situacao
 from {{ registros }}
 WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+and timestamp_gps between {{ date_range_start }} and {{ date_range_end }}
