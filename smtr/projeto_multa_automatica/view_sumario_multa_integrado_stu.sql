@@ -18,6 +18,8 @@ consorcios as (
 ),
 sumario AS (
   SELECT
+    "" as placa,
+    "" as ordem,
     linha,
     artigo_multa as codigo_infracao,
     concat(
