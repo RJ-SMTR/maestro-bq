@@ -6,10 +6,10 @@ SELECT
     CASE WHEN data < DATE("{{ data_inclusao_agency }}") THEN DATE("{{ data_inclusao_agency }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ agency }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 calendar as (
@@ -19,10 +19,10 @@ SELECT
     CASE WHEN data <= DATE("{{ data_inclusao_calendar }}") THEN DATE("{{ data_inclusao_calendar }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ calendar }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 frota_determinada as (
@@ -32,10 +32,10 @@ SELECT
     CASE WHEN data <= DATE("{{ data_inclusao_frota_determinada }}") THEN DATE("{{ data_inclusao_frota_determinada }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ frota_determinada }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON DATE(data) = DATE(data_versao)
 ),
 linhas as (
@@ -45,10 +45,10 @@ linhas as (
     CASE WHEN data < DATE("{{ data_inclusao_linhas }}") THEN DATE("{{ data_inclusao_linhas }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ linhas }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 routes as (
@@ -58,10 +58,10 @@ SELECT
     CASE WHEN data < DATE("{{ data_inclusao_routes }}") THEN DATE("{{ data_inclusao_routes }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ routes }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = data_versao
 ),
 shapes as (
@@ -71,10 +71,10 @@ SELECT
    CASE WHEN data < DATE("{{ data_inclusao_shapes }}") THEN DATE("{{ data_inclusao_shapes }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ shapes_geom }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stop_details as (
@@ -84,10 +84,10 @@ SELECT
     CASE WHEN data <= DATE("{{ data_inclusao_stop_details }}") THEN DATE("{{ data_inclusao_stop_details }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ stop_details }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stop_times as (
@@ -97,10 +97,10 @@ SELECT
     CASE WHEN data < DATE("{{ data_inclusao_stop_times }}") THEN DATE("{{ data_inclusao_stop_times }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ stop_times }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stops as (
@@ -110,10 +110,10 @@ SELECT
     CASE WHEN data < DATE("{{ data_inclusao_stops }}") THEN DATE("{{ data_inclusao_stops }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ stops }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 trips as (
@@ -123,10 +123,10 @@ SELECT
     CASE WHEN data < DATE"{{ data_inclusao_trips }}" THEN DATE("{{ data_inclusao_trips }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
-FROM UNNEST(GENERATE_DATE_ARRAY('2020-01-01', CURRENT_DATE())) data
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ trips }}
-    WHERE data_versao between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
 ON data = DATE(data_versao)
 )
 select
