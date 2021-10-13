@@ -9,7 +9,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ agency }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 calendar as (
@@ -22,7 +22,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ calendar }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 frota_determinada as (
@@ -35,7 +35,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ frota_determinada }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON DATE(data) = DATE(data_versao)
 ),
 linhas as (
@@ -48,7 +48,7 @@ linhas as (
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ linhas }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 routes as (
@@ -61,7 +61,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ routes }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = data_versao
 ),
 shapes as (
@@ -74,7 +74,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ shapes_geom }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stop_details as (
@@ -87,7 +87,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ stop_details }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stop_times as (
@@ -100,7 +100,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ stop_times }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 stops as (
@@ -113,7 +113,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ stops }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
 trips as (
@@ -126,7 +126,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE({{ date_range_start }}), DATE({{ date_range_end }}))) data
 LEFT JOIN (SELECT DISTINCT data_versao
     FROM {{ trips }}
-    WHERE DATE(data_versao) between date({{ date_range_start }}) and date({{ date_range_end }}))
+    WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 )
 select
