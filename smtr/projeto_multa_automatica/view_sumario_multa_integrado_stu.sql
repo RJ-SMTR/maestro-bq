@@ -24,6 +24,7 @@ sumario AS (
     artigo_multa as codigo_infracao,
     concat(
       replace(cast(data as string), "-", ""),
+      " ",
       replace(faixa_horaria, ":", "")
     ) as data_infracao
   FROM {{ sumario_multa_linha_onibus }}
