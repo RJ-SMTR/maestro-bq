@@ -73,7 +73,7 @@ SELECT
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
 LEFT JOIN (SELECT DISTINCT data_versao
-    FROM {{ shapes_geom }}
+    FROM {{ shapes }}
     WHERE DATE(data_versao) > DATE({{ date_range_start }}) and DATE(data_versao) <= DATE({{ date_range_end }}))
 ON data = DATE(data_versao)
 ),
@@ -142,25 +142,25 @@ joined as (
     st.data_versao_efetiva as data_versao_efetiva_stop_times,
     sp.data_versao_efetiva as data_versao_efetiva_stops,
     t.data_versao_efetiva as data_versao_efetiva_trips
-    from shapes s 
-    join agency a
+    from agency a 
+    join shapes s
     on s.data = a.data
     join calendar c
-    on s.data = c.data
+    on a.data = c.data
     join frota_determinada f
-    on s.data = f.data
+    on a.data = f.data
     join linhas l
-    on s.data = l.data
+    on a.data = l.data
     join routes r
-    on s.data = r.data
+    on a.data = r.data
     join stops sp
-    on s.data = sp.data
+    on a.data = sp.data
     join stop_details sd
-    on s.data = sd.data
+    on a.data = sd.data
     join stop_times st
-    on s.data = st.data
+    on a.data = st.data
     join trips t
-    on s.data = t.data
+    on a.data = t.data
 )
 select * 
 from joined 
