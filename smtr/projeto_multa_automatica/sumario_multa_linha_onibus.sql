@@ -7,7 +7,8 @@ with multa_ultima_hora as (
         from {{ detalhes_multa_linha_onibus }}
         where data between date({{ date_range_start }}) and date({{ date_range_end }})
         and 
-        DATETIME(concat(cast(data as string), " ", faixa_horaria)) between {{ date_range_start }} and {{ date_range_end }}
+        DATETIME(concat(cast(data as string), " ", faixa_horaria)) > {{ date_range_start }} 
+        and DATETIME(concat(cast(data as string), " ", faixa_horaria)) <= {{ date_range_end }}
         ) 
     where row_num = 1
     )

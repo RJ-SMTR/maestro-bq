@@ -18,7 +18,8 @@ select
 from (
     select * from {{ detalhes_veiculo_onibus_completa }}
     where DATE(data) between date({{ date_range_start }}) and date({{ date_range_end }})
-    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) between {{ date_range_start }} and {{ date_range_end }}
+    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) > {{ date_range_start }} 
+    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) <= {{ date_range_end }}
 ) t1
 join (
     select *

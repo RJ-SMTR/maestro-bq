@@ -7,7 +7,8 @@ with frota as (
     from {{ detalhes_veiculo_onibus_completa }}
     where
     data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
-    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) between {{ date_range_start }} and {{ date_range_end }}
+    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) > {{ date_range_start }} 
+    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) <= {{ date_range_end }}
     and situacao = 'operando'
     and linha is not null
     group by data, linha, faixa_horaria),
