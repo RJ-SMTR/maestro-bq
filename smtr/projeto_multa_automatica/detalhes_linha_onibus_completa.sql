@@ -6,9 +6,7 @@ with frota as (
         count(distinct id_veiculo) frota_aferida
     from {{ detalhes_veiculo_onibus_completa }}
     where
-    data between DATE({{ date_range_start }}) and DATE({{ date_range_end }}) 
-    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) > {{ date_range_start }} 
-    and DATETIME(concat(cast(data as string), " ", faixa_horaria)) <= {{ date_range_end }}
+    data > DATE({{ date_range_start }}) and  data <= DATE({{ date_range_end }})
     and situacao = 'operando'
     and linha is not null
     group by data, linha, faixa_horaria),
