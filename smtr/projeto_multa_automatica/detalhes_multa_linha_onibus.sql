@@ -1,6 +1,6 @@
 with filtrada as (
     select *
-    from {{ detalhes_veiculo_linha_completa }}
+    from {{ detalhes_linha_onibus_completa }}
     where pico != 'fora pico'
     and flag_falha_api = False
     and flag_falha_capturas_smtr = False

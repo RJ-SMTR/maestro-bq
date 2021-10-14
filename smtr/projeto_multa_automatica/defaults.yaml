@@ -153,7 +153,7 @@ parameters:
   registros: rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo
   registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
   detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
-  detalhes_veiculo_linha_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
+  detalhes_linha_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
   detalhes_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.detalhes_multa_linha_onibus
   sumario_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.sumario_multa_linha_onibus
   data_versao_efetiva: rj-smtr-dev.br_rj_riodejaneiro_sigmob.data_versao_efetiva_frota_determinada
