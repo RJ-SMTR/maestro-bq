@@ -72,7 +72,7 @@ SELECT
     linha, 
     distancia,
     ROUND(
-        CASE WHEN velocidade_media < {{ velocidade_maxima }}
+        CASE WHEN velocidade_media > {{ velocidade_maxima }}
             THEN {{ velocidade_maxima }}
             ELSE velocidade_media 
         END, 
