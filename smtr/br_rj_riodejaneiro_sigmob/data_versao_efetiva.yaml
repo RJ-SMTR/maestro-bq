@@ -1,0 +1,8 @@
+partitioning:
+  column: "data"
+  type: ""
+  period: ""
+
+# Definição de taxa de atualização
+scheduling:
+  cron: "0 4 * * *"
