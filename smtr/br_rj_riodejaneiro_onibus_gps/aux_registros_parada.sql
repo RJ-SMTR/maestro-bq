@@ -59,7 +59,7 @@ SELECT
   linha,
   /*
   3. e 4. Identificamos o status do veículo como 'terminal', 'garagem' (para os veículos parados) ou 
-  'nao_identificado' (para os veículos mais distantes de uma parada que o limiar definido)
+  null (para os veículos mais distantes de uma parada que o limiar definido)
   */
   case
     when distancia_parada < {{ distancia_limiar_parada }} then tipo_parada
