@@ -84,7 +84,7 @@ SELECT
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
 LEFT JOIN (
     SELECT DISTINCT data_versao
-    FROM {{ shapes }}
+    FROM {{ shapes_geom }}
     WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
