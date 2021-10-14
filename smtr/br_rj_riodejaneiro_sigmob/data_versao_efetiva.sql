@@ -7,8 +7,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ agency }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
@@ -20,8 +22,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ calendar }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
@@ -33,8 +37,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ frota_determinada }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON DATE(data) = DATE(data_versao)
 ),
@@ -46,8 +52,10 @@ linhas as (
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ linhas }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
@@ -59,8 +67,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ routes }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = data_versao
 ),
@@ -72,8 +82,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ shapes }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
@@ -85,8 +97,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ stop_details }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
@@ -98,8 +112,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ stop_times }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
@@ -111,8 +127,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ stops }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
@@ -124,8 +142,10 @@ SELECT
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
-LEFT JOIN (SELECT DISTINCT data_versao
+LEFT JOIN (
+    SELECT DISTINCT data_versao
     FROM {{ trips }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
     )
 ON data = DATE(data_versao)
 ),
