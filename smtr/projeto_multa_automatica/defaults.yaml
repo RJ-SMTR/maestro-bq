@@ -20,6 +20,7 @@ partitioning:
 # Parâmetros da query
 parameters:
   # Tamanho da faixa horária da aplicação da multa em minutos
+  # ATENÇÃO: esse campo afeta a `hora_pico`
   faixa_horaria: 10
 
   # Estabilidade das capturas
@@ -43,14 +44,72 @@ parameters:
   ## da frota determinada.
   limiar_frota_determinada: 5
 
-  ## Intervalo dos picos
+  ## Intervalo dos picos por consórcio
+  # Para adicionar novo consórcio, basta coloca-lo na lista
+  # Os minutos são faixas horárias proporcionais ao parametro `faixa_horaria`
+  # Portanto, para uma faixa horária de 10 minutos o minuto 50 representa o
+  # intervalo de 50 até 59 minutos
   hora_pico:
-    manha:
-      inicio: 6
-      fim: 8
-    noite:
-      inicio: 16
-      fim: 19
+    intersul:
+      manha:
+        inicio: 
+          hora: 6
+          minuto: 0
+        fim: 
+          hora: 8
+          minuto: 50
+      tarde:
+        inicio: 
+          hora: 16
+          minuto: 0
+        fim: 
+          hora: 18
+          minuto: 50
+    internorte:
+      manha:
+        inicio: 
+          hora: 5
+          minuto: 30
+        fim: 
+          hora: 8
+          minuto: 20
+      tarde:
+        inicio: 
+          hora: 16
+          minuto: 0
+        fim: 
+          hora: 18
+          minuto: 50
+    transcarioca:
+      manha:
+        inicio: 
+          hora: 5
+          minuto: 30
+        fim: 
+          hora: 8
+          minuto: 20
+      tarde:
+        inicio: 
+          hora: 16
+          minuto: 0
+        fim: 
+          hora: 18
+          minuto: 50
+    santa cruz:
+      manha:
+        inicio: 
+          hora: 5
+          minuto: 0
+        fim: 
+          hora: 7
+          minuto: 50
+      tarde:
+        inicio: 
+          hora: 17
+          minuto: 0
+        fim: 
+          hora: 19
+          minuto: 50
 
   ## Proporções da frota determinada por dia da semana
   proporcao_dia_util: 0.8
