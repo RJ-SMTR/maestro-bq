@@ -38,7 +38,7 @@ views:
     materialized: false
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
   data_versao_efetiva:
-    materialized: false
+    materialized: true
     depends_on: [br_rj_riodejaneiro_sigmob.routes]
 
 # Definição de taxa de atualização
@@ -68,6 +68,7 @@ parameters:
   linhas: "rj-smtr.br_rj_riodejaneiro_sigmob.linhas"
   routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
+  shapes_geom: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes_geom"
   stop_times: "rj-smtr.br_rj_riodejaneiro_sigmob.stop_times"
   stop_details: "rj-smtr.br_rj_riodejaneiro_sigmob.stop_details"
   stops: "rj-smtr.br_rj_riodejaneiro_sigmob.stops"
@@ -90,6 +91,6 @@ parameters:
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-08-24 00:00:00"
+  start_timestamp: "2021-08-01 00:00:00"
   interval:
     days: 30
