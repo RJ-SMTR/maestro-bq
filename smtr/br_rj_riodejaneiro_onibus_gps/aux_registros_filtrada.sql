@@ -5,7 +5,6 @@ Filtragem e tratamento básico de registros de gps.
 2. Filtra registros antigos. Remove registros que tem diferença maior que 1 minuto entre o timestamp_captura e timestamp_gps.
 3. Muda o nome de variáveis para o padrão do projeto.
 	- id_veiculo --> ordem
-	- hora_completa
 */
 WITH
 box AS (
@@ -37,7 +36,7 @@ filtrada AS (
     linha,
     timestamp_gps,
     timestamp_captura,
-    DATA,
+    data,
     hora,
     row_number() over (partition by ordem, timestamp_gps, linha) rn
   FROM
