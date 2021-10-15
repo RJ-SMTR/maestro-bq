@@ -54,10 +54,10 @@ parameters:
       manha:
         inicio:
           hora: 6
-          minuto: 0
+          minuto: 30
         fim:
-          hora: 8
-          minuto: 50
+          hora: 9
+          minuto: 20
       tarde:
         inicio:
           hora: 16
@@ -68,11 +68,11 @@ parameters:
     internorte:
       manha:
         inicio:
-          hora: 5
-          minuto: 30
+          hora: 6
+          minuto: 0
         fim:
           hora: 8
-          minuto: 20
+          minuto: 50
       tarde:
         inicio:
           hora: 16
@@ -83,11 +83,11 @@ parameters:
     transcarioca:
       manha:
         inicio:
-          hora: 5
-          minuto: 30
+          hora: 6
+          minuto: 0
         fim:
           hora: 8
-          minuto: 20
+          minuto: 50
       tarde:
         inicio:
           hora: 16
@@ -99,10 +99,10 @@ parameters:
       manha:
         inicio:
           hora: 5
-          minuto: 0
+          minuto: 30
         fim:
-          hora: 7
-          minuto: 50
+          hora: 8
+          minuto: 20
       tarde:
         inicio:
           hora: 17
@@ -176,7 +176,7 @@ backfill:
 # - depends_on: lista de views das quais ela depende
 views:
   detalhes_veiculo_onibus_completa:
-    materialized: true
+    materialized: false
     depends_on: [br_rj_riodejaneiro_veiculos.gps_sppo]
   detalhes_linha_onibus_completa:
     materialized: true
