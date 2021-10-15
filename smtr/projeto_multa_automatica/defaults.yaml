@@ -52,62 +52,62 @@ parameters:
   hora_pico:
     intersul:
       manha:
-        inicio: 
+        inicio:
           hora: 6
           minuto: 0
-        fim: 
+        fim:
           hora: 8
           minuto: 50
       tarde:
-        inicio: 
+        inicio:
           hora: 16
           minuto: 0
-        fim: 
+        fim:
           hora: 18
           minuto: 50
     internorte:
       manha:
-        inicio: 
+        inicio:
           hora: 5
           minuto: 30
-        fim: 
+        fim:
           hora: 8
           minuto: 20
       tarde:
-        inicio: 
+        inicio:
           hora: 16
           minuto: 0
-        fim: 
+        fim:
           hora: 18
           minuto: 50
     transcarioca:
       manha:
-        inicio: 
+        inicio:
           hora: 5
           minuto: 30
-        fim: 
+        fim:
           hora: 8
           minuto: 20
       tarde:
-        inicio: 
+        inicio:
           hora: 16
           minuto: 0
-        fim: 
+        fim:
           hora: 18
           minuto: 50
     santa cruz:
       manha:
-        inicio: 
+        inicio:
           hora: 5
           minuto: 0
-        fim: 
+        fim:
           hora: 7
           minuto: 50
       tarde:
-        inicio: 
+        inicio:
           hora: 17
           minuto: 0
-        fim: 
+        fim:
           hora: 19
           minuto: 50
 
@@ -150,7 +150,7 @@ parameters:
     artigo: 017.IX
 
   # Rerências de tabelas
-  registros: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_sppo
+  gps_sppo: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_sppo
   registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
   detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
   detalhes_linha_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
@@ -177,10 +177,16 @@ backfill:
 views:
   detalhes_veiculo_onibus_completa:
     materialized: true
-    depends_on: []
+    depends_on: [br_rj_riodejaneiro_veiculos.gps_sppo]
   detalhes_linha_onibus_completa:
     materialized: true
-    depends_on: [projeto_multa_automatica.detalhes_veiculo_onibus_completa]
+    depends_on: 
+        - projeto_multa_automatica.detalhes_veiculo_onibus_completa
+        - rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
+        - rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
+        - rj-smtr.br_rj_riodejaneiro_sigmob.routes
+        - rj-smtr.br_rj_riodejaneiro_sigmob.agency
+        - rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva
   detalhes_multa_linha_onibus:
     materialized: true
     depends_on: [projeto_multa_automatica.detalhes_linha_onibus_completa]

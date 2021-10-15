@@ -54,8 +54,7 @@ frota_sigmob as (
         route_short_name,
         sum(FrotaServico) frota_servico,
         consorcio
-    from 
-        {{ frota_determinada }} f
+    from {{ frota_determinada }} f
     join (
         select  
             route_id, 

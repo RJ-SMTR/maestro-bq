@@ -11,7 +11,7 @@ select distinct
         when tipo_parada = 'garagem' then 'garagem'
         else 'operando'
     end situacao
-from {{ registros }}
+from {{ gps_sppo }}
 WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
 and timestamp_gps > {{ date_range_start }} 
 and timestamp_gps <= {{ date_range_end }}
