@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 21 * * *"
+  cron: "20 21 * * *"
 
 # Definição de particionamento
 # - column: nome da coluna
@@ -152,10 +152,10 @@ parameters:
   # Rerências de tabelas
   gps_sppo: rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo
   registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
-  detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
-  detalhes_linha_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
-  detalhes_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.detalhes_multa_linha_onibus
-  sumario_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.sumario_multa_linha_onibus
+  detalhes_veiculo_onibus_completa: rj-smtr.projeto_multa_automatica.detalhes_veiculo_onibus_completa
+  detalhes_linha_onibus_completa: rj-smtr.projeto_multa_automatica.detalhes_linha_onibus_completa
+  detalhes_multa_linha_onibus: rj-smtr.projeto_multa_automatica.detalhes_multa_linha_onibus
+  sumario_multa_linha_onibus: rj-smtr.projeto_multa_automatica.sumario_multa_linha_onibus
   data_versao_efetiva: rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva
   frota_determinada: rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
   routes: rj-smtr.br_rj_riodejaneiro_sigmob.routes_desaninhada
@@ -198,7 +198,7 @@ views:
     depends_on: [projeto_multa_automatica.sumario_multa_linha_onibus]
   sumario_multa_gps_onibus:
     materialized: false
-    depends_on: [] # [br_rj_riodejaneiro_onibus_gps.registros_logs]
+    depends_on: [br_rj_riodejaneiro_onibus_gps.registros_logs]
   detalhes_multa_veiculo_onibus:
     materialized: true
     depends_on:
