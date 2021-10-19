@@ -1,4 +1,10 @@
+/*
+Descrição: Consolida tabela de todas as linhas e faixas horárias
+possíveis com frota aferida, frota mínima, flags de
+captura e irregularidades definidas na metodologia.
+*/
 with frota as (
+    -- 1. Conta frota operante (número de veículos em operação) por faixa horária de captura do gps
     select 
         data, 
         linha, 
@@ -11,6 +17,8 @@ with frota as (
     and linha is not null
     group by data, linha, faixa_horaria),
 combinacoes as (
+    -- 2. Cria tabela de referência de todos as combinações de horários possíveis para
+    --    todas as linhas aferidas, incluindo +1 dia à data máxima aferida.
     select 
         extract(date from faixa_horaria) data,
         linha, 
@@ -22,6 +30,8 @@ combinacoes as (
     cross join (select distinct linha from frota where linha is not null) 
 ),
 frota_completa as (
+    -- 3. Gera tabela completa da frota operante por faixa horária de
+    --    captura do GPS, incluindo 0 veículos em horários sem sinal
     select 
         c.data, c.linha, c.faixa_horaria, 
         coalesce(f.frota_aferida, 0) frota_aferida
@@ -33,6 +43,9 @@ frota_completa as (
     order by c.data, c.linha, c.faixa_horaria
 ),
 capturas_por_faixa_horaria as (
+    -- 4. Verifica o número de capturas do gps em cada faixa horária
+    --    para registrar se houve falha na API original do gps (flag_falha_api) e/ou falha na
+    --    captura dos dados de gps pela SMTR (flag_falha_capturas_smtr)
     select 
         date(faixa_horaria) data,
         time(faixa_horaria) faixa_horaria,
@@ -49,6 +62,7 @@ capturas_por_faixa_horaria as (
     order by 1,2
 ),
 frota_sigmob as (
+    -- 5. 
     select 
         DATE(f.data_versao) data_versao,
         route_short_name,
@@ -128,17 +142,17 @@ select
     frota_aferida,
     frota_servico,
     case 
-        when frota_servico <= {{ limiar_frota_determinada }} then frota_servico                              # até 5 carros 
-        when extract(dayofweek from t1.data) = 1 then  floor(frota_servico * {{ proporcao_domingo }})   # domingo
-        when extract(dayofweek from t1.data) = 7 then  floor(frota_servico * {{ proporcao_sabado }})   # sábado
-        else floor(frota_servico * {{ proporcao_dia_util }})                                             # dias úteis
+        when frota_servico <= {{ limiar_frota_determinada }} then frota_servico -- até 5 carros 
+        when extract(dayofweek from t1.data) = 1 then  floor(frota_servico * {{ proporcao_domingo }}) -- domingo
+        when extract(dayofweek from t1.data) = 7 then  floor(frota_servico * {{ proporcao_sabado }}) -- sábado
+        else floor(frota_servico * {{ proporcao_dia_util }}) -- dias úteis
     end frota_minima,
     SAFE_DIVIDE(frota_aferida, frota_servico) porcentagem_frota,
     case 
-        when frota_servico <= {{ limiar_frota_determinada }} and frota_servico > frota_aferida then true                              # até 5 carros 
-        when extract(dayofweek from t1.data) = 1 and  floor(frota_servico * {{ proporcao_domingo }}) > frota_aferida then true # domingo
-        when extract(dayofweek from t1.data) = 7 and  floor(frota_servico * {{ proporcao_sabado }}) > frota_aferida then true # sábado
-        when floor(frota_servico * {{ proporcao_dia_util }}) > frota_aferida then true                                          # dias úteis
+        when frota_servico <= {{ limiar_frota_determinada }} and frota_servico > frota_aferida then true -- até 5 carros 
+        when extract(dayofweek from t1.data) = 1 and  floor(frota_servico * {{ proporcao_domingo }}) > frota_aferida then true -- domingo
+        when extract(dayofweek from t1.data) = 7 and  floor(frota_servico * {{ proporcao_sabado }}) > frota_aferida then true -- sábado
+        when floor(frota_servico * {{ proporcao_dia_util }}) > frota_aferida then true  -- dias úteis
         else false
     end flag_irregular,
     frota_aferida = 0 flag_sem_carros,
