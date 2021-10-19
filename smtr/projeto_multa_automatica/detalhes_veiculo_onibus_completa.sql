@@ -1,3 +1,9 @@
+/*
+ Descrição: Puxa os dados de GPS do SPPO por timestamp, cria a faixa
+ horária (10 minutos) e coluna de situação da operação (em
+ operação/garagem) 
+*/
+
 select distinct
     data,
     servico as linha,

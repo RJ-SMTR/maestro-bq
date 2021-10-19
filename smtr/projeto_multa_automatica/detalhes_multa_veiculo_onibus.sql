@@ -1,3 +1,6 @@
+/*
+Descrição: Detalha todos os registros de infrações por linha, faixa horária e situação da operação (operando/garagem)
+*/
 with categorias as (
     SELECT situacao, offset ordem
     FROM UNNEST(['operando', 'garagem'])

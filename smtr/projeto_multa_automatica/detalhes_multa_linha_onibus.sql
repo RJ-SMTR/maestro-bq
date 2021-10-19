@@ -1,4 +1,8 @@
+/*
+Descrição: Registra todas as infrações por faixa horária de acordo com as regras estabelecidas.
+*/
 with filtrada as (
+    -- 1. Filtra infrações em horários de pico e sem falhas de captura
     select *
     from {{ detalhes_linha_onibus_completa }}
     where DATE(data) > date({{ date_range_start }}) and data <= date({{ date_range_end }})
@@ -6,7 +10,8 @@ with filtrada as (
     and flag_falha_api = False
     and flag_falha_capturas_smtr = False
 ),
-multa_8_irregularidades as (
+multa_nao_consecutiva as (
+    -- 2. Registra multa por faixa horária não consecutiva
     select 
     *,
     countif(flag_irregular) over (
@@ -17,10 +22,10 @@ multa_8_irregularidades as (
     "{{ multa_nao_consecutiva["artigo"] }}" artigo_multa,
     {{ multa_nao_consecutiva["prioridade"] }} prioridade 
 from filtrada),
-multa_3_consecutivas as (
-select
+multa_consecutiva as (
+    -- 3. Registra multa por faixa horária consecutiva
+    select
     *,
-    # calcula se há 3 irregularidades consecutivas
     GREATEST(
         countif(flag_irregular) over (
             partition by linha, data, pico 
@@ -40,7 +45,8 @@ select
     {{ multa_consecutiva["prioridade"] }} prioridade 
 from filtrada),
 multa_X_horas_sem_carros as (
-select
+    -- 4. Registra multa por tempo de operação sem carros (não considerado)
+    select
     *,
     GREATEST(
         countif(flag_sem_carros) over (
@@ -61,9 +67,9 @@ select
     1 prioridade 
 from filtrada),
 geral as (
-    select * from multa_8_irregularidades
+    select * from multa_nao_consecutiva
     union all
-    select * from multa_3_consecutivas
+    select * from multa_consecutiva
     union all
     select * from multa_X_horas_sem_carros)
 select 

@@ -1,3 +1,6 @@
+/*
+Descrição: Registra multas por não operação da linha (não considerado)
+*/
 with multa_120_minutos as (
     select 
         *,

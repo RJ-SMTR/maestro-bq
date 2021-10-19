@@ -1,4 +1,9 @@
+/* 
+Descrição: Consolida as infrações passíveis de multa por linha e horário de pico (manhã/tarde)
+*/
 with multa_ultima_hora as (
+    -- 1. Seleciona as multas mais recente para
+    --    cada linha de ônibus e horário de pico (manhã ou tarde)
     select * except (row_num)
     from (
         select *, row_number() over (
@@ -10,6 +15,8 @@ with multa_ultima_hora as (
         ) 
     where row_num = 1
     )
+-- 2. Seleciona as multas mais recente para
+--    cada linha de ônibus e horário de pico (manhã ou tarde)
 select 
     t1.id_multa,
     t1.linha,
