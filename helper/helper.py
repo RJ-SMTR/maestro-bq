@@ -2,6 +2,7 @@ from pathlib import Path
 from fire import Fire
 from jinja2 import Template
 import yaml
+import pyperclip
 
 
 class Helper:
@@ -21,7 +22,7 @@ class Helper:
             local_args = yaml.load(yaml_path.open("r"))
 
             # Merge local_args with args
-            args['parameters'].update(local_args)
+            args["parameters"].update(local_args)
         except FileNotFoundError:
             pass
 
@@ -30,7 +31,9 @@ class Helper:
         inner_args = yaml.load(yaml_path.open("r"))
 
         # Merge local_args with args
-        args['parameters'].update(inner_args)
+        args["parameters"].update(inner_args)
+
+        print(args["parameters"])
 
         return args["parameters"]
 
@@ -39,9 +42,13 @@ class Helper:
 
         args = self._load_defaults(file_path)
         with open(file_path, "r") as f:
-            data = Template(f.read()).render(**args)
+            query = Template(f.read()).render(**args)
 
-        return data
+        print(query)
+
+        # copy data to clipboard
+        pyperclip.copy(query)
+        print("Query copied to clipboard")
 
 
 if __name__ == "__main__":

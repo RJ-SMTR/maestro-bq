@@ -1,0 +1,206 @@
+# Definição de taxa de atualização
+scheduling:
+  cron: "20 21 * * *"
+
+# Definição de particionamento
+# - column: nome da coluna
+# - type: deve ser um dos seguintes
+#   * DATE (não exige período)
+#   * DATE_TRUNC (exige período MONTH/YEAR)
+#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * <To-do> RANGE_BUCKET
+#   * <To-do> GENERATE_ARRAY
+# - period: período (conforme especificado acima)
+partitioning:
+  column: "data"
+  type: ""
+  period: ""
+
+# Parâmetros da query
+parameters:
+  # Tamanho da faixa horária da aplicação da multa em minutos
+  # ATENÇÃO: esse campo afeta a `hora_pico`
+  faixa_horaria: 10
+
+  # Estabilidade das capturas
+
+  ## Número mínimo de sucessos dentro da faixa horária para a API
+  ## ser considerada ativa.
+  ## variável afetada: flag_falha_api
+  n_minimo_sucessos_api: 0
+
+  ## Número mínimo de sucessos dentro da faixa horária para a
+  ## captura ser considerada ativa.
+  ## variável afetada: flag_falha_capturas_smtr
+  n_minimo_sucessos_captura: 8
+
+  # Multas
+
+  ## Número de carros em que a mudança de regras acontece.
+  ## Quando o número de carros é menor ou igual ao `limiar_frota_determinada`,
+  ## a frota operante deve ser igual a determinada.
+  ## Quando o número de carros é maior, então as regras são baseadas em frações
+  ## da frota determinada.
+  limiar_frota_determinada: 5
+
+  ## Intervalo dos picos por consórcio
+  # Para adicionar novo consórcio, basta coloca-lo na lista
+  # Os minutos são faixas horárias proporcionais ao parametro `faixa_horaria`
+  # Portanto, para uma faixa horária de 10 minutos o minuto 50 representa o
+  # intervalo de 50 até 59 minutos
+  hora_pico:
+    intersul:
+      manha:
+        inicio:
+          hora: 6
+          minuto: 30
+        fim:
+          hora: 9
+          minuto: 20
+      tarde:
+        inicio:
+          hora: 16
+          minuto: 0
+        fim:
+          hora: 18
+          minuto: 50
+    internorte:
+      manha:
+        inicio:
+          hora: 6
+          minuto: 0
+        fim:
+          hora: 8
+          minuto: 50
+      tarde:
+        inicio:
+          hora: 16
+          minuto: 0
+        fim:
+          hora: 18
+          minuto: 50
+    transcarioca:
+      manha:
+        inicio:
+          hora: 6
+          minuto: 0
+        fim:
+          hora: 8
+          minuto: 50
+      tarde:
+        inicio:
+          hora: 16
+          minuto: 0
+        fim:
+          hora: 18
+          minuto: 50
+    santa cruz:
+      manha:
+        inicio:
+          hora: 5
+          minuto: 30
+        fim:
+          hora: 8
+          minuto: 20
+      tarde:
+        inicio:
+          hora: 17
+          minuto: 0
+        fim:
+          hora: 19
+          minuto: 50
+
+  ## Proporções da frota determinada por dia da semana
+  proporcao_dia_util: 0.8
+  proporcao_sabado: 0.5
+  proporcao_domingo: 0.4
+
+  ## Multa de faixas horárias não consecutivas
+  multa_nao_consecutiva:
+    valor: 8 # número de faixas horárias não consecutivas
+    descricao: pelo menos 80 minutos não consecutivos operando abaixo da frota esperada
+    artigo: 017.I
+    prioridade: 2
+
+  ## Multa de faixas horárias consecutivas
+  multa_consecutiva:
+    valor: 3 # número de faixas horárias consecutivas (válido somente para ímpares)
+    descricao: pelo menos 30 minutos consecutivos operando abaixo da frota esperada
+    artigo: 017.I
+    prioridade: 3
+
+  ## Multa X horas sem carros (NÃO CONSIDERADO)
+  multa_horas_sem_carros:
+    valor: 24 # número de faixas horárias sem carros
+    descricao: 24 horas consecutivas operando sem carros
+    artigo: 017.VII
+    prioridade: 1
+
+  ## Multa GPS 120 minutos (NÃO CONSIDERADO)
+  multa_gps_120_minutos:
+    valor: 120 # minutos
+    descricao: 120 minutos com a API fora do ar
+    artigo: 017.X
+
+  ## Multa GPS 1 dia (NÃO CONSIDERADO)
+  multa_gps_1_dia:
+    valor: 1440 # minutos
+    descricao: 1 dia com a API fora do ar
+    artigo: 017.IX
+
+  # Rerências de tabelas
+  gps_sppo: rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo
+  registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
+  detalhes_veiculo_onibus_completa: rj-smtr.projeto_multa_automatica.detalhes_veiculo_onibus_completa
+  detalhes_linha_onibus_completa: rj-smtr.projeto_multa_automatica.detalhes_linha_onibus_completa
+  detalhes_multa_linha_onibus: rj-smtr.projeto_multa_automatica.detalhes_multa_linha_onibus
+  sumario_multa_linha_onibus: rj-smtr.projeto_multa_automatica.sumario_multa_linha_onibus
+  data_versao_efetiva: rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva
+  frota_determinada: rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
+  routes: rj-smtr.br_rj_riodejaneiro_sigmob.routes_desaninhada
+  agency: rj-smtr.br_rj_riodejaneiro_sigmob.agency
+  linhas_sppo: rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo
+  codigos_consorcios: rj-smtr.br_rj_riodejaneiro_transporte.codigos_consorcios
+
+# Parâmetros de backfill
+backfill:
+  # Formato %Y-%m-%d %H:%M:%S
+  start_timestamp: "2021-07-31 00:00:00"
+  interval:
+    days: 30
+# Lista de views do dataset
+# Atributos de cada view:
+# - name: nome sem terminação .sql ou .yaml
+# - materialized: true|false para materializar ou não
+# - depends_on: lista de views das quais ela depende
+views:
+  detalhes_veiculo_onibus_completa:
+    materialized: false
+    depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo] -> TODO: add quando subir para prod
+  detalhes_linha_onibus_completa:
+    materialized: true
+    depends_on:
+      [projeto_multa_automatica.detalhes_veiculo_onibus_completa]
+      # - br_rj_riodejaneiro_onibus_gps.registros_logs
+      # - br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
+      # - br_rj_riodejaneiro_sigmob.routes
+      # - br_rj_riodejaneiro_sigmob.agency
+      # - br_rj_riodejaneiro_sigmob.data_versao_efetiva
+  detalhes_multa_linha_onibus:
+    materialized: true
+    depends_on: [projeto_multa_automatica.detalhes_linha_onibus_completa]
+  sumario_multa_linha_onibus:
+    materialized: true
+    depends_on: [projeto_multa_automatica.detalhes_multa_linha_onibus]
+  view_sumario_multa_integrado_stu:
+    materialized: false
+    depends_on: [projeto_multa_automatica.sumario_multa_linha_onibus]
+  sumario_multa_gps_onibus:
+    materialized: false
+    depends_on: [] #[br_rj_riodejaneiro_onibus_gps.registros_logs]
+  detalhes_multa_veiculo_onibus:
+    materialized: true
+    depends_on:
+      - projeto_multa_automatica.detalhes_multa_linha_onibus
+      - projeto_multa_automatica.detalhes_veiculo_onibus_completa
