@@ -5,7 +5,6 @@ Filtragem e tratamento básico de registros de gps.
 2. Filtra registros antigos. Remove registros que tem diferença maior que 1 minuto entre o timestamp_captura e timestamp_gps.
 3. Muda o nome de variáveis para o padrão do projeto.
 	- id_veiculo --> ordem
-	- hora_completa
 */
 WITH
 box AS (
@@ -22,7 +21,8 @@ gps AS (
   FROM
     {{ registros }}
   WHERE
-    data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+    data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} AND timestamp_gps <= {{ date_range_end }}
     AND DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) BETWEEN 0 AND 1
     ),
 filtrada AS (
@@ -36,7 +36,7 @@ filtrada AS (
     linha,
     timestamp_gps,
     timestamp_captura,
-    DATA,
+    data,
     hora,
     row_number() over (partition by ordem, timestamp_gps, linha) rn
   FROM
