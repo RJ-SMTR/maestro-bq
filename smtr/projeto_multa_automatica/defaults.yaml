@@ -150,7 +150,7 @@ parameters:
     artigo: 017.IX
 
   # Rerências de tabelas
-  gps_sppo: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_sppo
+  gps_sppo: rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo
   registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
   detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
   detalhes_linha_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
@@ -160,7 +160,7 @@ parameters:
   frota_determinada: rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
   routes: rj-smtr.br_rj_riodejaneiro_sigmob.routes_desaninhada
   agency: rj-smtr.br_rj_riodejaneiro_sigmob.agency
-  linhas: rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo
+  linhas_sppo: rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo
   codigos_consorcios: rj-smtr.br_rj_riodejaneiro_transporte.codigos_consorcios
 
 # Parâmetros de backfill
@@ -177,16 +177,15 @@ backfill:
 views:
   detalhes_veiculo_onibus_completa:
     materialized: false
-    depends_on: [br_rj_riodejaneiro_veiculos.gps_sppo]
+    depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo] -> TODO: add quando subir para prod
   detalhes_linha_onibus_completa:
     materialized: true
-    depends_on: 
-        - projeto_multa_automatica.detalhes_veiculo_onibus_completa
-        - rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
-        - rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
-        - rj-smtr.br_rj_riodejaneiro_sigmob.routes
-        - rj-smtr.br_rj_riodejaneiro_sigmob.agency
-        - rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva
+    depends_on: [projeto_multa_automatica.detalhes_veiculo_onibus_completa]
+      # - br_rj_riodejaneiro_onibus_gps.registros_logs
+      # - br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
+      # - br_rj_riodejaneiro_sigmob.routes
+      # - br_rj_riodejaneiro_sigmob.agency
+      # - br_rj_riodejaneiro_sigmob.data_versao_efetiva
   detalhes_multa_linha_onibus:
     materialized: true
     depends_on: [projeto_multa_automatica.detalhes_linha_onibus_completa]
@@ -195,9 +194,9 @@ views:
     depends_on: [projeto_multa_automatica.detalhes_multa_linha_onibus]
   sumario_multa_gps_onibus:
     materialized: false
-    depends_on: []
+    depends_on: [] # [br_rj_riodejaneiro_onibus_gps.registros_logs]
   detalhes_multa_veiculo_onibus:
     materialized: true
     depends_on:
       - projeto_multa_automatica.detalhes_multa_linha_onibus
-      - projeto_multa_automatica.detalhes_linha_onibus_completa
+      - projeto_multa_automatica.detalhes_veiculo_onibus_completa

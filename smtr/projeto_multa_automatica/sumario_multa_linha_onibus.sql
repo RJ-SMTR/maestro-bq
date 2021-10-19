@@ -33,5 +33,5 @@ select
         partition by t1.linha, data, pico
         order by t1.linha, data, pico, prioridade) prioridade
 from multa_ultima_hora t1
-left join {{ linhas }} t2
+left join {{ linhas_sppo }} t2
 on t1.linha = t2.linha_completa

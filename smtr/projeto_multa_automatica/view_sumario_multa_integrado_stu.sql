@@ -6,7 +6,7 @@ consorcios as (
     linha,  
   FROM (
     select * 
-    from {{ linhas }}
+    from {{ linhas_sppo }}
     WHERE servico = 'REGULAR') l
   join (
     select
