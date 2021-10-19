@@ -156,7 +156,7 @@ parameters:
   detalhes_linha_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
   detalhes_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.detalhes_multa_linha_onibus
   sumario_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.sumario_multa_linha_onibus
-  data_versao_efetiva: rj-smtr-dev.br_rj_riodejaneiro_sigmob.data_versao_efetiva
+  data_versao_efetiva: rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva
   frota_determinada: rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
   routes: rj-smtr.br_rj_riodejaneiro_sigmob.routes_desaninhada
   agency: rj-smtr.br_rj_riodejaneiro_sigmob.agency
@@ -180,7 +180,8 @@ views:
     depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo] -> TODO: add quando subir para prod
   detalhes_linha_onibus_completa:
     materialized: true
-    depends_on: [projeto_multa_automatica.detalhes_veiculo_onibus_completa]
+    depends_on:
+      [projeto_multa_automatica.detalhes_veiculo_onibus_completa]
       # - br_rj_riodejaneiro_onibus_gps.registros_logs
       # - br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
       # - br_rj_riodejaneiro_sigmob.routes
@@ -192,6 +193,9 @@ views:
   sumario_multa_linha_onibus:
     materialized: true
     depends_on: [projeto_multa_automatica.detalhes_multa_linha_onibus]
+  view_sumario_multa_integrado_stu:
+    materialized: false
+    depends_on: [projeto_multa_automatica.sumario_multa_linha_onibus]
   sumario_multa_gps_onibus:
     materialized: false
     depends_on: [] # [br_rj_riodejaneiro_onibus_gps.registros_logs]
