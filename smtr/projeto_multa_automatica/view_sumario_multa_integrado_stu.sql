@@ -28,7 +28,7 @@ sumario AS (
       replace(faixa_horaria, ":", "")
     ) as data_infracao
   FROM {{ sumario_multa_linha_onibus }}
-  WHERE DATE(data) = CURRENT_DATE()
+  WHERE DATE(data) = DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
 )
 
 SELECT
