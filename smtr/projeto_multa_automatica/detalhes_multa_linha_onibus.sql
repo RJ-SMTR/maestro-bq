@@ -5,10 +5,14 @@ with filtrada as (
     -- 1. Filtra infrações em horários de pico e sem falhas de captura
     select *
     from {{ detalhes_linha_onibus_completa }}
-    where DATE(data) > date({{ date_range_start }}) and data <= date({{ date_range_end }})
+    where
+    DATE(data) between date({{ date_range_start }}) and date({{ date_range_end }})
+    and datetime(concat(cast(data as string), " ", faixa_horaria)) > {{ date_range_start }}
+    and datetime(concat(cast(data as string), " ", faixa_horaria)) <= {{ date_range_end }}
     and pico != 'fora pico'
     and flag_falha_api = False
     and flag_falha_capturas_smtr = False
+    
 ),
 multa_nao_consecutiva as (
     -- 2. Registra multa por faixa horária não consecutiva

@@ -10,8 +10,10 @@ with multa_ultima_hora as (
             partition by linha, data, pico, tipo_multa 
             order by linha, data, pico, tipo_multa, faixa_horaria  DESC) row_num
         from {{ detalhes_multa_linha_onibus }}
-        where data > date({{ date_range_start }}) 
-        and data <= date({{ date_range_end }})
+        where
+            DATE(data) between date({{ date_range_start }}) and date({{ date_range_end }})
+            and datetime(concat(cast(data as string), " ", faixa_horaria)) > {{ date_range_start }}
+            and datetime(concat(cast(data as string), " ", faixa_horaria)) <= {{ date_range_end }}
         ) 
     where row_num = 1
 ),
