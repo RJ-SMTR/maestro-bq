@@ -1,0 +1,12 @@
+version: 2
+
+sources:
+  - name: br_rj_riodejaneiro_onibus_gps
+
+    tables:
+      - name: aux_registros_filtrada
+      - name: aux_registros_flag_trajeto_correto
+      - name: aux_registros_intersec
+      - name: aux_registros_parada
+      - name: aux_registros_velocidade
+      - name: viagens_realizadas

@@ -1,0 +1,18 @@
+version: 2
+
+sources:
+  - name: br_rj_riodejaneiro_sigmob
+
+    tables:
+      - name: agency_desaninhada
+      - name: agg_stops_vistoriadas
+      - name: calendar_desaninhada
+      - name: data_versao_efetiva
+      - name: frota_determinada_desaninhada
+      - name: linhas_desaninhada
+      - name: routes_desaninhada
+      - name: shapes_geom
+      - name: stop_details_desaninhada
+      - name: stop_times_desaninhada
+      - name: stops_desaninhada
+      - name: trips_desaninhada
