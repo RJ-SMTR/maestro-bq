@@ -1,20 +1,23 @@
 WITH
 consorcios as (
   SELECT 
-    l.consorcio,
+    r.consorcio,
     codigo as permissao,
-    linha,  
+    linha,
+    data_versao  
   FROM (
-    select * 
-    from {{ linhas_sppo }}
-    WHERE servico = 'REGULAR') l
+    select 
+      agency_name consorcio,
+      route_short_name linha,
+      data_versao
+    from {{ routes }}) r
   join (
     select
       codigo,
       consorcio
     from {{ codigos_consorcios }} 
   ) c
-  on Normalize_and_Casefold(l.consorcio) = Normalize_and_Casefold(c.consorcio)
+  on Normalize_and_Casefold(r.consorcio) = Normalize_and_Casefold(c.consorcio)
 ),
 sumario AS (
   SELECT
@@ -23,17 +26,32 @@ sumario AS (
     linha,
     artigo_multa as codigo_infracao,
     concat(
-      replace(cast(data as string), "-", ""),
+      replace(cast(s.data as string), "-", ""),
       " ",
       replace(faixa_horaria, ":", "")
-    ) as data_infracao
-  FROM {{ sumario_multa_linha_onibus }}
-  WHERE DATE(data) = CURRENT_DATE()
+    ) as data_infracao,
+    s.data,
+    data_versao_efetiva
+  FROM {{ sumario_multa_linha_onibus }} s
+  JOIN (
+    select 
+      data, 
+      data_versao_efetiva_routes data_versao_efetiva
+    from {{ data_versao_efetiva }}
+  ) d
+  on s.data = d.data
+  where prioridade = 1
 )
 
 SELECT
   permissao,
-  s.*
+  placa,
+  ordem,
+  s.linha,
+  codigo_infracao,
+  data_infracao,
+  s.data
 FROM sumario s
 JOIN consorcios c
 ON s.linha=c.linha
+and s.data_versao_efetiva = c.data_versao
