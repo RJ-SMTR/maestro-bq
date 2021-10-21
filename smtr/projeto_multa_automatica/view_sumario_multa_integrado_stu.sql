@@ -30,6 +30,7 @@ sumario AS (
       " ",
       replace(faixa_horaria, ":", "")
     ) as data_infracao,
+    s.data,
     data_versao_efetiva
   FROM {{ sumario_multa_linha_onibus }} s
   JOIN (
@@ -48,7 +49,8 @@ SELECT
   ordem,
   s.linha,
   codigo_infracao,
-  data_infracao
+  data_infracao,
+  s.data
 FROM sumario s
 JOIN consorcios c
 ON s.linha=c.linha
