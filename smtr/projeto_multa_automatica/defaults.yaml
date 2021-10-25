@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "20 21 * * *"
+  cron: "10 21 * * *"
 
 # Definição de particionamento
 # - column: nome da coluna
@@ -177,7 +177,7 @@ backfill:
 views:
   detalhes_veiculo_onibus_completa:
     materialized: false
-    depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo] -> TODO: add quando subir para prod
+    depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo]
   detalhes_linha_onibus_completa:
     materialized: true
     depends_on:
