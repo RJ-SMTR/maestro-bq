@@ -25,10 +25,10 @@ sumario AS (
     "" as ordem,
     linha,
     artigo_multa as codigo_infracao,
-    concat(
-      replace(cast(s.data as string), "-", ""),
+    DATETIME(concat(
+      cast(s.data as string),
       " ",
-      replace(faixa_horaria, ":", "")
+      faixa_horaria)
     ) as data_infracao,
     s.data,
     data_versao_efetiva
