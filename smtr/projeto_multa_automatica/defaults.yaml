@@ -195,7 +195,7 @@ views:
     depends_on: [projeto_multa_automatica.detalhes_multa_linha_onibus]
   view_sumario_multa_integrado_stu:
     materialized: false
-    depends_on: [projeto_multa_automatica.sumario_multa_linha_onibus]
+    depends_on: #[projeto_multa_automatica.sumario_multa_linha_onibus]
   sumario_multa_gps_onibus:
     materialized: false
     depends_on: [] #[br_rj_riodejaneiro_onibus_gps.registros_logs]
