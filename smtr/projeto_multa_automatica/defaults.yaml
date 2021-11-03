@@ -158,6 +158,7 @@ parameters:
   sumario_multa_linha_onibus: rj-smtr.projeto_multa_automatica.sumario_multa_linha_onibus
   data_versao_efetiva: rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva
   frota_determinada: rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
+  holidays: rj-smtr.br_rj_riodejaneiro_sigmob.holidays
   routes: rj-smtr.br_rj_riodejaneiro_sigmob.routes_desaninhada
   agency: rj-smtr.br_rj_riodejaneiro_sigmob.agency
   linhas_sppo: rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo
