@@ -65,6 +65,7 @@ parameters:
   agency: "rj-smtr.br_rj_riodejaneiro_sigmob.agency"
   calendar: "rj-smtr.br_rj_riodejaneiro_sigmob.calendar"
   frota_determinada: "rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada"
+  holidays: "rj-smtr.br_rj_riodejaneiro_sigmob.holidays"
   linhas: "rj-smtr.br_rj_riodejaneiro_sigmob.linhas"
   routes: "rj-smtr.br_rj_riodejaneiro_sigmob.routes"
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes"
@@ -87,6 +88,7 @@ parameters:
   data_inclusao_calendar: "2021-09-30"
   data_inclusao_frota_determinada: "2021-09-30"
   data_inclusao_stop_details: "2021-09-30"
+  data_inclusao_holidays: "2021-11-02"
 
 # Parâmetros de backfill
 backfill:
