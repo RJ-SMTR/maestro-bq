@@ -202,6 +202,3 @@ from frota_consorcio t1
 join capturas_por_faixa_horaria t2
 on t1.faixa_horaria = t2.faixa_horaria
 and t1.data = t2.data
-
-
--- unnest(['813', '830', '873', '913', '2308', '2309', '2345'])
