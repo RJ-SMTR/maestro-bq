@@ -44,8 +44,8 @@ SELECT
     json_value(content, '$.Vista') as Vista,
     json_value(content, '$.Horarios') as Horarios,
     json_value(content, '$.id') as id,
-    json_value(content, '$.Inexistente') as Inexistente
+    json_value(content, '$.PontoExistente') as PontoExistente
 FROM {{ stops }} t
 where data_versao = (select max(data_versao) FROM {{ stops }})
-and json_value(content, '$.Inexistente') = 'SIM'
+and json_value(content, '$.PontoExistente') = 'SIM'
 and json_value(content, '$.idModalSmtr') = '22'
