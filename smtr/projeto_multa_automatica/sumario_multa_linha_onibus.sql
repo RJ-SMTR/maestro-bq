@@ -59,4 +59,4 @@ on m.data = d.data
 ) t1
 left join linhas t2
 on t1.linha = t2.linha
-and t1.data_versao_efetiva = t2.data_versao;
+and t1.data_versao_efetiva = t2.data_versao

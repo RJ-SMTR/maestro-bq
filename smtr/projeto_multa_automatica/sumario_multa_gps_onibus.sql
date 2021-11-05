@@ -28,4 +28,4 @@ multa_1_dia as (
 )
 select * from multa_120_minutos where flag_multa = true
 union all 
-select * from multa_1_dia where flag_multa = true;
+select * from multa_1_dia where flag_multa = true
