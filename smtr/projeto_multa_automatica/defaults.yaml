@@ -168,7 +168,7 @@ backfill:
   # Formato %Y-%m-%d %H:%M:%S
   start_timestamp: "2021-07-31 00:00:00"
   interval:
-    days: 35
+    days: 30
 # Lista de views do dataset
 # Atributos de cada view:
 # - name: nome sem terminação .sql ou .yaml
