@@ -50,4 +50,4 @@ SELECT
 FROM sumario s
 JOIN consorcios c
 ON s.linha=c.linha
-and s.data_versao_efetiva = c.data_versao
+and s.data_versao_efetiva = c.data_versao;

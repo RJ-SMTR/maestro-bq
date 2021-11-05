@@ -90,4 +90,4 @@ select
     artigo_multa,
     prioridade
 from geral 
-where flag_multa = True
+where flag_multa = True;

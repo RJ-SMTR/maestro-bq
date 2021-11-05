@@ -20,4 +20,4 @@ select distinct
 from {{ gps_sppo }}
 WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
 and timestamp_gps > {{ date_range_start }} 
-and timestamp_gps <= {{ date_range_end }}
+and timestamp_gps <= {{ date_range_end }};

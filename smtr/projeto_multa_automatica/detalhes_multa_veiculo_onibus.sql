@@ -38,4 +38,4 @@ and t1.data = t1.data
 and t1.faixa_horaria = t2.faixa_horaria
 join categorias t3
 on t1.situacao = t3.situacao)
-where row_num = 1
+where row_num = 1;
