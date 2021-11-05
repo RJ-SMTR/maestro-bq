@@ -61,6 +61,10 @@ capturas_por_faixa_horaria as (
         sum(case when sucesso = true then 1 else 0 end) sucessos
     from {{ registros_logs }}
     group by timestamp_seconds({{ faixa_horaria * 60 }} * div(unix_seconds(timestamp(timestamp_captura)), {{ faixa_horaria * 60 }})))
+    where
+    DATE(faixa_horaria) between date({{ date_range_start }}) and date({{ date_range_end }})
+    and faixa_horaria > {{ date_range_start }}
+    and faixa_horaria <= {{ date_range_end }}
     order by 1,2
 ),
 frota_sigmob as (
