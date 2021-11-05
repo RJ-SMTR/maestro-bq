@@ -66,6 +66,7 @@ capturas_por_faixa_horaria as (
 frota_sigmob as (
     -- 5. 
     select 
+        d.data,
         DATE(f.data_versao) data_versao,
         route_short_name,
         sum(FrotaServico) frota_servico,
@@ -94,13 +95,63 @@ frota_sigmob as (
         r.agency_id = c.agency_id
     and
         r.data_versao = c.data_versao
+    join {{ data_versao_efetiva }} d
+    on 
+        d.data_versao_efetiva_agency = c.data_versao
+        and d.data_versao_efetiva_routes = r.data_versao
+        and d.data_versao_efetiva_frota_determinada = DATE(f.data_versao)
     group by 
-        f.data_versao, route_short_name, consorcio
+        d.data, f.data_versao, route_short_name, consorcio
+),
+sigmob_combinacoes as (
+    select 
+        data,
+        data_versao,
+        route_short_name,
+        frota_servico,
+        consorcio,
+        extract(time from faixa_horaria) faixa_horaria
+    from (
+        select 
+            cast(date_add(max(data), interval 1 day) as timestamp) max_data,
+            cast(min(data) as timestamp) min_data
+        from frota_sigmob
+    ),
+    unnest(generate_timestamp_array(min_data, max_data, INTERVAL {{ faixa_horaria }} minute)) faixa_horaria
+    join frota_sigmob f
+    on f.data = extract(date from faixa_horaria)
+    where frota_servico is not null
+),
+frotas_combinadas as (
+    SELECT
+        f2.data,
+        f2.route_short_name as linha,
+        f2.faixa_horaria,
+        coalesce(f1.frota_aferida,0) frota_aferida,
+        frota_servico,
+        consorcio,
+    FROM (
+        SELECT
+            t1.*,
+            t2.data_versao_efetiva_frota_determinada as data_versao_efetiva
+        FROM frota_completa t1
+        JOIN rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva t2
+        on t1.data = t2.data
+    ) f1
+    right join 
+        sigmob_combinacoes f2
+    on 
+        f1.linha = f2.route_short_name
+    and
+        f1.data = f2.data
+    and 
+        f1.data_versao_efetiva = f2.data_versao
+    and
+        f1.faixa_horaria = f2.faixa_horaria
 ),
 frota_consorcio as (
     SELECT
         f1.*,
-        f2.*,
         CASE
             {% for consorcio, picos in hora_pico.items() %}
             WHEN consorcio = '{{ consorcio }}'
@@ -120,21 +171,8 @@ frota_consorcio as (
             END
             {% endfor %}
         END pico
-    FROM (
-        SELECT
-        t1.*,
-        t2.data_versao_efetiva_frota_determinada as data_versao_efetiva
-        FROM frota_completa t1
-        JOIN {{ data_versao_efetiva }} t2
-        on t1.data = t2.data
-        ) f1
-    join 
-        frota_sigmob f2
-    on 
-        f1.linha = f2.route_short_name
-    and 
-        f1.data_versao_efetiva = f2.data_versao
-
+    FROM 
+        frotas_combinadas f1
 )
 select 
     t1.linha,
