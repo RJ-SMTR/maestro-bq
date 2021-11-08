@@ -48,7 +48,7 @@ holidays as (
 SELECT 
     data,
     data_versao as data_versao_original, 
-    CASE WHEN data < DATE"{{ data_inclusao_holidays }}" THEN DATE("{{ data_inclusao_holidays }}") ELSE
+    CASE WHEN data <= DATE("{{ data_inclusao_holidays }}") THEN DATE("{{ data_inclusao_holidays }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data

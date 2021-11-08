@@ -88,7 +88,7 @@ parameters:
   data_inclusao_calendar: "2021-09-30"
   data_inclusao_frota_determinada: "2021-09-30"
   data_inclusao_stop_details: "2021-09-30"
-  data_inclusao_holidays: "2021-11-02"
+  data_inclusao_holidays: "2021-11-05"
 
 # Parâmetros de backfill
 backfill:
