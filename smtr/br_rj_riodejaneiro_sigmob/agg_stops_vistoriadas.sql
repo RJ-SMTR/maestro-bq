@@ -6,8 +6,7 @@ SELECT
     json_value(content, '$.RA') as RA,
     json_value(content, '$.Bairro') as Bairro
 FROM {{ stops }}
-where data_versao = (select max(data_versao) FROM {{ stops }})
-and json_value(content, '$.PontoExistente') = 'SIM'
+where json_value(content, '$.PontoExistente') = 'SIM'
 and json_value(content, '$.idModalSmtr') = '22')
 select data_versao, AP, Bairro,
     sum(case when flag_vistoriada then 1 else 0 end) n_vistoridas,
