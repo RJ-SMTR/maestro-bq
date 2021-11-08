@@ -4,8 +4,6 @@
  operação/garagem) 
 */
 
-with 
-gps as (
 select distinct
     data,
     servico as linha,
@@ -23,30 +21,3 @@ from {{ gps_sppo }}
 WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
 and timestamp_gps > {{ date_range_start }} 
 and timestamp_gps <= {{ date_range_end }}
-),
-efetiva as (
-select 
-    g.*, 
-    data_versao_efetiva
-from gps g
-join (
-    select 
-        data,
-        data_versao_efetiva_holidays as data_versao_efetiva
-  from {{ data_versao_efetiva }}
-  ) d
-  on g.data = d.data
-),
-holidays as (
-select 
-    array_agg(data) as feriados, 
-    data_versao 
-from {{ holidays }}
-group by data_versao
-)
-select 
-    e.* except(data_versao_efetiva)
-from efetiva e
-join holidays f
-on e.data_versao_efetiva = date(f.data_versao)
-where e.data not in unnest(f.feriados)
