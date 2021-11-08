@@ -36,7 +36,9 @@ sumario AS (
     from {{ data_versao_efetiva }}
   ) d
   on s.data = d.data
-  where prioridade = 1
+  where 
+    prioridade = 1
+    and tipo_dia = 'Dia Util'
 )
 
 SELECT

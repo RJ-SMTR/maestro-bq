@@ -80,6 +80,7 @@ select
     concat(replace(cast(data as string), '-', ''), '-', linha, '-', pico,'-', prioridade) id_multa,
     linha,
     data,
+    tipo_dia,
     pico,
     faixa_horaria,
     frota_aferida,
