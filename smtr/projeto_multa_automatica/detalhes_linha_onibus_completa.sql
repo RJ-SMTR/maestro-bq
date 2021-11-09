@@ -158,7 +158,7 @@ frotas_combinadas as (
             t1.*,
             t2.data_versao_efetiva_frota_determinada as data_versao_efetiva
         FROM frota_completa t1
-        JOIN rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva t2
+        JOIN {{ data_versao_efetiva }} t2
         on t1.data = t2.data
     ) f1
     right join 
