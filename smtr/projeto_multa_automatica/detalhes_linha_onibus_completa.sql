@@ -198,7 +198,7 @@ frota_consorcio as (
             WHEN extract(dayofweek from data) = 1 THEN 'Domingo'
             WHEN extract(dayofweek from data) = 7 THEN 'Sabado'
             WHEN data = data_feriado THEN 'Feriado'
-            ELSE 'Dia Util'
+            ELSE 'Dia Útil'
         END tipo_dia
     FROM 
         frotas_combinadas f1

@@ -38,7 +38,7 @@ sumario AS (
   on s.data = d.data
   where 
     prioridade = 1
-    and tipo_dia = 'Dia Util'
+    and tipo_dia = 'Dia Útil'
 )
 
 SELECT
