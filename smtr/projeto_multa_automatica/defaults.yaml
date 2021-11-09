@@ -115,6 +115,7 @@ parameters:
   proporcao_dia_util: 0.8
   proporcao_sabado: 0.5
   proporcao_domingo: 0.4
+  proporcao_feriado: 0.4
 
   ## Multa de faixas horárias não consecutivas
   multa_nao_consecutiva:

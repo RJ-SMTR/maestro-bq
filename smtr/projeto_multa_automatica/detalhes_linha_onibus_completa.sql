@@ -214,7 +214,7 @@ select
     case 
         when frota_servico <= {{ limiar_frota_determinada }} then frota_servico -- até 5 carros 
         when tipo_dia = 'Domingo' then  floor(frota_servico * {{ proporcao_domingo }}) -- domingo
-        when tipo_dia = 'Feriado' then  floor(frota_servico * {{ proporcao_domingo }}) -- feriados
+        when tipo_dia = 'Feriado' then  floor(frota_servico * {{ proporcao_feriado }}) -- feriados
         when tipo_dia = 'Sabado' then  floor(frota_servico * {{ proporcao_sabado }}) -- sábado
         else floor(frota_servico * {{ proporcao_dia_util }}) -- dias úteis
     end frota_minima,
@@ -222,7 +222,7 @@ select
     case 
         when frota_servico <= {{ limiar_frota_determinada }} and frota_servico > frota_aferida then true -- até 5 carros 
         when tipo_dia = 'Domingo' and  floor(frota_servico * {{ proporcao_domingo }}) > frota_aferida then true -- domingo
-        when tipo_dia = 'Feriado' and  floor(frota_servico * {{ proporcao_domingo }}) > frota_aferida then true -- feriados
+        when tipo_dia = 'Feriado' and  floor(frota_servico * {{ proporcao_feriado }}) > frota_aferida then true -- feriados
         when tipo_dia = 'Sabado' and  floor(frota_servico * {{ proporcao_sabado }}) > frota_aferida then true -- sábado
         when floor(frota_servico * {{ proporcao_dia_util }}) > frota_aferida then true  -- dias úteis
         else false
