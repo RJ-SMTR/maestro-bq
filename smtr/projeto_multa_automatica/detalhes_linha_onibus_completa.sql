@@ -70,12 +70,25 @@ capturas_por_faixa_horaria as (
 frota_sigmob as (
     -- 5. 
     select 
-        d.data,
+        f.data,
+        data_feriado,
         DATE(f.data_versao) data_versao,
         route_short_name,
         sum(FrotaServico) frota_servico,
         consorcio
-    from {{ frota_determinada }} f
+    from (
+        select * 
+        from {{ frota_determinada }} f1
+        join (
+            select
+                data,
+                data_versao_efetiva_agency,
+                data_versao_efetiva_frota_determinada,
+                data_versao_efetiva_holidays,
+                data_versao_efetiva_routes,
+            from {{ data_versao_efetiva }}) d
+    on 
+        DATE(f1.data_versao) = d.data_versao_efetiva_frota_determinada) f
     join (
         select  
             route_id, 
@@ -87,7 +100,7 @@ frota_sigmob as (
     on 
         f.route_id = r.route_id
     and 
-        DATE(f.data_versao) = r.data_versao
+        DATE(f.data_versao_efetiva_routes) = r.data_versao
     join (
         select 
             agency_id,
@@ -98,18 +111,23 @@ frota_sigmob as (
     on
         r.agency_id = c.agency_id
     and
-        r.data_versao = c.data_versao
-    join {{ data_versao_efetiva }} d
-    on 
-        d.data_versao_efetiva_agency = c.data_versao
-        and d.data_versao_efetiva_routes = r.data_versao
-        and d.data_versao_efetiva_frota_determinada = DATE(f.data_versao)
+        f.data_versao_efetiva_agency = c.data_versao
+    left join (
+        select 
+            data as data_feriado,
+            data_versao
+        from {{ holidays }}
+        ) h
+    on
+        f.data_versao_efetiva_holidays = DATE(h.data_versao)
+        and f.data = h.data_feriado
     group by 
-        d.data, f.data_versao, route_short_name, consorcio
+        f.data, data_feriado, f.data_versao, route_short_name, consorcio
 ),
 sigmob_combinacoes as (
     select 
         data,
+        data_feriado,
         data_versao,
         route_short_name,
         frota_servico,
@@ -129,6 +147,7 @@ sigmob_combinacoes as (
 frotas_combinadas as (
     SELECT
         f2.data,
+        f2.data_feriado,
         f2.route_short_name as linha,
         f2.faixa_horaria,
         coalesce(f1.frota_aferida,0) frota_aferida,
@@ -139,7 +158,7 @@ frotas_combinadas as (
             t1.*,
             t2.data_versao_efetiva_frota_determinada as data_versao_efetiva
         FROM frota_completa t1
-        JOIN rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva t2
+        JOIN {{ data_versao_efetiva }} t2
         on t1.data = t2.data
     ) f1
     right join 
@@ -174,28 +193,37 @@ frota_consorcio as (
                 ELSE 'fora pico'
             END
             {% endfor %}
-        END pico
+        END pico,
+        CASE
+            WHEN extract(dayofweek from data) = 1 THEN 'Domingo'
+            WHEN extract(dayofweek from data) = 7 THEN 'Sabado'
+            WHEN data = data_feriado THEN 'Feriado'
+            ELSE 'Dia Útil'
+        END tipo_dia
     FROM 
         frotas_combinadas f1
 )
 select 
     t1.linha,
     t1.data data,
+    tipo_dia,
     cast(t1.faixa_horaria as string) faixa_horaria,
     pico,
     frota_aferida,
     frota_servico,
     case 
         when frota_servico <= {{ limiar_frota_determinada }} then frota_servico -- até 5 carros 
-        when extract(dayofweek from t1.data) = 1 then  floor(frota_servico * {{ proporcao_domingo }}) -- domingo
-        when extract(dayofweek from t1.data) = 7 then  floor(frota_servico * {{ proporcao_sabado }}) -- sábado
+        when tipo_dia = 'Domingo' then  floor(frota_servico * {{ proporcao_domingo }}) -- domingo
+        when tipo_dia = 'Feriado' then  floor(frota_servico * {{ proporcao_feriado }}) -- feriados
+        when tipo_dia = 'Sabado' then  floor(frota_servico * {{ proporcao_sabado }}) -- sábado
         else floor(frota_servico * {{ proporcao_dia_util }}) -- dias úteis
     end frota_minima,
     SAFE_DIVIDE(frota_aferida, frota_servico) porcentagem_frota,
     case 
         when frota_servico <= {{ limiar_frota_determinada }} and frota_servico > frota_aferida then true -- até 5 carros 
-        when extract(dayofweek from t1.data) = 1 and  floor(frota_servico * {{ proporcao_domingo }}) > frota_aferida then true -- domingo
-        when extract(dayofweek from t1.data) = 7 and  floor(frota_servico * {{ proporcao_sabado }}) > frota_aferida then true -- sábado
+        when tipo_dia = 'Domingo' and  floor(frota_servico * {{ proporcao_domingo }}) > frota_aferida then true -- domingo
+        when tipo_dia = 'Feriado' and  floor(frota_servico * {{ proporcao_feriado }}) > frota_aferida then true -- feriados
+        when tipo_dia = 'Sabado' and  floor(frota_servico * {{ proporcao_sabado }}) > frota_aferida then true -- sábado
         when floor(frota_servico * {{ proporcao_dia_util }}) > frota_aferida then true  -- dias úteis
         else false
     end flag_irregular,

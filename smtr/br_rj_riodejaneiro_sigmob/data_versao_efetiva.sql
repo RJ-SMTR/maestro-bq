@@ -44,6 +44,21 @@ LEFT JOIN (
     )
 ON DATE(data) = DATE(data_versao)
 ),
+holidays as (
+SELECT 
+    data,
+    data_versao as data_versao_original, 
+    CASE WHEN data <= DATE("{{ data_inclusao_holidays }}") THEN DATE("{{ data_inclusao_holidays }}") ELSE
+        LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
+    END AS data_versao_efetiva
+FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
+LEFT JOIN (
+    SELECT DISTINCT data_versao
+    FROM {{ holidays }}
+    WHERE DATE(data_versao) BETWEEN DATE_SUB(DATE({{ date_range_start }}), INTERVAL 7 DAY) AND DATE({{ date_range_end }})
+    )
+ON data = DATE(data_versao)
+),
 linhas as (
     SELECT 
     data,
@@ -138,7 +153,7 @@ trips as (
 SELECT 
     data,
     data_versao as data_versao_original, 
-    CASE WHEN data < DATE"{{ data_inclusao_trips }}" THEN DATE("{{ data_inclusao_trips }}") ELSE
+    CASE WHEN data < DATE("{{ data_inclusao_trips }}") THEN DATE("{{ data_inclusao_trips }}") ELSE
         LAST_VALUE(DATE(data_versao) IGNORE NULLS) OVER (ORDER BY data ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW) 
     END AS data_versao_efetiva
 FROM UNNEST(GENERATE_DATE_ARRAY(DATE('2021-01-01'), CURRENT_DATE())) data
@@ -155,6 +170,7 @@ joined as (
     a.data_versao_efetiva as data_versao_efetiva_agency,
     c.data_versao_efetiva as data_versao_efetiva_calendar,
     f.data_versao_efetiva as data_versao_efetiva_frota_determinada,
+    h.data_versao_efetiva as data_versao_efetiva_holidays,
     l.data_versao_efetiva as data_versao_efetiva_linhas,
     r.data_versao_efetiva as data_versao_efetiva_routes,
     s.data_versao_efetiva as data_versao_efetiva_shapes,
@@ -169,6 +185,8 @@ joined as (
     on a.data = c.data
     join frota_determinada f
     on a.data = f.data
+    join holidays h
+    on a.data = h.data
     join linhas l
     on a.data = l.data
     join routes r

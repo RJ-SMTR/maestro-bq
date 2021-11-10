@@ -33,11 +33,7 @@ select
     t2.vista,
     t2.consorcio,
     t1.data,
-    case extract(dayofweek from date(data))
-        when 1 then 'Domingo'
-        when 7 then 'Sábado'
-        else 'Dia Útil' 
-    end tipo_dia,
+    t1.tipo_dia,
     pico,
     faixa_horaria,
     t1.frota_servico,

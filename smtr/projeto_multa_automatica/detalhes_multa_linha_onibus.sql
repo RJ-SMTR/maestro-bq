@@ -21,7 +21,7 @@ multa_nao_consecutiva as (
     countif(flag_irregular) over (
         partition by linha, data, pico, flag_irregular
         order by linha, data, pico, faixa_horaria
-    rows between unbounded preceding and unbounded following) >= {{ multa_nao_consecutiva["valor"] }} flag_multa,
+    rows between unbounded preceding and current row) >= {{ multa_nao_consecutiva["valor"] }} flag_multa,
     "{{ multa_nao_consecutiva["descricao"] }}" tipo_multa,
     "{{ multa_nao_consecutiva["artigo"] }}" artigo_multa,
     {{ multa_nao_consecutiva["prioridade"] }} prioridade 
@@ -80,6 +80,7 @@ select
     concat(replace(cast(data as string), '-', ''), '-', linha, '-', pico,'-', prioridade) id_multa,
     linha,
     data,
+    tipo_dia,
     pico,
     faixa_horaria,
     frota_aferida,
