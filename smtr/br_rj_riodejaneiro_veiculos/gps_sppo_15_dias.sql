@@ -1,0 +1,6 @@
+SELECT
+  *
+FROM 
+    {{ gps_sppo }} 
+WHERE
+    data between DATE_SUB(CURRENT_DATE(), INTERVAL 16 DAY) AND DATE_SUB(CURRENT_DATE(), INTERVAL 1 DAY)
