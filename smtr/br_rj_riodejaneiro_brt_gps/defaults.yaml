@@ -57,7 +57,7 @@ parameters:
   distancia_limiar_parada: 250
 
   # dependências de views/tabelas
-  registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros" # registros_filtrada
+  registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros_desaninhada" # registros_filtrada
   limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
   registros_filtrada: "rj-smtr.br_rj_riodejaneiro_brt_gps.aux_registros_filtrada" # aux_registros_*
   terminais: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_parada
@@ -72,6 +72,10 @@ parameters:
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
+  registros_desaninhada:
+    materialized: false
+    depends_on: []
+
   aux_registros_filtrada:
     materialized: true
     depends_on:
@@ -108,4 +112,3 @@ views:
     materialized: false
     depends_on:
       - br_rj_riodejaneiro_brt_gps.aux_registros_intersec
-

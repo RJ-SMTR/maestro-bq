@@ -17,7 +17,7 @@ possíveis para a linha informada.
 */
 WITH
   registros AS (
-    SELECT id_veiculo, linha, latitude, longitude, data, posicao_veiculo_geo, timestamp_gps
+    SELECT id_veiculo, servico as linha, latitude, longitude, data, posicao_veiculo_geo, timestamp_gps
     FROM
       {{ registros_filtrada }} r
     WHERE
@@ -124,7 +124,8 @@ WITH
     FROM counts
   )
 SELECT
-  f.*
+  f.* except(linha),
+  f.linha as servico
 FROM
   flags f
 JOIN

@@ -29,7 +29,7 @@ WITH
       id_veiculo, 
       timestamp_gps,
       data, 
-      linha, 
+      servico, 
       posicao_veiculo_geo, 
       nome_parada, 
       tipo_parada,

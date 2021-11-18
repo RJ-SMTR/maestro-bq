@@ -20,7 +20,7 @@ with
         data,
         id_veiculo,
         timestamp_gps,
-        linha,
+        servico,
         ST_DISTANCE(
                 posicao_veiculo_geo,
                 lag(posicao_veiculo_geo) over (
@@ -53,7 +53,7 @@ with
         data,
         id_veiculo,
         timestamp_gps,
-        linha,
+        servico,
         distancia, 
         velocidade, # velocidade do pontual
         AVG(velocidade) OVER (
@@ -67,7 +67,7 @@ SELECT
     timestamp_gps, 
     data,
     id_veiculo,
-    linha, 
+    servico, 
     distancia,
     ROUND(
         CASE WHEN velocidade_media > {{ velocidade_maxima }}

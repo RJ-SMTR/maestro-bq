@@ -28,16 +28,15 @@ gps AS (
 filtrada AS (
   /*1,2, e 3. Muda o nome de variáveis para o padrão do projeto.*/
   SELECT
-    codigo AS id_veiculo,
-    placa AS placa_veiculo,
+    id_veiculo,
     latitude,
     longitude,
     posicao_veiculo_geo,
     velocidade,
-    linha,
+    servico,
     timestamp_gps,
     timestamp_captura,
-    DATA,
+    data,
     hora,
     row_number() over (partition by codigo, timestamp_gps, linha) rn
   FROM

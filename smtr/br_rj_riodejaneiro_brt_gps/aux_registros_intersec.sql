@@ -39,7 +39,7 @@ WITH
 		-- 2. Join da registros_filtrada com as faixas horárias geradas acima
 		SELECT
 			id_veiculo,
-			linha,
+			servico,
 			timestamp_captura,
 			faixa_horaria,
 			longitude,
@@ -57,7 +57,7 @@ WITH
 	intersects AS ( 
 		SELECT
 			id_veiculo,
-			f.linha AS linha_gps,
+			f.servico AS linha_gps,
 			s.linha_gtfs,
 			shape_distance AS distancia,
 			data,
