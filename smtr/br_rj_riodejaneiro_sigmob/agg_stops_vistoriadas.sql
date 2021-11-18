@@ -5,7 +5,9 @@ SELECT
     json_value(content, '$.AP') as AP,
     json_value(content, '$.RA') as RA,
     json_value(content, '$.Bairro') as Bairro
-FROM {{ stops }})
+FROM {{ stops }}
+where json_value(content, '$.PontoExistente') = 'SIM'
+and json_value(content, '$.idModalSmtr') = '22')
 select data_versao, AP, Bairro,
     sum(case when flag_vistoriada then 1 else 0 end) n_vistoridas,
     count(*) n_pontos

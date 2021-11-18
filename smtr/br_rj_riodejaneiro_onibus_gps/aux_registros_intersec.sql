@@ -20,7 +20,9 @@ registros as (
 	SELECT *
 	FROM {{	 registros_filtrada }}
     WHERE
-        data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+		data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+    AND
+		timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
 ),
 times AS ( 
 	-- 1. Geração das faixas horárias
@@ -91,7 +93,9 @@ intersects AS (
 		AS status
 	-- 5. Junção com data_versao_efetiva
 	FROM (
-		SELECT t1.*, t2.data_versao_efetiva
+		SELECT 
+			t1.*,
+			t2.data_versao_efetiva_shapes as data_versao_efetiva
 		FROM faixas t1
 		JOIN  {{ data_versao_efetiva }} t2
 		ON t1.data = t2.data) f
