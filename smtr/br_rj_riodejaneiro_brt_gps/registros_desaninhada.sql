@@ -4,9 +4,9 @@ hora,
 id_veiculo,
 timestamp_gps,
 timestamp_captura,
-json_value(content,"$.latitude") latitude,
-json_value(content,"$.longitude") longitude,
+SAFE_CAST(json_value(content,"$.latitude") AS FLOAT64) latitude,
+SAFE_CAST(json_value(content,"$.longitude") AS FLOAT64) longitude,
 json_value(content,"$.servico") servico,
 json_value(content,"$.sentido") sentido,
-json_value(content,"$.velocidade") velocidade,
-from rj-smtr.br_rj_riodejaneiro_brt_gps.registros as t
+SAFE_CAST(json_value(content,"$.velocidade") AS INT64) velocidade,
+from {{ registros_nested }} as t

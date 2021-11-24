@@ -91,7 +91,7 @@ WITH
 			AS status
 		-- 5. Junção com data_versao_efetiva
 		FROM (
-			SELECT t1.*, t2.data_versao_efetiva
+			SELECT t1.*, t2.data_versao_efetiva_shapes as data_versao_efetiva
 			FROM faixas t1
 			JOIN  {{ data_versao_efetiva }} t2
 			ON t1.data = t2.data) f
@@ -99,7 +99,7 @@ WITH
 			{{ shapes }} s
 		ON
 			s.data_versao = f.data_versao_efetiva
-			AND f.linha = s.linha_gtfs
+			AND f.servico = s.linha_gtfs
 		GROUP BY
 			id_veiculo,
 			faixa_horaria,

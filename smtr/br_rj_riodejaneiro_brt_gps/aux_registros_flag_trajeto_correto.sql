@@ -48,7 +48,7 @@ WITH
       CASE WHEN s.linha_gtfs IS NULL THEN False ELSE True END AS flag_linha_existe_sigmob,
     -- 4. Join com data_versao_efetiva para definição de quais shapes serão considerados no cálculo das flags
     FROM (
-      SELECT t1.*, t2.data_versao_efetiva
+      SELECT t1.*, t2.data_versao_efetiva_shapes as data_versao_efetiva
       FROM registros t1
       JOIN  {{ data_versao_efetiva }} t2
       ON t1.data = t2.data

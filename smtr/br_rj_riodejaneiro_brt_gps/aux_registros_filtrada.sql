@@ -38,7 +38,7 @@ filtrada AS (
     timestamp_captura,
     data,
     hora,
-    row_number() over (partition by codigo, timestamp_gps, linha) rn
+    row_number() over (partition by id_veiculo, timestamp_gps, servico) rn
   FROM
     gps
   WHERE
