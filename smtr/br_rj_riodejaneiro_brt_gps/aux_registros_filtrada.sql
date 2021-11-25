@@ -21,8 +21,8 @@ gps AS (
     ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo
   FROM
     {{ registros }}
-  WHERE
-    data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+  WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
     AND DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) BETWEEN 0 AND 1
     ),
 filtrada AS (

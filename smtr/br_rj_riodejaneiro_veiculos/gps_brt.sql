@@ -25,6 +25,7 @@ WITH
         longitude,
     FROM {{ brt_registros_filtrada }}
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
     ),
     velocidades AS (
     -- 2. velocidades
@@ -32,6 +33,7 @@ WITH
         id_veiculo, timestamp_gps, servico, velocidade, distancia, flag_em_movimento
     FROM {{ brt_velocidade }} 
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
     ),
     paradas as (
     -- 3. paradas
@@ -39,6 +41,7 @@ WITH
         id_veiculo, timestamp_gps, servico, tipo_parada,
     FROM {{ brt_parada }}
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
     ),
     flags AS (
     -- 4. flag_trajeto_correto
@@ -47,11 +50,12 @@ WITH
         timestamp_gps, 
         servico,
         route_id, 
-        flag_servico_existe_sigmob,
+        flag_linha_existe_sigmob,
         flag_trajeto_correto, 
         flag_trajeto_correto_hist
     FROM {{ brt_flag_trajeto_correto }}
-    WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})  
+    WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
     )
 -- 5. Junção final
 SELECT

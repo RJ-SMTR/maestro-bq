@@ -45,8 +45,8 @@ with
             0
         ) * 3.6 velocidade 
     FROM  {{ registros_filtrada }}
-    WHERE
-        data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+    WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
     ),
     medias as (
         select 

@@ -20,8 +20,8 @@ WITH
     SELECT id_veiculo, servico as linha, latitude, longitude, data, posicao_veiculo_geo, timestamp_gps
     FROM
       {{ registros_filtrada }} r
-    WHERE
-      data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+    WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
+    AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
   ),
   intersec AS (
     SELECT
