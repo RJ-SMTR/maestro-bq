@@ -49,10 +49,10 @@ views:
       - br_rj_riodejaneiro_onibus_gps.aux_registros_velocidade
       - br_rj_riodejaneiro_onibus_gps.aux_registros_parada
       - br_rj_riodejaneiro_onibus_gps.aux_registros_flag_trajeto_correto
-  # gps_brt:
-  #   materialized: true
-  #   depends_on:
-  #     - br_rj_riodejaneiro_brt_gps.aux_registros_filtrada
-  #     - br_rj_riodejaneiro_brt_gps.aux_registros_velocidade
-  #     - br_rj_riodejaneiro_brt_gps.aux_registros_parada
-  #     - br_rj_riodejaneiro_brt_gps.aux_registros_flag_trajeto_correto
+  gps_brt:
+    materialized: true
+    depends_on:
+      - br_rj_riodejaneiro_brt_gps.aux_registros_filtrada
+      - br_rj_riodejaneiro_brt_gps.aux_registros_velocidade
+      - br_rj_riodejaneiro_brt_gps.aux_registros_parada
+      - br_rj_riodejaneiro_brt_gps.aux_registros_flag_trajeto_correto
