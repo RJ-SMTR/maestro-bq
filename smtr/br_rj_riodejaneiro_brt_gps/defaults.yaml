@@ -58,9 +58,9 @@ parameters:
 
   # dependências de views/tabelas
   registros_nested: rj-smtr.br_rj_riodejaneiro_brt_gps.registros
-  registros: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.registros_desaninhada" # registros_filtrada
+  registros: "rj-smtr.br_rj_riodejaneiro_brt_gps.registros_desaninhada" # registros_filtrada
   limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
-  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_filtrada" # aux_registros_*
+  registros_filtrada: "rj-smtr.br_rj_riodejaneiro_brt_gps.aux_registros_filtrada" # aux_registros_*
   terminais: "rj-smtr.br_rj_riodejaneiro_transporte.estacoes_e_terminais_brt" # aux_registros_parada
   polygon_garagem: "rj-smtr.br_rj_riodejaneiro_geo.garagens_polygon" # aux_registros_parada
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes_geom" # aux_registros_flag_trajeto_correto, aux_registros_intersec
