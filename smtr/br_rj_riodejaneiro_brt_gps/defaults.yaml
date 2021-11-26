@@ -65,7 +65,7 @@ parameters:
   polygon_garagem: "rj-smtr.br_rj_riodejaneiro_geo.garagens_polygon" # aux_registros_parada
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes_geom" # aux_registros_flag_trajeto_correto, aux_registros_intersec
   data_versao_efetiva: "rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva" # aux_registros_flag_trajeto_correto, aux_registros_intersec
-  intersec: "rj-smtr-dev.br_rj_riodejaneiro_brt_gps.aux_registros_intersec" # viagens_realizadas
+  intersec: "rj-smtr.br_rj_riodejaneiro_brt_gps.aux_registros_intersec" # viagens_realizadas
 
 # Lista de views do dataset
 # Atributos de cada view:
@@ -80,8 +80,8 @@ views:
   aux_registros_filtrada:
     materialized: true
     depends_on:
-      - br_rj_riodejaneiro_geo.limites_geograficos_caixa,
-      - br_rj_riodejaneiro_brt_gps.registros,
+      - br_rj_riodejaneiro_geo.limites_geograficos_caixa
+      - br_rj_riodejaneiro_brt_gps.registros
 
   aux_registros_velocidade:
     materialized: false
