@@ -1,11 +1,10 @@
-  /*
+/*
 - Descrição:
 Filtragem e tratamento básico de registros de gps.
-1. Filtra registros que estão fora de uma caixa que contém a área do município de Rio de Janeiro.
-2. Filtra registros antigos. Remove registros que tem diferença maior que 1 minuto entre o timestamp_captura e timestamp_gps.
-3. Muda o nome de variáveis para o padrão do projeto.
-	- id_veiculo --> ordem
-	- hora_completa
+1. Filtra registros antigos. Remove registros que tem diferença maior
+   que 1 minuto entre o timestamp_captura e timestamp_gps.
+2. Filtra registros que estão fora de uma caixa que contém a área do
+   município de Rio de Janeiro.
 */
 WITH
 box AS (
@@ -13,9 +12,10 @@ box AS (
 	SELECT
 	*
 	FROM
-	{{ limites_caixa }} ),
+	{{ limites_caixa }}),
 gps AS (
-  /*2. Filtra registros antigos. Remove registros que tem diferença maior que 1 minuto entre o timestamp_captura e timestamp_gps.*/ 
+  /* 1. Filtra registros antigos. Remove registros que tem diferença maior
+   que 1 minuto entre o timestamp_captura e timestamp_gps.*/
   SELECT
     *,
     ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo
@@ -26,7 +26,8 @@ gps AS (
     AND DATETIME_DIFF(timestamp_captura, timestamp_gps, MINUTE) BETWEEN 0 AND 1
     ),
 filtrada AS (
-  /*1,2, e 3. Muda o nome de variáveis para o padrão do projeto.*/
+  /* 2. Filtra registros que estão fora de uma caixa que contém a área do
+   município de Rio de Janeiro.*/
   SELECT
     id_veiculo,
     latitude,
