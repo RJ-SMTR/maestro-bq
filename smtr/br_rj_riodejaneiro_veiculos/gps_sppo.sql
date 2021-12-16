@@ -82,16 +82,23 @@ SELECT
   flag_trajeto_correto,
   flag_trajeto_correto_hist,
   CASE
-      WHEN flag_em_movimento IS true AND flag_trajeto_correto_hist is true
-      THEN 'em operação'
-      WHEN flag_em_movimento is true and flag_trajeto_correto_hist is false
-      THEN 'operando fora trajeto'
-      WHEN flag_em_movimento is false and flag_trajeto_correto_hist is true
-      THEN 'parado trajeto correto'
-      WHEN flag_em_movimento is false and flag_trajeto_correto_hist is false
-      THEN 'parado fora trajeto'
-      ELSE tipo_parada
-    END status,
+    WHEN flag_em_movimento IS true AND flag_trajeto_correto_hist is true
+    THEN 'Em operação'
+    WHEN flag_em_movimento is true and flag_trajeto_correto_hist is false
+    THEN 'Operando fora trajeto'
+    WHEN flag_em_movimento is false
+    THEN 
+        CASE
+            WHEN tipo_parada is not null
+            THEN concat("Parado ", tipo_parada)
+        ELSE
+            CASE
+                WHEN flag_trajeto_correto_hist is true
+                THEN 'Parado trajeto correto'
+            ELSE 'Parado fora trajeto'
+            END
+        END
+    END status,,
   r.velocidade velocidade_instantanea,
   v.velocidade velocidade_estimada_10_min,
   v.distancia,
