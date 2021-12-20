@@ -65,6 +65,7 @@ SELECT
   "SPPO" modo,
   r.timestamp_gps,
   date(r.timestamp_gps) data,
+  extract(time from r.timestamp_gps) hora, 
   r.id_veiculo,
   r.linha servico,
   r.latitude,
@@ -80,6 +81,24 @@ SELECT
   flag_linha_existe_sigmob,
   flag_trajeto_correto,
   flag_trajeto_correto_hist,
+  CASE
+    WHEN flag_em_movimento IS true AND flag_trajeto_correto_hist is true
+    THEN 'Em operação'
+    WHEN flag_em_movimento is true and flag_trajeto_correto_hist is false
+    THEN 'Operando fora trajeto'
+    WHEN flag_em_movimento is false
+    THEN 
+        CASE
+            WHEN tipo_parada is not null
+            THEN concat("Parado ", tipo_parada)
+        ELSE
+            CASE
+                WHEN flag_trajeto_correto_hist is true
+                THEN 'Parado trajeto correto'
+            ELSE 'Parado fora trajeto'
+            END
+        END
+    END status,
   r.velocidade velocidade_instantanea,
   v.velocidade velocidade_estimada_10_min,
   v.distancia,
