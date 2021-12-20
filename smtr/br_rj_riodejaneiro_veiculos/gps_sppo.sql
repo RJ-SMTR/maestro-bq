@@ -98,7 +98,7 @@ SELECT
             ELSE 'Parado fora trajeto'
             END
         END
-    END status,,
+    END status,
   r.velocidade velocidade_instantanea,
   v.velocidade velocidade_estimada_10_min,
   v.distancia,
