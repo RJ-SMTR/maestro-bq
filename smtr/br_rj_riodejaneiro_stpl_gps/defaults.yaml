@@ -59,8 +59,7 @@ parameters:
   registros: "rj-smtr.br_rj_riodejaneiro_stpl_gps.registros" # aux_registros_filtrada
   polygon_garagem: "rj-smtr.br_rj_riodejaneiro_geo.garagens_polygon" # aux_registros_filtrada
   limites_caixa: "rj-smtr.br_rj_riodejaneiro_geo.limites_geograficos_caixa" # registros_filtrada
-  registros_filtrada: "rj-smtr.br_rj_riodejaneiro_stpl_gps.aux_registros_filtrada" # aux_registros_*
-  terminais: "rj-smtr.br_rj_riodejaneiro_transporte.terminais_onibus_coordenadas" # aux_registros_parada
+  registros_filtrada: "rj-smtr-dev.br_rj_riodejaneiro_stpl_gps.aux_registros_filtrada" # aux_registros_*
   shapes: "rj-smtr.br_rj_riodejaneiro_sigmob.shapes_geom" # flag_trajeto_correto, aux_registros_intersec
   data_versao_efetiva: "rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva" # aux_registros_intersec, aux_registros_flag_trajeto_correto
 
@@ -81,9 +80,9 @@ views:
     depends_on:
       - br_rj_riodejaneiro_stpl_gps.registros_filtrada
 
-  aux_registros_parada:
+  aux_registros_flag_trajeto_correto:
     materialized: false
     depends_on:
-      - br_rj_riodejaneiro_transporte.terminais_onibus_coordenadas
-      - br_rj_riodejaneiro_transporte.garagens
-      - br_rj_riodejaneiro_stpl_gps.aux_registros_velocidade
+      - br_rj_riodejaneiro_stpl_gps.registros_filtrada
+      # - br_rj_riodejaneiro_sigmob.shapes_geom
+      # - br_rj_riodejaneiro_sigmob.data_versao_efetiva

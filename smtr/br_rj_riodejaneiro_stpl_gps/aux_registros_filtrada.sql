@@ -39,7 +39,7 @@ filtrada AS (
     timestamp_captura,
     data,
     hora,
-    row_number() over (partition by ordem, timestamp_gps, linha) rn
+    row_number() over (partition by codigo, timestamp_gps, linha) rn
   FROM
     gps
   WHERE
