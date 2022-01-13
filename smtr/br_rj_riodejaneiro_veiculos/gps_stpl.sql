@@ -42,7 +42,7 @@ SELECT
     r.timestamp_gps,
     r.data,
     r.id_veiculo,
-    r.linha servico,
+    REPLACE(r.linha, "L", "STPL") servico,
     r.latitude,
     r.longitude,
     CASE 

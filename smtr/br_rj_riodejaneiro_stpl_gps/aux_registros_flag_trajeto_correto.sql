@@ -2,7 +2,7 @@ with gps as (
   SELECT 
       id_veiculo,
       placa,
-      replace(linha, "L", "STPL") linha,
+      linha,
       ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo,
       timestamp_gps,
       timestamp_captura,
@@ -49,6 +49,6 @@ flag as (
     ) g
   LEFT JOIN shapes s
   ON g.data_versao_efetiva = s.data_versao
-  AND g.linha = s.linha_gtfs
+  AND replace(g.linha, "L", "STPL")  = s.linha_gtfs
 )
 SELECT * from flag
