@@ -1,0 +1,96 @@
+# Definição de taxa de atualização
+scheduling:
+  cron: "10 21 * * *"
+
+# Definição de particionamento
+# - column: nome da coluna
+# - type: deve ser um dos seguintes
+#   * DATE (não exige período)
+#   * DATE_TRUNC (exige período MONTH/YEAR)
+#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * <To-do> RANGE_BUCKET
+#   * <To-do> GENERATE_ARRAY
+# - period: período (conforme especificado acima)
+partitioning:
+  column: "data"
+  type: ""
+  period: ""
+
+# Parâmetros da query
+parameters:
+  # Tamanho da faixa horária da aplicação da multa em minutos
+  # ATENÇÃO: esse campo afeta a `hora_pico`
+  faixa_horaria: 10
+
+  # Estabilidade das capturas
+
+  ## Número mínimo de sucessos dentro da faixa horária para a API
+  ## ser considerada ativa.
+  ## variável afetada: flag_falha_api
+  n_minimo_sucessos_api: 0
+
+  ## Número mínimo de sucessos dentro da faixa horária para a
+  ## captura ser considerada ativa.
+  ## variável afetada: flag_falha_capturas_smtr
+  n_minimo_sucessos_captura: 8
+
+  ## Buffer do polígono representado a AP/RP
+  tamanho_buffer_metros: 100
+
+  # Multas
+
+  ## Multa de faixas horárias não consecutivas
+  multa_nao_consecutiva:
+    valor: 8 # número de faixas horárias não consecutivas
+    descricao: pelo menos 80 minutos não consecutivos operando abaixo da frota esperada
+    artigo: 017.I
+    prioridade: 2
+
+  ## Multa de faixas horárias consecutivas
+  multa_consecutiva:
+    valor: 3 # número de faixas horárias consecutivas (válido somente para ímpares)
+    descricao: pelo menos 30 minutos consecutivos operando abaixo da frota esperada
+    artigo: 017.I
+    prioridade: 3
+
+  ## Multa X horas sem carros (NÃO CONSIDERADO)
+  multa_horas_sem_carros:
+    valor: 24 # número de faixas horárias sem carros
+    descricao: 24 horas consecutivas operando sem carros
+    artigo: 017.VII
+    prioridade: 1
+
+  ## Multa GPS 120 minutos (NÃO CONSIDERADO)
+  multa_gps_120_minutos:
+    valor: 120 # minutos
+    descricao: 120 minutos com a API fora do ar
+    artigo: 017.X
+
+  ## Multa GPS 1 dia (NÃO CONSIDERADO)
+  multa_gps_1_dia:
+    valor: 1440 # minutos
+    descricao: 1 dia com a API fora do ar
+    artigo: 017.IX
+
+  # Rerências de tabelas
+  gps_stpl: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_stpl
+  registros_logs: rj-smtr.br_rj_riodejaneiro_stpl_gps.registros_logs
+  ap: rj-smtr-dev.br_rj_riodejaneiro_rdo.regioes_planejamento
+  
+# Parâmetros de backfill
+backfill:
+  # Formato %Y-%m-%d %H:%M:%S
+  start_timestamp: "2021-08-23 00:00:00"
+  interval:
+    days: 35
+# Lista de views do dataset
+# Atributos de cada view:
+# - name: nome sem terminação .sql ou .yaml
+# - materialized: true|false para materializar ou não
+# - depends_on: lista de views das quais ela depende
+views:
+  detalhes_veiculo_van_completa:
+    materialized: false
+    depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo]
+  
