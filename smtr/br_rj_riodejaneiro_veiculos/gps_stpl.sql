@@ -6,7 +6,7 @@ WITH
         timestamp_gps,
         timestamp_captura,
         velocidade,
-        linha,
+        servico,
         latitude,
         longitude,
         data,
@@ -18,7 +18,7 @@ WITH
     velocidades AS (
     -- 2. velocidades
     SELECT
-        id_veiculo, timestamp_gps, linha, velocidade, distancia, flag_em_movimento
+        id_veiculo, timestamp_gps, servico, velocidade, distancia, flag_em_movimento
     FROM {{ stpl_velocidade }} 
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
     AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
@@ -28,7 +28,7 @@ WITH
     SELECT
         id_veiculo,
         timestamp_gps, 
-        linha,
+        servico,
         flag_linha_existe_sigmob,
         flag_trajeto_correto, 
         flag_trajeto_correto_hist
@@ -42,7 +42,7 @@ SELECT
     r.timestamp_gps,
     r.data,
     r.id_veiculo,
-    REPLACE(r.linha, "L", "STPL") servico,
+    r.servico,
     r.latitude,
     r.longitude,
     CASE 
@@ -67,11 +67,11 @@ JOIN
 ON
     r.id_veiculo = f.id_veiculo
     AND r.timestamp_gps = f.timestamp_gps
-    AND r.linha = f.linha
+    AND r.servico = f.servico
 
 JOIN
     velocidades v
 ON
     r.id_veiculo = v.id_veiculo
     AND  r.timestamp_gps = v.timestamp_gps
-    AND  r.linha = v.linha
+    AND  r.servico = v.servico
