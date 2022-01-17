@@ -19,13 +19,12 @@ with
     select
         data,
         id_veiculo,
-        placa,
         timestamp_gps,
-        linha,
+        servico,
         ST_DISTANCE(
                 posicao_veiculo_geo,
                 lag(posicao_veiculo_geo) over (
-                partition by id_veiculo, linha
+                partition by id_veiculo, servico
                 order by timestamp_gps)
         ) distancia,
         IFNULL(
@@ -33,13 +32,13 @@ with
                 ST_DISTANCE(
                 posicao_veiculo_geo,
                 lag(posicao_veiculo_geo) over (
-                partition by id_veiculo, linha
+                partition by id_veiculo, servico
                 order by timestamp_gps)
                 ),
                 DATETIME_DIFF(
                 timestamp_gps,
                 lag(timestamp_gps) over (
-                partition by id_veiculo, linha
+                partition by id_veiculo, servico
                 order by timestamp_gps),
                 SECOND
                 )),
@@ -55,13 +54,12 @@ with
         select 
         data,
         id_veiculo,
-        placa,
         timestamp_gps,
-        linha,
+        servico,
         distancia, 
         velocidade, # velocidade do pontual
         AVG(velocidade) OVER (
-            PARTITION BY id_veiculo, linha
+            PARTITION BY id_veiculo, servico
             ORDER BY unix_seconds(timestamp(timestamp_gps))
             RANGE BETWEEN {{ janela_movel_velocidade }} PRECEDING AND CURRENT ROW
         ) velocidade_media # velocidade com média móvel
@@ -71,8 +69,7 @@ SELECT
     timestamp_gps, 
     data,
     id_veiculo,
-    placa,
-    linha, 
+    servico, 
     distancia,
     ROUND(
         CASE WHEN velocidade_media > {{ velocidade_maxima }}

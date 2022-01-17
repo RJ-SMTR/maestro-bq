@@ -28,20 +28,24 @@ gps AS (
 filtrada AS (
   /*1,2, e 3. Muda o nome de variáveis para o padrão do projeto.*/
   SELECT
-    codigo AS id_veiculo,
+    codigo_hash AS id_veiculo,
     placa,
     latitude,
     longitude,
     posicao_veiculo_geo,
     velocidade,
-    linha,
+    servico,
     timestamp_gps,
     timestamp_captura,
     data,
     hora,
-    row_number() over (partition by codigo, timestamp_gps, linha) rn
+    row_number() over (partition by g.codigo, timestamp_gps, g.linha) rn
   FROM
-    gps
+    gps g
+  JOIN
+    {{ codigos }} c
+  ON
+    g.codigo = c.codigo
   WHERE
     ST_INTERSECTSBOX(posicao_veiculo_geo,
       ( SELECT min_longitude FROM box),
