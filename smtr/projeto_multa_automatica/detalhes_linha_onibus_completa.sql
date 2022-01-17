@@ -176,23 +176,8 @@ frota_consorcio as (
     SELECT
         f1.*,
         CASE
-            {% for consorcio, picos in hora_pico.items() %}
-            WHEN consorcio = '{{ consorcio }}'
-            THEN
-                CASE 
-                {% for periodo, faixa in picos.items() %} 
-                WHEN TIME(f1.faixa_horaria) between TIME(
-                    {{ faixa['inicio']['hora'] }},
-                    {{ faixa['inicio']['minuto'] }},
-                    0) and TIME(
-                    {{ faixa['fim']['hora'] }},
-                    {{ faixa['fim']['minuto'] }},
-                    0)
-                THEN '{{ periodo }}'
-                {% endfor %}
-                ELSE 'fora pico'
-            END
-            {% endfor %}
+            WHEN pico_linha.pico IS NULL THEN "fora pico"
+            ELSE pico_linha.pico
         END pico,
         CASE
             WHEN extract(dayofweek from data) = 1 THEN 'Domingo'
@@ -202,6 +187,11 @@ frota_consorcio as (
         END tipo_dia
     FROM 
         frotas_combinadas f1
+    LEFT JOIN 
+        {{ hora_pico }} as picos
+    ON
+        picos.servico = detalhes.linha
+        AND parse_time("%T", faixa_horaria) BETWEEN picos.inicio_pico AND picos.fim_pico
 )
 select 
     t1.linha,

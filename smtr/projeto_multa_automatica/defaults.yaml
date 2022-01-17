@@ -44,73 +44,6 @@ parameters:
   ## da frota determinada.
   limiar_frota_determinada: 5
 
-  ## Intervalo dos picos por consórcio
-  # Para adicionar novo consórcio, basta coloca-lo na lista
-  # Os minutos são faixas horárias proporcionais ao parametro `faixa_horaria`
-  # Portanto, para uma faixa horária de 10 minutos o minuto 50 representa o
-  # intervalo de 50 até 59 minutos
-  hora_pico:
-    intersul:
-      manha:
-        inicio:
-          hora: 6
-          minuto: 30
-        fim:
-          hora: 9
-          minuto: 20
-      tarde:
-        inicio:
-          hora: 16
-          minuto: 0
-        fim:
-          hora: 18
-          minuto: 50
-    internorte:
-      manha:
-        inicio:
-          hora: 6
-          minuto: 0
-        fim:
-          hora: 8
-          minuto: 50
-      tarde:
-        inicio:
-          hora: 16
-          minuto: 0
-        fim:
-          hora: 18
-          minuto: 50
-    transcarioca:
-      manha:
-        inicio:
-          hora: 6
-          minuto: 0
-        fim:
-          hora: 8
-          minuto: 50
-      tarde:
-        inicio:
-          hora: 16
-          minuto: 0
-        fim:
-          hora: 18
-          minuto: 50
-    santa cruz:
-      manha:
-        inicio:
-          hora: 5
-          minuto: 30
-        fim:
-          hora: 8
-          minuto: 20
-      tarde:
-        inicio:
-          hora: 17
-          minuto: 0
-        fim:
-          hora: 19
-          minuto: 50
-
   ## Proporções da frota determinada por dia da semana
   proporcao_dia_util: 0.8
   proporcao_sabado: 0.5
@@ -153,10 +86,10 @@ parameters:
   # Rerências de tabelas
   gps_sppo: rj-smtr.br_rj_riodejaneiro_veiculos.gps_sppo
   registros_logs: rj-smtr.br_rj_riodejaneiro_onibus_gps.registros_logs
-  detalhes_veiculo_onibus_completa: rj-smtr.projeto_multa_automatica.detalhes_veiculo_onibus_completa
-  detalhes_linha_onibus_completa: rj-smtr.projeto_multa_automatica.detalhes_linha_onibus_completa
-  detalhes_multa_linha_onibus: rj-smtr.projeto_multa_automatica.detalhes_multa_linha_onibus
-  sumario_multa_linha_onibus: rj-smtr.projeto_multa_automatica.sumario_multa_linha_onibus
+  detalhes_veiculo_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_veiculo_onibus_completa
+  detalhes_linha_onibus_completa: rj-smtr-dev.projeto_multa_automatica.detalhes_linha_onibus_completa
+  detalhes_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.detalhes_multa_linha_onibus
+  sumario_multa_linha_onibus: rj-smtr-dev.projeto_multa_automatica.sumario_multa_linha_onibus
   data_versao_efetiva: rj-smtr.br_rj_riodejaneiro_sigmob.data_versao_efetiva
   frota_determinada: rj-smtr.br_rj_riodejaneiro_sigmob.frota_determinada_desaninhada
   holidays: rj-smtr.br_rj_riodejaneiro_sigmob.holidays
@@ -164,13 +97,14 @@ parameters:
   agency: rj-smtr.br_rj_riodejaneiro_sigmob.agency
   linhas_sppo: rj-smtr.br_rj_riodejaneiro_transporte.linhas_sppo
   codigos_consorcios: rj-smtr.br_rj_riodejaneiro_transporte.codigos_consorcios
+  hora_pico: rj-smtr-dev.projeto_multa_automatica.aux_hora_pico_linha
 
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-07-31 00:00:00"
+  start_timestamp: "2021-12-01 00:00:00"
   interval:
-    days: 35
+    days: 15
 # Lista de views do dataset
 # Atributos de cada view:
 # - name: nome sem terminação .sql ou .yaml
