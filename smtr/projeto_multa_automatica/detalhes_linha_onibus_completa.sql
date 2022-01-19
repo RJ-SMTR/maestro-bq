@@ -172,12 +172,12 @@ frotas_combinadas as (
     and
         f1.faixa_horaria = f2.faixa_horaria
 ),
-frota_consorcio as (
+frota_picos as (
     SELECT
         f1.*,
         CASE
-            WHEN pico_linha.pico IS NULL THEN "fora pico"
-            ELSE pico_linha.pico
+            WHEN picos.pico IS NULL THEN "fora pico"
+            ELSE picos.pico
         END pico,
         CASE
             WHEN extract(dayofweek from data) = 1 THEN 'Domingo'
@@ -190,8 +190,8 @@ frota_consorcio as (
     LEFT JOIN 
         {{ hora_pico }} as picos
     ON
-        picos.servico = detalhes.linha
-        AND parse_time("%T", faixa_horaria) BETWEEN picos.inicio_pico AND picos.fim_pico
+        picos.servico = f1.linha
+        AND f1.faixa_horaria BETWEEN picos.inicio_pico AND picos.fim_pico
 )
 select 
     t1.linha,
@@ -220,7 +220,7 @@ select
     frota_aferida = 0 flag_sem_carros,
     flag_falha_api,
     flag_falha_capturas_smtr
-from frota_consorcio t1
+from frota_picos t1
 join capturas_por_faixa_horaria t2
 on t1.faixa_horaria = t2.faixa_horaria
 and t1.data = t2.data
