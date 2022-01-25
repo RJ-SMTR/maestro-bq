@@ -19,9 +19,7 @@ partitioning:
 
 # Parâmetros da query
 parameters:
-  # Tamanho da faixa horária da aplicação da multa em minutos
-  # ATENÇÃO: esse campo afeta a `hora_pico`
-  faixa_horaria: 10
+  per_minima_movimento: 0.5
 
   # Estabilidade das capturas
 
@@ -77,7 +75,9 @@ parameters:
   gps_stpl: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_stpl
   registros_logs: rj-smtr.br_rj_riodejaneiro_stpl_gps.registros_logs
   ap: rj-smtr-dev.br_rj_riodejaneiro_rdo.regioes_planejamento
-  
+  aux_stpl_permissionario: rj-smtr-dev.br_rj_riodejaneiro_veiculos.aux_stpl_permissionario
+  detalhes_veiculo: rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_veiculo_vans_completa
+  rho: rj-smtr.br_rj_riodejaneiro_rdo.rho5_registros_stpl
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
@@ -93,4 +93,4 @@ views:
   detalhes_veiculo_van_completa:
     materialized: false
     depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo]
-  
+
