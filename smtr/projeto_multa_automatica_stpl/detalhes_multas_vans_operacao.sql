@@ -8,16 +8,42 @@ with rho as (
     timestamp_captura,
   from {{ rho }} r 
   where
-  ano = extract(year from {{ date_range_start }})
-  AND mes between extract(month from {{ date_range_start }}) and extract(month from {{ date_range_end }})
+  ano between extract(year from DATE({{ date_range_start }})) and extract(year from DATE({{ date_range_start }})) 
+  AND mes between extract(month from DATE({{ date_range_start }})) and extract(month from DATE({{ date_range_end }}))
   AND data_transacao between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
 ),
 detalhes as (
-  select 
-    d.*, operadora
+  select
+    data,
+    id_veiculo,
+    operadora,
+    d.servico,
+    timestamp_gps,
+    hora,
+    perc_operacao,
+    flag_ap_correta,
+    n_registros,
+    tipo_hora,
   from {{ detalhes_veiculo }} d
   JOIN {{ aux_stpl_permissionario }} p
   ON p.codigo_hash = d.id_veiculo
+),
+status_captura as (
+-- decidir se haverá multa por falha na API (sucesso = false)
+  SELECT 
+    data,
+    extract(hour from timestamp_captura) hora,
+    CASE 
+      WHEN
+        COUNT(distinct timestamp_captura) < {{ n_minimo_sucessos_captura }}
+      THEN
+        true
+    ELSE
+      false
+    END flag_falha_captura_smtr
+  FROM {{ registros_logs }} 
+  WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+  GROUP by data, hora
 ),
 catraca as (
   SELECT
@@ -31,6 +57,11 @@ catraca as (
     data_transacao,
     hora_transacao,
     tipo_hora,
+    n_registros,
+    SAFE_DIVIDE(
+    COUNT(CASE WHEN flag_ap_correta is true then 1 else 0 end) over(partition by d.id_veiculo, data, hora),
+    COUNT(distinct timestamp_gps) over(partition by d.id_veiculo, data, hora)
+    ) perc_area_correta,
     CASE
       WHEN
         hora_transacao is not null
@@ -38,7 +69,7 @@ catraca as (
         true
     ELSE
       false
-    END flag_catracando
+    END flag_catracando,
   FROM rho r
   FULL OUTER JOIN detalhes d
   ON r.operadora = d.operadora
@@ -52,19 +83,13 @@ multa_catracando as (
       WHEN
         tipo_hora = 'multavel'
         AND
-        true not in unnest(
-            array_agg(flag_ap_correta) over (
-            partition by data, id_veiculo
-            order by unix_seconds(TIMESTAMP(timestamp_gps,'America/Sao_Paulo'))
-            range between {{ intervalo_nao_conformidade_minutos * 60 }} preceding and current row
-              )
-            )
+        perc_area_correta < 0.5
       THEN
         'local proibido'
       WHEN
         tipo_hora != 'fora operacao'
         AND
-        timestamp_gps is null
+        n_registros < 20
       THEN
         'gps desligado'
     ELSE
@@ -79,13 +104,7 @@ multa_nao_catracando as (
     *,
     CASE 
       WHEN
-        true not in unnest(
-            array_agg(flag_ap_correta) over (
-            partition by data, id_veiculo
-            order by unix_seconds(TIMESTAMP(timestamp_gps,'America/Sao_Paulo'))
-            range between {{ intervalo_nao_conformidade_minutos * 60 }} preceding and current row
-              )
-            )
+        perc_area_correta < {{ perc_area_correta_minima }}
       THEN
         'percentil local proibido'
     ELSE
@@ -105,7 +124,6 @@ SELECT *
 FROM multa_nao_catracando n
 WHERE tipo_multa is not null
 )
-
 
 
 

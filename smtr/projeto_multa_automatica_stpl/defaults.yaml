@@ -19,8 +19,9 @@ partitioning:
 
 # Parâmetros da query
 parameters:
-  per_minima_movimento: 0.5
-
+  perc_operacao_minima: 0.5
+  perc_area_correta_minima: 0.5
+  n_registros_minimo: 30
   # Estabilidade das capturas
 
   ## Número mínimo de sucessos dentro da faixa horária para a API
@@ -31,7 +32,7 @@ parameters:
   ## Número mínimo de sucessos dentro da faixa horária para a
   ## captura ser considerada ativa.
   ## variável afetada: flag_falha_capturas_smtr
-  n_minimo_sucessos_captura: 8
+  n_minimo_sucessos_captura: 48
 
   ## Buffer do polígono representado a AP/RP
   tamanho_buffer_metros: 100
