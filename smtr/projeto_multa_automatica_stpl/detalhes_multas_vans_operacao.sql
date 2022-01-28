@@ -83,13 +83,13 @@ multa_catracando as (
       WHEN
         tipo_hora = 'multavel'
         AND
-        perc_area_correta < 0.5
+        perc_area_correta < {{ perc_area_correta_minima }}
       THEN
         'local proibido'
       WHEN
         tipo_hora != 'fora operacao'
         AND
-        n_registros < 20
+        n_registros < {{ n_registros_minimo }}
       THEN
         'gps desligado'
     ELSE
@@ -114,7 +114,7 @@ multa_nao_catracando as (
    where flag_catracando is false
    and tipo_hora != 'fora operacao'
 )
-SELECT *
+SELECT m.*
 FROM (
 SELECT * 
 FROM multa_catracando m
@@ -123,7 +123,12 @@ UNION ALL
 SELECT * 
 FROM multa_nao_catracando n
 WHERE tipo_multa is not null
-)
+) m
+JOIN (SELECT * FROM status_captura WHERE flag_falha_captura_smtr is false) s
+ON 
+  m.data = s.data 
+AND 
+  m.hora = s.hora
 
 
 
