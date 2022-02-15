@@ -175,24 +175,32 @@ frotas_combinadas as (
 frota_consorcio as (
     SELECT
         f1.*,
-        CASE
-            {% for consorcio, picos in hora_pico.items() %}
-            WHEN consorcio = '{{ consorcio }}'
-            THEN
-                CASE 
-                {% for periodo, faixa in picos.items() %} 
-                WHEN TIME(f1.faixa_horaria) between TIME(
-                    {{ faixa['inicio']['hora'] }},
-                    {{ faixa['inicio']['minuto'] }},
-                    0) and TIME(
-                    {{ faixa['fim']['hora'] }},
-                    {{ faixa['fim']['minuto'] }},
-                    0)
-                THEN '{{ periodo }}'
+        CASE 
+            WHEN data < DATE("2022-02-14") THEN ( -- v1.0: Picos por consórcio
+                CASE
+                    {% for consorcio, picos in hora_pico.items() %}
+                    WHEN consorcio = '{{ consorcio }}'
+                    THEN
+                        CASE 
+                            {% for periodo, faixa in picos.items() %} 
+                            WHEN TIME(f1.faixa_horaria) between TIME(
+                                {{ faixa['inicio']['hora'] }},
+                                {{ faixa['inicio']['minuto'] }},
+                                0) and TIME(
+                                {{ faixa['fim']['hora'] }},
+                                {{ faixa['fim']['minuto'] }},
+                                0)
+                            THEN '{{ periodo }}'
+                            {% endfor %}
+                            ELSE 'fora pico'
+                        END
                 {% endfor %}
-                ELSE 'fora pico'
-            END
-            {% endfor %}
+                END)
+            ELSE ( -- v1.1: Picos por linha
+                CASE
+                    WHEN picos.pico IS NULL THEN "fora pico"
+                    ELSE picos.pico
+                END)
         END pico,
         CASE
             WHEN extract(dayofweek from data) = 1 THEN 'Domingo'
@@ -202,6 +210,11 @@ frota_consorcio as (
         END tipo_dia
     FROM 
         frotas_combinadas f1
+    LEFT JOIN 
+        `rj-smtr.projeto_multa_automatica.aux_hora_pico_linha` as picos
+    ON
+        picos.servico = f1.linha
+        AND f1.faixa_horaria BETWEEN picos.inicio_pico AND picos.fim_pico
 )
 select 
     t1.linha,
