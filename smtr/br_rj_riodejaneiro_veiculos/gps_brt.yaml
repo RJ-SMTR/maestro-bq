@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 * * * *"
+  cron: "*/5 * * * *"
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
