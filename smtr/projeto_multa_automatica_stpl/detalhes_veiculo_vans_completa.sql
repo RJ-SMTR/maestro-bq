@@ -1,10 +1,8 @@
 with gps as (
   SELECT
-    *,
-    ROUND(SAFE_DIVIDE(
-        COUNT(CASE WHEN flag_em_movimento is true THEN 1 END) over(partition by id_veiculo, data, hora),
-        COUNT(distinct timestamp_gps) over(partition by id_veiculo, data, hora)
-      ),1) perc_operacao,
+    g.*,
+    p.operadora,
+    COUNT(CASE WHEN flag_em_movimento is true THEN 1 END) over(partition by id_veiculo, data, hora) n_movimento,
     COUNT(distinct timestamp_gps) over(partition by id_veiculo, data, hora) n_registros
   FROM (
     SELECT 
@@ -17,12 +15,20 @@ with gps as (
       ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo,
       flag_em_movimento
     FROM {{ gps_stpl }}
-    ) g 
-  WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end}})
+    WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+    ) g
+  JOIN {{ aux_stpl_permissionario }} p
+  on g.id_veiculo = p.codigo_hash
 ),
 ap as (
   SELECT
-    REPLACE(regiao_ap,".", "") regiao_ap,
+    CASE
+      WHEN
+        regiao_ap = '4'
+      THEN '41'
+    ELSE
+      REPLACE(regiao_ap,".", "")
+    END regiao_ap,
     geometry as rp
   FROM {{ ap }}
 ),
@@ -31,42 +37,12 @@ detalhes as (
     g.*,
     CASE
       WHEN
-        ST_DWITHIN(posicao_veiculo_geo, ap.rp, {{ tamanho_buffer_metros }})
+        ST_INTERSECTS(posicao_veiculo_geo, rp)
       THEN
         true
     ELSE
       false
     END flag_ap_correta,
-    CASE
-      WHEN
-        perc_operacao >  {{perc_operacao_minima }}
-      THEN
-          CASE
-            WHEN
-                lead(perc_operacao) over (partition by id_veiculo, data, hora order by hora) <  {{perc_operacao_minima }}
-                OR
-                hora = max(hora) over(partition by id_veiculo, data)
-            THEN
-                'inicio'
-            WHEN
-                lag(perc_operacao) over (partition by id_veiculo, data, hora order by hora) < {{perc_operacao_minima }}
-                OR
-                hora = min(hora) over(partition by id_veiculo, data)
-            THEN
-                'fim'
-          ELSE 'multavel'
-          END
-    ELSE 'fora operacao' 
-    END tipo_hora,
-    CASE
-      WHEN
-        n_registros < {{ n_registros_minimo }}
-      THEN
-        false
-    ELSE
-      true
-    END flag_transmitindo_regular
-      
   FROM gps g
   LEFT JOIN ap 
   ON regiao_ap = g.rp
@@ -74,3 +50,4 @@ detalhes as (
 SELECT 
     d.*
 FROM  detalhes d
+

@@ -20,7 +20,7 @@ partitioning:
 # Parâmetros da query
 parameters:
   perc_operacao_minima: 0.5
-  perc_area_correta_minima: 0.5
+  perc_area_incorreta_maxima: 0.5
   n_registros_minimo: 30
   # Estabilidade das capturas
 
