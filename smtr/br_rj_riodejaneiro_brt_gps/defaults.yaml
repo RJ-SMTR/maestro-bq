@@ -1,6 +1,6 @@
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 * * * *"
+  cron: "*/5 * * * *"
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
@@ -27,7 +27,7 @@ partitioning:
 parameters:
   # IdModalSMTR
   # 20 -> BRT
-  id_modal_smtr: "20"
+  id_modal_smtr: ["'20'", "'B'"]
 
   # Filtro de velocidade no cálculo de viagens realizadas
   ## Serão consideradas somente velocidades entre os valores abaixo

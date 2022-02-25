@@ -56,7 +56,7 @@ WITH
     LEFT JOIN (
       SELECT * 
       FROM {{ shapes }} 
-      WHERE id_modal_smtr = "{{ id_modal_smtr }}"
+      WHERE id_modal_smtr in ({{ id_modal_smtr|join(', ') }})
     ) s
     ON
       r.linha = s.linha_gtfs

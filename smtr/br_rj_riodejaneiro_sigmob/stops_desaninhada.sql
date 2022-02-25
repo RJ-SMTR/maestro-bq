@@ -48,4 +48,4 @@ SELECT
 FROM {{ stops }} t
 where data_versao = (select max(data_versao) FROM {{ stops }})
 and json_value(content, '$.PontoExistente') = 'SIM'
-and json_value(content, '$.idModalSmtr') = '22'
+and json_value(content, '$.idModalSmtr') = '22' or json_value(content, '$.idModalSmtr') = 'O'
