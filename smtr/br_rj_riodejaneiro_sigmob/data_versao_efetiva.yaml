@@ -12,4 +12,4 @@ backfill:
 
 # Definição de taxa de atualização
 scheduling:
-  cron: "0 4 * * *"
+  cron: "0 5 * * *"
