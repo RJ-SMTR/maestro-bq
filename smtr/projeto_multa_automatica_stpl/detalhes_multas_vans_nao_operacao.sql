@@ -5,23 +5,22 @@ with rho as (
       DATE(data_transacao) data_transacao,
       hora_transacao,
       total_pagantes + total_gratuidades n_transacoes
-  FROM `rj-smtr.br_rj_riodejaneiro_rdo.rho5_registros_stpl`
-  WHERE ano = 2021
-  AND mes = 12
-  AND dia between 10 and 17
-  and data_transacao between '2021-12-10' and '2021-12-17'
+  FROM {{ rho }}
+  WHERE
+  ano = extract(year from DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY))
+  AND mes = extract(month from DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY))
+  AND data_transacao = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
   --where timestamp_captura = (select max(timestamp_captura) from rj-smtr.br_rj_riodejaneiro_rdo.rho5_registros_stpl)
 ),
 combinacoes as (
   SELECT 
     p.operadora,
-    p.codigo_hash as id_veiculo,
-    data,
+    p.identificador as id_veiculo,
+    DATE_SUB(DATE({{date_range_end}}), INTERVAL 14 DAY) data,
     hora
-  FROM (select min(data_transacao) min_data, max(data_transacao) max_data from rho),
-  UNNEST(GENERATE_DATE_ARRAY(DATE_SUB(min_data, INTERVAL 1 DAY), max_data, INTERVAL 1 DAY)) data,
+  FROM (select * from {{  aux_stpl_permissionario }} where operadora != '' and data_versao = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)) p,
   UNNEST(GENERATE_ARRAY(0,23)) hora
-  CROSS JOIN (select * from rj-smtr-dev.br_rj_riodejaneiro_veiculos.aux_stpl_permissionario where operadora != '') p
+  
 ),
 gps as (
   SELECT 
@@ -38,8 +37,8 @@ gps as (
       id_veiculo,
       servico,
       COUNT(distinct timestamp_gps) n_registros
-    FROM `rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_stpl`
-    WHERE data between (select min(data) from combinacoes) and (select max(data) from combinacoes) 
+    FROM {{ gps_stpl }}
+    WHERE data = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY) 
     GROUP BY 1,2,3,4) d
     ON
       c.id_veiculo = d.id_veiculo
@@ -75,8 +74,11 @@ veiculos_nao_operantes as (
     END tipo_multa
   FROM transacoes t
 )
-SELECT *
-FROM veiculos_nao_operantes 
-where tipo_multa is not null
+SELECT * except(rn)
+FROM (
+SELECT *, row_number() over(partition by id_veiculo, data, tipo_multa order by hora) rn
+from veiculos_nao_operantes 
+)
+where tipo_multa is not null and rn = 1
 order by operadora, id_veiculo, data, hora
 
