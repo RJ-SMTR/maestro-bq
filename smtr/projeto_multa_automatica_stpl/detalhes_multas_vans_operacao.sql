@@ -131,22 +131,18 @@ multas_nao_catracando as (
     END tipo_multa
   FROM catraca c
   WHERE flag_catracando is false
-),
-primeiras_multas as (
-  select
-    data,
-    FIRST_VALUE(hora) OVER(partition by id_veiculo, data order by hora) hora_primeira_multa
-  FROM (
-    SELECT * from multas_catracando where tipo_multa is not null
-    UNION ALL
-    select * from multas_nao_catracando where tipo_multa is not null
-    ) m
 )
-SELECT m.*
+SELECT m.* except(rn)
 FROM (
-SELECT * from multas_catracando where tipo_multa is not null
+SELECT 
+  *,
+  row_number() over(partition by id_veiculo, data, tipo_multa order by hora) rn
+from multas_catracando where tipo_multa is not null
 UNION ALL
-select * from multas_nao_catracando where tipo_multa is not null
+select 
+  *,
+  row_number() over(partition by id_veiculo, data, tipo_multa order by hora) rn
+from multas_nao_catracando where tipo_multa is not null
 ) m
 JOIN (
   SELECT *
@@ -155,7 +151,5 @@ JOIN (
 ) s
 ON m.data = s.data
 AND m.hora = s.hora
-
-
-
-
+WHERE rn = 1
+order by id_veiculo, data, hora

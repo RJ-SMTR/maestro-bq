@@ -15,7 +15,7 @@ with gps as (
       ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo,
       flag_em_movimento
     FROM {{ gps_stpl }}
-    WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+    WHERE data = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
     ) g
   JOIN {{ aux_stpl_permissionario }} p
   ON g.id_veiculo = p.identificador
