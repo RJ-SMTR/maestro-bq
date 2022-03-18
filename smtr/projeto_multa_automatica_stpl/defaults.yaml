@@ -82,16 +82,21 @@ parameters:
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2021-08-23 00:00:00"
+  start_timestamp: "2022-03-01 00:00:00"
   interval:
-    days: 35
+    days: 1
 # Lista de views do dataset
 # Atributos de cada view:
 # - name: nome sem terminação .sql ou .yaml
 # - materialized: true|false para materializar ou não
 # - depends_on: lista de views das quais ela depende
 views:
-  detalhes_veiculo_van_completa:
+  detalhes_veiculo_vans_completa:
     materialized: false
-    depends_on: [] # [br_rj_riodejaneiro_veiculos.gps_sppo]
-
+    depends_on: []
+  detalhes_multas_vans_operacao:
+    materialized: true
+    depends_on: [detalhes_veiculo_vans_completa]
+  detalhes_multas_vans_nao_operacao:
+    materialized: true
+    depends_on: [detalhes_veiculo_vans_completa]
