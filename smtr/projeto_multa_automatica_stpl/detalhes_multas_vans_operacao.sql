@@ -11,9 +11,9 @@ with rho as (
 
   FROM {{ rho }} r 
   WHERE
-  ano between extract(year from DATE({{ date_range_start }})) and extract(year from DATE({{ date_range_start }})) 
-  AND mes between extract(month from DATE({{ date_range_start }})) and extract(month from DATE({{ date_range_end }}))
-  AND data_transacao between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+  ano = extract(year from DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY))
+  AND mes = extract(month from DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY))
+  AND data_transacao = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
 ),
 status_captura as (
   SELECT
@@ -21,7 +21,7 @@ status_captura as (
     extract(hour from timestamp_captura) hora,
     COUNT(CASE WHEN sucesso is true THEN 1 END) < {{ n_minimo_sucessos_captura }} flag_falha_captura_smtr 
   FROM {{ registros_logs }} 
-  WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
+  WHERE data = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
   GROUP by data, hora
 ),
 combinacoes as (
@@ -63,11 +63,11 @@ detalhes_agg as (
     n_registros,
     ROUND(
     SAFE_DIVIDE(
-    count(CASE WHEN flag_ap_correta is false THEN 1 END),
-    n_registros
-    ), 2) perc_area_incorreta,
+      count(CASE WHEN flag_ap_correta is false THEN 1 END),
+      n_registros),
+    2) perc_area_incorreta,
   FROM {{ detalhes_veiculo }} d
-  WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end}})
+  WHERE data = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
   group by 1,2,3,4,5,6,7
 ),
 catraca as (
@@ -131,6 +131,16 @@ multas_nao_catracando as (
     END tipo_multa
   FROM catraca c
   WHERE flag_catracando is false
+),
+primeiras_multas as (
+  select
+    data,
+    FIRST_VALUE(hora) OVER(partition by id_veiculo, data order by hora) hora_primeira_multa
+  FROM (
+    SELECT * from multas_catracando where tipo_multa is not null
+    UNION ALL
+    select * from multas_nao_catracando where tipo_multa is not null
+    ) m
 )
 SELECT m.*
 FROM (

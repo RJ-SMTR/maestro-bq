@@ -76,7 +76,7 @@ parameters:
   gps_stpl: rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_stpl
   registros_logs: rj-smtr.br_rj_riodejaneiro_stpl_gps.registros_logs
   ap: rj-smtr-dev.br_rj_riodejaneiro_rdo.regioes_planejamento
-  aux_stpl_permissionario: rj-smtr-dev.br_rj_riodejaneiro_veiculos.aux_stpl_permissionario
+  aux_stpl_permissionario: rj-smtr-dev.br_rj_riodejaneiro_veiculos.dummy_aux_stu_stpl_permissionario
   detalhes_veiculo: rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_veiculo_vans_completa
   rho: rj-smtr.br_rj_riodejaneiro_rdo.rho5_registros_stpl
 # Parâmetros de backfill

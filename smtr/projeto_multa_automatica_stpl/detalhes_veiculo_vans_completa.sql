@@ -18,7 +18,9 @@ with gps as (
     WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
     ) g
   JOIN {{ aux_stpl_permissionario }} p
-  on g.id_veiculo = p.codigo_hash
+  ON g.id_veiculo = p.identificador
+  AND p.data_versao = g.data
+  WHERE codigo_bloqueio is null
 ),
 ap as (
   SELECT
@@ -29,7 +31,7 @@ ap as (
     ELSE
       REPLACE(regiao_ap,".", "")
     END regiao_ap,
-    geometry as rp
+    geometry as rp_geom
   FROM {{ ap }}
 ),
 detalhes as (
@@ -37,7 +39,7 @@ detalhes as (
     g.*,
     CASE
       WHEN
-        ST_INTERSECTS(posicao_veiculo_geo, rp)
+        ST_INTERSECTS(posicao_veiculo_geo, rp_geom)
       THEN
         true
     ELSE
