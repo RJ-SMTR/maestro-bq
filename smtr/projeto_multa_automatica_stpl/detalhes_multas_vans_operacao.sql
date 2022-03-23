@@ -152,4 +152,3 @@ JOIN (
 ON m.data = s.data
 AND m.hora = s.hora
 WHERE rn = 1
-order by id_veiculo, data, hora

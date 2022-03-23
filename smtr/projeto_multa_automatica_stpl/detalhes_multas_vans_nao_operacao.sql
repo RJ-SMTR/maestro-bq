@@ -80,5 +80,4 @@ SELECT *, row_number() over(partition by id_veiculo, data, tipo_multa order by h
 from veiculos_nao_operantes 
 )
 where tipo_multa is not null and rn = 1
-order by operadora, id_veiculo, data, hora
 
