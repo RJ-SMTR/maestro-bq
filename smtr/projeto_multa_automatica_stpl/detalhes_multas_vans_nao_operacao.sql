@@ -59,24 +59,24 @@ transacoes as (
 ),
 veiculos_nao_operantes as (
   SELECT
-    t.*,
-    SUM(n_transacoes) over (partition by operadora, id_veiculo, data order by hora range between 11 preceding and current row) sum_transac,
-    SUM(n_registros) over (partition by operadora, id_veiculo, data order by hora range between 11 preceding and current row) sum_regs,
+    id_veiculo,
+    data,
+    SUM(n_transacoes) sum_transac,
+    SUM(n_registros) sum_regs,
     CASE
       WHEN
-        ARRAY_LENGTH(ARRAY_AGG(n_registros) over (partition by operadora, data order by hora range between 11 preceding and current row)) = 12
+        SUM(n_transacoes) = 0
         AND
-        SUM(n_transacoes) over (partition by operadora, data order by hora range between 11 preceding and current row) = 0
-        AND
-        SUM(n_registros) over (partition by operadora, data order by hora range between 11 preceding and current row) = 0
+        SUM(n_registros) = 0
       THEN
         "não operação"
     END tipo_multa
   FROM transacoes t
+  GROUP BY id_veiculo, data
 )
 SELECT * except(rn)
 FROM (
-SELECT *, row_number() over(partition by id_veiculo, data, tipo_multa order by hora) rn
+SELECT *, row_number() over(partition by id_veiculo, data, tipo_multa) rn
 from veiculos_nao_operantes 
 )
 where tipo_multa is not null and rn = 1
