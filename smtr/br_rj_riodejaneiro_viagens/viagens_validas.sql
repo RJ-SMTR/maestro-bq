@@ -71,7 +71,9 @@ distancia_estimada as (
         shape_id,
         trip_number,
         round(shape_distance/1000, 2) distancia_teorica,
-        round(sum(distancia)/1000,2)  distancia_km 
+        round(sum(distancia)/1000,2)  distancia_km,
+        COUNT(CASE WHEN flag_trajeto_correto_hist is true then 1 end) flag_agg,
+        COUNT(timestamp_gps) n_registros, 
     from classificacao 
     where trip_number is not null
     group by 1,2,3,4,5,6
@@ -81,6 +83,7 @@ select
     v.*,
     distancia_teorica,
     distancia_km,
+    round(flag_agg/n_registros*100,2) perc_conformidade,
 from viagens v
 join distancia_estimada d
 on v.data = d.data

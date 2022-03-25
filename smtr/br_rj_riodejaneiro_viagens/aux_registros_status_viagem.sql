@@ -26,6 +26,7 @@ status_viagem as (
         distancia,
         shape_id,
         shape_distance,
+        flag_trajeto_correto_hist,
         CASE
             WHEN ST_DWITHIN(posicao_veiculo_geo, start_pt, 200)
             THEN 'start'
