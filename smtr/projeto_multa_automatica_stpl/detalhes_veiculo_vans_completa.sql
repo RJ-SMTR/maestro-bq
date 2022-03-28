@@ -17,7 +17,15 @@ with gps as (
     FROM {{ gps_stpl }}
     WHERE data = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
     ) g
-  JOIN {{ aux_stpl_permissionario }} p
+  JOIN (
+    SELECT
+      DISTINCT
+      identificador,
+      operadora,
+      codigo_bloqueio,
+      data_versao,
+    FROM {{ aux_stpl_permissionario }}
+  ) p
   ON g.id_veiculo = p.identificador
   AND p.data_versao = g.data
   WHERE codigo_bloqueio is null
@@ -50,6 +58,10 @@ detalhes as (
   ON regiao_ap = g.rp
 )
 SELECT 
-    d.*
+    d.*,
+    SAFE_DIVIDE(
+      COUNT(CASE WHEN flag_ap_correta is false THEN 1 END) over(partition by id_veiculo, data, hora),
+      n_registros
+    ) perc_area_incorreta
 FROM  detalhes d
 
