@@ -62,13 +62,10 @@ detalhes_agg as (
     n_movimento,
     n_registros,
     ROUND(
-    SAFE_DIVIDE(
-      count(CASE WHEN flag_ap_correta is false THEN 1 END),
-      n_registros),
-    2) perc_area_incorreta,
+    perc_area_incorreta, 2) perc_area_incorreta,
   FROM {{ detalhes_veiculo }} d
   WHERE data = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
-  group by 1,2,3,4,5,6,7
+  group by 1, 2, 3, 4, 5, 6, 7, 8
 ),
 catraca as (
   SELECT 
@@ -99,6 +96,7 @@ catraca as (
     d.operadora = t.operadora
     AND d.data = t.data_transacao
     AND d.hora = t.hora
+  WHERE d.hora >= primeira_hora AND d.hora <= ultima_hora
 ),
 multas_catracando as (
   SELECT 
@@ -125,6 +123,8 @@ multas_nao_catracando as (
     *,
     CASE
       WHEN
+        tipo_hora = 'passivel'
+        AND
         perc_area_incorreta > 0
       THEN
         'percentil sobre local proibido'
