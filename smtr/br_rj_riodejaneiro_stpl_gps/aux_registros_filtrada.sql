@@ -42,8 +42,14 @@ filtrada AS (
     row_number() over (partition by g.codigo, timestamp_gps, g.linha) rn
   FROM
     gps g
-  JOIN
-    {{ codigos }} c
+  JOIN (
+    SELECT 
+      DISTINCT
+        codigo_hash,
+        codigo,
+        servico
+    FROM {{ codigos }} 
+  ) c
   ON
     g.codigo = c.codigo
   WHERE
