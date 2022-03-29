@@ -10,12 +10,12 @@ with rho as (
   ano = extract(year from DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY))
   AND mes = extract(month from DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY))
   AND data_transacao = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
-  --where timestamp_captura = (select max(timestamp_captura) from rj-smtr.br_rj_riodejaneiro_rdo.rho5_registros_stpl)
 ),
 combinacoes as (
   SELECT 
     p.operadora,
     p.identificador as id_veiculo,
+    p.servico,
     DATE_SUB(DATE({{date_range_end}}), INTERVAL 14 DAY) data,
     hora
   FROM (
@@ -31,7 +31,7 @@ combinacoes as (
 gps as (
   SELECT 
       c.id_veiculo,
-      servico,
+      c.servico,
       c.data,
       c.hora,
       c.operadora,
