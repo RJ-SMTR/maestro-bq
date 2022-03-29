@@ -78,11 +78,14 @@ parameters:
   ap: rj-smtr-dev.br_rj_riodejaneiro_rdo.regioes_planejamento
   aux_stpl_permissionario: rj-smtr-dev.br_rj_riodejaneiro_veiculos.dummy_aux_stu_stpl_permissionario
   detalhes_veiculo: rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_veiculo_vans_completa
+  detalhes_multa_operacao: rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_multas_vans_operacao
+  detalhes_multa_nao_operacao: rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_multas_vans_nao_operacao
+  sumario_multa_veiculo: rj-smtr-dev.projeto_multa_automatica_stpl.sumario_multas_veiculo_vans
   rho: rj-smtr.br_rj_riodejaneiro_rdo.rho5_registros_stpl
 # Parâmetros de backfill
 backfill:
   # Formato %Y-%m-%d %H:%M:%S
-  start_timestamp: "2022-03-01 00:00:00"
+  start_timestamp: "2022-03-20 00:00:00"
   interval:
     days: 1
 # Lista de views do dataset
@@ -95,8 +98,17 @@ views:
     materialized: false
     depends_on: []
   detalhes_multas_vans_operacao:
-    materialized: true
+    materialized: false
     depends_on: [detalhes_veiculo_vans_completa]
   detalhes_multas_vans_nao_operacao:
-    materialized: true
+    materialized: false
     depends_on: [detalhes_veiculo_vans_completa]
+  sumario_multas_veiculo_vans:
+    materialized: true
+    depends_on:
+      - detalhes_veiculo_vans_completa
+      - detalhes_multas_vans_nao_operacao
+      - detalhes_multas_vans_operacao
+  sumario_multas_linha_vans:
+    materialized: false
+    depends_on: [sumario_multas_veiculo_vans]

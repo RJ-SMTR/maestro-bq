@@ -135,12 +135,34 @@ multas_nao_catracando as (
 SELECT m.* except(rn)
 FROM (
 SELECT 
-  *,
+    data,	
+    hora,	
+    id_veiculo,
+    operadora,	
+    servico,
+    n_movimento,	
+    n_registros,
+    n_transacoes,	
+    perc_area_incorreta,	
+    primeira_hora, 	
+    ultima_hora, 	
+    tipo_multa,
   row_number() over(partition by id_veiculo, data, tipo_multa order by hora) rn
 from multas_catracando where tipo_multa is not null
 UNION ALL
 select 
-  *,
+    data,	
+    hora,	
+    id_veiculo,
+    operadora,	
+    servico,
+    n_movimento,	
+    n_registros,
+    n_transacoes,	
+    perc_area_incorreta,	
+    primeira_hora, 	
+    ultima_hora, 	
+    tipo_multa,
   row_number() over(partition by id_veiculo, data, tipo_multa order by hora) rn
 from multas_nao_catracando where tipo_multa is not null
 ) m

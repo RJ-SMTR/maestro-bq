@@ -18,13 +18,20 @@ combinacoes as (
     p.identificador as id_veiculo,
     DATE_SUB(DATE({{date_range_end}}), INTERVAL 14 DAY) data,
     hora
-  FROM (select * from {{  aux_stpl_permissionario }} where operadora != '' and data_versao = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)) p,
+  FROM (
+    select 
+    distinct 
+      * 
+    from {{  aux_stpl_permissionario }} 
+    where operadora != '' 
+    and data_versao = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY)
+  ) p,
   UNNEST(GENERATE_ARRAY(0,23)) hora
-  
 ),
 gps as (
   SELECT 
       c.id_veiculo,
+      servico,
       c.data,
       c.hora,
       c.operadora,
@@ -39,7 +46,8 @@ gps as (
       COUNT(distinct timestamp_gps) n_registros
     FROM {{ gps_stpl }}
     WHERE data = DATE_SUB(DATE({{ date_range_end }}), INTERVAL 14 DAY) 
-    GROUP BY 1,2,3,4) d
+    GROUP BY 1,2,3,4
+  ) d
     ON
       c.id_veiculo = d.id_veiculo
       AND c.data = d.data
@@ -59,10 +67,12 @@ transacoes as (
 ),
 veiculos_nao_operantes as (
   SELECT
-    id_veiculo,
     data,
-    SUM(n_transacoes) sum_transac,
-    SUM(n_registros) sum_regs,
+    id_veiculo,
+    servico,
+    operadora,
+    SUM(n_transacoes) n_transacoes,
+    SUM(n_registros) n_registros,
     CASE
       WHEN
         SUM(n_transacoes) = 0
@@ -72,12 +82,27 @@ veiculos_nao_operantes as (
         "não operação"
     END tipo_multa
   FROM transacoes t
-  GROUP BY id_veiculo, data
+  GROUP BY id_veiculo, operadora, servico, data
 )
 SELECT * except(rn)
 FROM (
-SELECT *, row_number() over(partition by id_veiculo, data, tipo_multa) rn
-from veiculos_nao_operantes 
+  SELECT 
+    data,
+    23 hora,
+    id_veiculo,
+    operadora,
+    servico,
+    n_registros,
+    n_transacoes,
+    0 n_movimento,
+    0 perc_area_incorreta,	
+    0 primeira_hora, 	
+    23 ultima_hora,
+    tipo_multa,
+    row_number() over(
+      partition by id_veiculo, data, tipo_multa
+    ) rn
+  from veiculos_nao_operantes 
 )
 where tipo_multa is not null and rn = 1
 
