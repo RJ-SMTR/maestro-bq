@@ -29,9 +29,11 @@ WITH
         id_veiculo,
         timestamp_gps, 
         servico,
+        rp,
         flag_linha_existe_sigmob,
         flag_trajeto_correto, 
-        flag_trajeto_correto_hist
+        flag_trajeto_correto_hist,
+        flag_ap_correta
     FROM {{ stpl_flag_trajeto_correto }}
     WHERE data BETWEEN DATE({{ date_range_start }}) AND DATE({{ date_range_end }})
     AND timestamp_gps > {{ date_range_start }} and timestamp_gps <= {{ date_range_end }}
@@ -43,6 +45,7 @@ SELECT
     r.data,
     r.id_veiculo,
     r.servico,
+    f.rp,
     r.latitude,
     r.longitude,
     CASE 
@@ -52,9 +55,10 @@ SELECT
     ELSE false
     END flag_em_operacao,
     v.flag_em_movimento,
-    flag_linha_existe_sigmob,
-    flag_trajeto_correto,
-    flag_trajeto_correto_hist,
+    f.flag_linha_existe_sigmob,
+    f.flag_trajeto_correto,
+    f.flag_trajeto_correto_hist,
+    f.flag_ap_correta,
     r.velocidade velocidade_instantanea,
     v.velocidade velocidade_estimada_10_min,
     v.distancia,
