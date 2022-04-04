@@ -1,11 +1,12 @@
 with gps as (
   SELECT 
+      data,
+      extract(hour from timestamp_gps) hora,
       id_veiculo,
-      servico,
-      ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo,
       timestamp_gps,
-      timestamp_captura,
-      data
+      servico,
+      SUBSTR(servico, 5, 2) rp,
+      ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo,
   FROM {{ registros_filtrada }}
   WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})
   AND timestamp_gps > {{ date_range_start }} AND timestamp_gps <= {{ date_range_end }}
@@ -19,6 +20,18 @@ shapes as (
     data_versao
  FROM {{ shapes }}
  WHERE linha_gtfs like 'STPL%' 
+),
+ap as (
+  SELECT
+    CASE
+      WHEN
+        regiao_ap = '4'
+      THEN '41'
+    ELSE
+      REPLACE(regiao_ap,".", "")
+    END regiao_ap,
+    geometry as rp_geom
+  FROM rj-smtr-dev.br_rj_riodejaneiro_rdo.regioes_planejamento
 ),
 flag as (
   SELECT 
@@ -39,7 +52,15 @@ flag as (
         THEN true
         ELSE false
       END flag_trajeto_correto_hist,
-     CASE WHEN linha_gtfs is null THEN false ELSE true END flag_linha_existe_sigmob
+    CASE WHEN linha_gtfs is null THEN false ELSE true END flag_linha_existe_sigmob,
+    CASE
+      WHEN
+        ST_INTERSECTS(posicao_veiculo_geo, rp_geom)
+      THEN
+        true
+    ELSE
+      false
+    END flag_ap_correta
   FROM (
     SELECT g1.*, data_versao_efetiva_shapes as data_versao_efetiva 
     FROM gps g1
@@ -49,5 +70,7 @@ flag as (
   LEFT JOIN shapes s
   ON g.data_versao_efetiva = s.data_versao
   AND g.servico = s.linha_gtfs
+  JOIN ap 
+  ON g.rp = ap.regiao_ap
 )
 SELECT * from flag
