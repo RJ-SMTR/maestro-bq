@@ -28,7 +28,7 @@ gps AS (
 filtrada AS (
   /*1,2, e 3. Muda o nome de variáveis para o padrão do projeto.*/
   SELECT
-    codigo_hash AS id_veiculo,
+    identificador AS id_veiculo,
     placa,
     latitude,
     longitude,
@@ -45,7 +45,7 @@ filtrada AS (
   JOIN (
     SELECT 
       DISTINCT
-        codigo_hash,
+        identificador,
         codigo,
         servico
     FROM {{ codigos }} 
