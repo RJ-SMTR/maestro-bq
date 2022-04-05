@@ -1,7 +1,6 @@
 with gps as (
   SELECT 
       data,
-      extract(hour from timestamp_gps) hora,
       id_veiculo,
       timestamp_gps,
       servico,

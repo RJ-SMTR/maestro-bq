@@ -42,6 +42,7 @@ WITH
 SELECT
     "STPL" modo,
     r.timestamp_gps,
+    extract(hour from r.timestamp_gps) hora,
     r.data,
     r.id_veiculo,
     r.servico,
