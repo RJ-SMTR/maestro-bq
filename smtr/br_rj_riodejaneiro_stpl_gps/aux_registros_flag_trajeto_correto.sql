@@ -5,7 +5,7 @@ with gps as (
       id_veiculo,
       timestamp_gps,
       servico,
-      SUBSTR(servico, 5, 2) rp,
+      rp,
       ST_GEOGPOINT(longitude, latitude) posicao_veiculo_geo,
   FROM {{ registros_filtrada }}
   WHERE data between DATE({{ date_range_start }}) and DATE({{ date_range_end }})

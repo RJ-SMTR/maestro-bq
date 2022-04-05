@@ -35,6 +35,7 @@ filtrada AS (
     posicao_veiculo_geo,
     velocidade,
     servico,
+    SUBSTR(servico, 5, 2) rp,
     timestamp_gps,
     timestamp_captura,
     data,
