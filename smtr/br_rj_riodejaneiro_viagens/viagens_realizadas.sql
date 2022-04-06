@@ -14,7 +14,7 @@ t as (
     FROM `rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_status_viagem`
     WHERE 
         data BETWEEN DATE('2022-02-01 10:10:10') AND DATE('2022-03-01 10:10:10')
-    -- ORDER BY shape_id, timestamp_gps
+    ORDER BY shape_id, timestamp_gps
 ),
 s AS (
     SELECT 
