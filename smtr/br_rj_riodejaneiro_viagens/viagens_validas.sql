@@ -5,7 +5,7 @@ with viagens as (
             partition by id_veiculo, servico, shape_id
             order by datetime_partida
         ) trip_number
-    from `rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.viagens_realizadas`
+    from `rj-smtr-dev.br_rj_riodejaneiro_viagens.viagens_realizadas`
     -- order by datetime_partida
 ),
 merge_trip as (
