@@ -15,7 +15,7 @@ shapes as (
     where 
         data_versao between (select min(data_versao) from gps) and (select max(data_versao) from gps)
     AND
-        id_modal_smtr in ('22', '20', 'O')
+        id_modal_smtr in ('22', 'O')
 ),
 status_viagem as (
     SELECT
