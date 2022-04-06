@@ -22,7 +22,7 @@ merge_trip as (
             THEN
                 trip_number
         END trip_number
-    from rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_status_viagem s
+    from rj-smtr-dev.br_rj_riodejaneiro_viagens.aux_registros_status_viagem s
     left join viagens v
     on s.data = v.data
     and s.id_veiculo = v.id_veiculo
