@@ -6,6 +6,7 @@ with viagens as (
             order by datetime_partida
         ) trip_number
     from `rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.viagens_realizadas`
+    -- order by datetime_partida
 ),
 merge_trip as (
     select 
@@ -21,21 +22,17 @@ merge_trip as (
             THEN
                 trip_number
         END trip_number
-
     from rj-smtr-dev.br_rj_riodejaneiro_onibus_gps.aux_registros_status_viagem s
-    left join viagens v 
+    left join viagens v
     on s.data = v.data
     and s.id_veiculo = v.id_veiculo
     and (s.timestamp_gps = v.datetime_partida or s.timestamp_gps = v.datetime_chegada)
     and s.shape_id = v.shape_id
+    -- order by shape_id, timestamp_gps
 ),
 classificacao as (
     select 
         * except(trip_number),
-        FIRST_VALUE(distancia/1000) over (
-            partition by id_veiculo, servico, shape_id, trip_number
-            order by timestamp_gps
-        ) d0,
         CASE
             WHEN
                 trip_number is not null
@@ -71,24 +68,43 @@ distancia_estimada as (
         shape_id,
         trip_number,
         round(shape_distance/1000, 2) distancia_teorica,
-        round(sum(distancia)/1000,2)  distancia_km,
+        round(sum(distancia)/1000, 2) distancia_km,
         COUNT(CASE WHEN flag_trajeto_correto_hist is true then 1 end) flag_agg,
         COUNT(timestamp_gps) n_registros, 
     from classificacao 
     where trip_number is not null
     group by 1,2,3,4,5,6
--- order by data, id_veiculo, servico, shape_id, timestamp_gps
-)
+-- order by data, id_veiculo, servico, shape_id, trip_number
+),
+conformidade as (
+    select 
+        v.*,
+        distancia_teorica,
+        distancia_km,
+        round(flag_agg/n_registros*100,2) perc_conformidade,
+    from viagens v
+    join distancia_estimada d
+    on v.data = d.data
+    AND v.id_veiculo = d.id_veiculo
+    AND v.servico = d.servico
+    AND v.shape_id = d.shape_id
+    and v.trip_number = d.trip_number
+    order by data, id_veiculo, servico, shape_id, datetime_partida)
 select 
-    v.*,
-    distancia_teorica,
-    distancia_km,
-    round(flag_agg/n_registros*100,2) perc_conformidade,
-from viagens v
-join distancia_estimada d
-on v.data = d.data
-AND v.id_veiculo = d.id_veiculo
-AND v.servico = d.servico
-AND v.shape_id = d.shape_id
-and v.trip_number = d.trip_number
-order by data, id_veiculo, servico, shape_id, datetime_partida 
+    c.*
+from conformidade c
+inner join (
+    -- Filtra viagens com maior percentual de conformidade (caso tenha
+    -- match com mais de 1 shape no mesmo horario)
+    select 
+        id_veiculo,
+        servico,
+        datetime_partida,
+        max(perc_conformidade) as perc_conformidade
+    from conformidade
+    group by 1,2,3
+) p
+on c.id_veiculo = p.id_veiculo
+and c.servico = p.servico
+and c.datetime_partida = p.datetime_partida
+and c.perc_conformidade = p.perc_conformidade
