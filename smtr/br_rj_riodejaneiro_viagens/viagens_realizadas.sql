@@ -12,8 +12,6 @@ t as (
             ORDER BY id_veiculo, shape_id, timestamp_gps
             ROWS BETWEEN 1 PRECEDING AND CURRENT ROW) = 'middleend' ends
     FROM `rj-smtr-dev.br_rj_riodejaneiro_viagens.aux_registros_status_viagem`
-    WHERE 
-        data BETWEEN DATE('2022-02-01 10:10:10') AND DATE('2022-03-01 10:10:10')
     ORDER BY shape_id, timestamp_gps
 ),
 s AS (
