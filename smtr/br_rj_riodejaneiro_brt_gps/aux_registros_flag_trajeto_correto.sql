@@ -51,7 +51,7 @@ WITH
       SELECT t1.*, t2.data_versao_efetiva_shapes as data_versao_efetiva
       FROM registros t1
       JOIN  {{ data_versao_efetiva }} t2
-      ON DATE_SUB(t1.data, INTERVAL 1 DAY) = t2.data
+      ON t1.data = t2.data
     ) r
     LEFT JOIN (
       SELECT * 
