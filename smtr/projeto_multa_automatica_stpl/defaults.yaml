@@ -1,0 +1,81 @@
+# Definição de taxa de atualização
+scheduling:
+  cron: "10 21 * * *"
+
+# Definição de particionamento
+# - column: nome da coluna
+# - type: deve ser um dos seguintes
+#   * DATE (não exige período)
+#   * DATE_TRUNC (exige período MONTH/YEAR)
+#   * DATETIME_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * TIMESTAMP_TRUNC (exige período DAY/HOUR/MONTH/YEAR)
+#   * <To-do> RANGE_BUCKET
+#   * <To-do> GENERATE_ARRAY
+# - period: período (conforme especificado acima)
+partitioning:
+  column: "data"
+  type: ""
+  period: ""
+
+# Parâmetros de backfill
+backfill:
+  # Formato %Y-%m-%d %H:%M:%S
+  start_timestamp: "2022-03-20 00:00:00"
+  interval:
+    days: 1
+
+# Parâmetros da query
+parameters:
+  perc_operacao_minima: 0.5
+  perc_area_incorreta_maxima: 0.5
+  n_registros_minimo: 30
+  # Estabilidade das capturas
+
+  ## Número mínimo de sucessos dentro da faixa horária para a API
+  ## ser considerada ativa.
+  ## variável afetada: flag_falha_api
+  n_minimo_sucessos_api: 0
+
+  ## Número mínimo de sucessos dentro da faixa horária para a
+  ## captura ser considerada ativa.
+  ## variável afetada: flag_falha_capturas_smtr
+  n_minimo_sucessos_captura: 48
+
+  ## Buffer do polígono representado a AP/RP
+  tamanho_buffer_metros: 100
+
+  # Refências de tabelas
+  gps_stpl: "rj-smtr-dev.br_rj_riodejaneiro_veiculos.gps_stpl"
+  registros_logs: "rj-smtr.br_rj_riodejaneiro_stpl_gps.registros_logs"
+  ap: "rj-smtr-dev.br_rj_riodejaneiro_rdo.regioes_planejamento"
+  aux_stpl_permissionario: "rj-smtr-dev.br_rj_riodejaneiro_veiculos.dummy_aux_stu_stpl_permissionario"
+  detalhes_veiculo: "rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_veiculo_vans_completa"
+  detalhes_multa_operacao: "rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_multas_vans_operacao"
+  detalhes_multa_nao_operacao: "rj-smtr-dev.projeto_multa_automatica_stpl.detalhes_multas_vans_nao_operacao"
+  sumario_multa_veiculo: "rj-smtr-dev.projeto_multa_automatica_stpl.sumario_multas_veiculo_vans"
+  rho: "rj-smtr.br_rj_riodejaneiro_rdo.rho5_registros_stpl"
+
+# Lista de views do dataset
+# Atributos de cada view:
+# - name: nome sem terminação .sql ou .yaml
+# - materialized: true|false para materializar ou não
+# - depends_on: lista de views das quais ela depende
+views:
+  detalhes_veiculo_vans_completa:
+    materialized: false
+    depends_on: []
+  detalhes_multas_vans_operacao:
+    materialized: false
+    depends_on: [projeto_multa_automatica_stpl.detalhes_veiculo_vans_completa]
+  detalhes_multas_vans_nao_operacao:
+    materialized: false
+    depends_on: [projeto_multa_automatica_stpl.detalhes_veiculo_vans_completa]
+  sumario_multas_veiculo_vans:
+    materialized: true
+    depends_on:
+      - projeto_multa_automatica_stpl.detalhes_veiculo_vans_completa
+      - projeto_multa_automatica_stpl.detalhes_multas_vans_nao_operacao
+      - projeto_multa_automatica_stpl.detalhes_multas_vans_operacao
+  sumario_multas_linha_vans:
+    materialized: false
+    depends_on: [projeto_multa_automatica_stpl.sumario_multas_veiculo_vans]
