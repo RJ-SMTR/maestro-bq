@@ -39,8 +39,9 @@ views:
     depends_on: [br_rj_riodejaneiro_sigmob.stops]
   data_versao_efetiva:
     materialized: true
-    depends_on: [br_rj_riodejaneiro_sigmob.routes]
-
+    depends_on:
+      - br_rj_riodejaneiro_sigmob.routes
+      - br_rj_riodejaneiro_sigmob.shapes_geom
 # Definição de taxa de atualização
 scheduling:
   cron: "0 4 * * *"
