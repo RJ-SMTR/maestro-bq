@@ -202,4 +202,4 @@ joined as (
 )
 select * 
 from joined 
-where data > DATE({{ date_range_start }}) and data <= DATE({{ date_range_end }})
+where data > DATE_ADD(DATE({{ date_range_start }}), INTERVAL 1 DAY) and data <= DATE_ADD(DATE({{ date_range_end }}), INTERVAL 1 DAY)
